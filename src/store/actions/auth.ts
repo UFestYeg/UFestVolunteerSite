@@ -76,6 +76,8 @@ export const authLogin = (username: string, password: string) => {
 };
 
 export const authSignup = (
+    firstName: string,
+    lastName: string,
     username: string,
     email: string,
     password1: string,
@@ -87,6 +89,8 @@ export const authSignup = (
             .post(
                 `${process.env["REACT_APP_API_URI"]}rest-auth/registration/`,
                 {
+                    first_name: firstName,
+                    last_name: lastName,
                     email,
                     password1,
                     password2,

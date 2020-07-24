@@ -78,7 +78,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
             switch (requestType) {
                 case "POST":
                     axios
-                        .post(process.env["REACT_APP_API_URI"], {
+                        .post(`${process.env["REACT_APP_API_URI"]}api/`, {
                             title,
                             description,
                             start_time: startTime,
@@ -90,13 +90,16 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                     break;
                 case "PUT":
                     axios
-                        .put(`${process.env["REACT_APP_API_URI"]}${eventID}/`, {
-                            title,
-                            description,
-                            start_time: startTime,
-                            end_time: endTime,
-                            number_of_slots: numberOfSlots,
-                        })
+                        .put(
+                            `${process.env["REACT_APP_API_URI"]}api/${eventID}/`,
+                            {
+                                title,
+                                description,
+                                start_time: startTime,
+                                end_time: endTime,
+                                number_of_slots: numberOfSlots,
+                            }
+                        )
                         .then((res) => console.log(res))
                         .catch((err) => console.error(err));
                     break;

@@ -10,14 +10,12 @@ import {
     Toolbar,
     Typography,
     useMediaQuery,
-    useTheme,
 } from "@material-ui/core";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
 import React, { useState } from "react";
 // import { useAuth0 } from "../../contexts";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
 import { auth as actions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import "./Header.css";

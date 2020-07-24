@@ -7,13 +7,26 @@ This site is for organization/management of volunteering at the annual Edmonton 
 Installation instructions
 
 ```bash
-install
+npm i
+pipenv install
 ```
 
-## Usage
+## Dev Usage
+
+To run the backend
 
 ```python
-how to use
+pipenv shell
+python manage.py migrate
+python manage.py runserver
+
+```
+
+To run the front end
+
+```node
+npm start
+
 ```
 
 ## Contributing

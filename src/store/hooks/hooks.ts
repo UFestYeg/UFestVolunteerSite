@@ -7,12 +7,21 @@ export const useIsAuthenticated = () => {
     });
 };
 
-export const useFormFields = () => {
-    const error = useSelector((state: State) => state.auth.error);
+export const useAuthInfo = () => {
+    const isAuthenticated = useIsAuthenticated();
     const loading = useSelector((state: State) => state.auth.loading);
-    return [loading, error];
+    const error = useSelector((state: State) => state.auth.error);
+    return [loading, isAuthenticated, error];
 };
 
 export const useToken = () => {
     return useSelector((state: State) => state.auth.token);
+};
+
+export const useLoading = () => {
+    return useSelector((state: State) => state.auth.loading);
+};
+
+export const useError = () => {
+    return useSelector((state: State) => state.auth.error);
 };

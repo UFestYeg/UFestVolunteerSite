@@ -20,13 +20,15 @@ import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
 import { auth as actions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import Copyright from "../Copyright";
 
 interface ISignupFormValues {
+    firstName: string;
+    lastName: string;
     email: string;
     username: string;
     password: string;
@@ -56,21 +58,30 @@ const useStyles = makeStyles((theme) => ({
 const SignUp: React.FC = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
-    const [loading, error] = StateHooks.useFormFields();
-
+    const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const handleFormSubmit = (values: ISignupFormValues) => {
-        console.log(values.username);
+        console.log(values);
+
+        const firstName = values.firstName;
+        const lastName = values.lastName;
         const username = values.username;
         const email = values.email;
         const password = values.password;
         const confirmPassword = values.confirmPassword;
 
         dispatch(
-            actions.authSignup(username, email, password, confirmPassword)
+            actions.authSignup(
+                firstName,
+                lastName,
+                username,
+                email,
+                password,
+                confirmPassword
+            )
         );
     };
 
-    const history = useHistory();
+    const location = useLocation();
 
     let errorMessage = null;
     if (error) {
@@ -83,192 +94,258 @@ const SignUp: React.FC = () => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Sign up
-                </Typography>
-                {errorMessage}
-                {loading ? (
-                    <CircularProgress />
-                ) : (
-                    <Formik
-                        initialValues={{
-                            username: "",
-                            email: "",
-                            password: "",
-                            confirmPassword: "",
-                        }}
-                        validationSchema={Yup.object({
-                            username: Yup.string().required("Required."),
-                            email: Yup.string()
-                                .email("Invalid email address")
-                                .required("Required"),
-                            password: Yup.string()
-                                .min(8, "Must be more than 8 characters")
-                                .required("Required"),
-                            confirmPassword: Yup.string()
-                                .oneOf(
-                                    [Yup.ref("password"), undefined],
-                                    "Passwords don't match"
-                                )
-                                .required("Confirm Password is required"),
-                        })}
-                        onSubmit={(values, { setSubmitting, resetForm }) => {
-                            setTimeout(() => {
-                                // alert(JSON.stringify(values, null, 2));
-                                handleFormSubmit(values);
-                                setSubmitting(false);
-                                history.push("/events");
-                            }, 400);
-                        }}
-                    >
-                        {({
-                            values,
-                            errors,
-                            touched,
-                            handleChange,
-                            handleBlur,
-                            handleSubmit,
-                            setFieldValue,
-                            isSubmitting,
-                            isValid,
-                        }) => (
-                            <Form className={classes.form}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            variant="outlined"
-                                            margin="normal"
-                                            required
-                                            fullWidth
-                                            id="username"
-                                            label="User Name"
-                                            name="username"
-                                            autoComplete="username"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            helperText={
-                                                errors.username &&
-                                                touched.username
-                                                    ? errors.username
-                                                    : ""
-                                            }
-                                            error={
-                                                touched.username &&
-                                                Boolean(errors.username)
-                                            }
-                                            autoFocus
-                                        />
+            {isAuthenticated ? (
+                <Redirect
+                    to={{
+                        pathname: "/events",
+                        state: {
+                            from: location,
+                        },
+                    }}
+                />
+            ) : (
+                <div className={classes.paper}>
+                    <Avatar className={classes.avatar}>
+                        <LockOutlinedIcon />
+                    </Avatar>
+                    <Typography component="h1" variant="h5">
+                        Sign up
+                    </Typography>
+                    {errorMessage}
+                    {loading ? (
+                        <CircularProgress />
+                    ) : (
+                        <Formik
+                            initialValues={{
+                                firstName: "",
+                                lastName: "",
+                                username: "",
+                                email: "",
+                                password: "",
+                                confirmPassword: "",
+                            }}
+                            validationSchema={Yup.object({
+                                firstName: Yup.string().required("Required."),
+                                lastName: Yup.string().required("Required."),
+                                username: Yup.string().required("Required."),
+                                email: Yup.string()
+                                    .email("Invalid email address")
+                                    .required("Required"),
+                                password: Yup.string()
+                                    .min(8, "Must be more than 8 characters")
+                                    .required("Required"),
+                                confirmPassword: Yup.string()
+                                    .oneOf(
+                                        [Yup.ref("password"), undefined],
+                                        "Passwords don't match"
+                                    )
+                                    .required("Confirm Password is required"),
+                            })}
+                            onSubmit={(
+                                values,
+                                { setSubmitting, resetForm }
+                            ) => {
+                                setTimeout(() => {
+                                    // alert(JSON.stringify(values, null, 2));
+                                    handleFormSubmit(values);
+                                    setSubmitting(false);
+                                }, 400);
+                            }}
+                        >
+                            {({
+                                values,
+                                errors,
+                                touched,
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                                setFieldValue,
+                                isSubmitting,
+                                isValid,
+                            }) => (
+                                <Form className={classes.form}>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                autoComplete="fname"
+                                                name="firstName"
+                                                variant="outlined"
+                                                required
+                                                fullWidth
+                                                id="firstName"
+                                                label="First Name"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                helperText={
+                                                    errors.firstName &&
+                                                    touched.firstName
+                                                        ? errors.firstName
+                                                        : ""
+                                                }
+                                                error={
+                                                    touched.firstName &&
+                                                    Boolean(errors.firstName)
+                                                }
+                                                autoFocus
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                variant="outlined"
+                                                required
+                                                fullWidth
+                                                id="lastName"
+                                                label="Last Name"
+                                                name="lastName"
+                                                autoComplete="lname"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                helperText={
+                                                    errors.lastName &&
+                                                    touched.lastName
+                                                        ? errors.lastName
+                                                        : ""
+                                                }
+                                                error={
+                                                    touched.lastName &&
+                                                    Boolean(errors.lastName)
+                                                }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                variant="outlined"
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="username"
+                                                label="User Name"
+                                                name="username"
+                                                autoComplete="username"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                helperText={
+                                                    errors.username &&
+                                                    touched.username
+                                                        ? errors.username
+                                                        : ""
+                                                }
+                                                error={
+                                                    touched.username &&
+                                                    Boolean(errors.username)
+                                                }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                variant="outlined"
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="email"
+                                                type="email"
+                                                label="Email Address"
+                                                name="email"
+                                                autoComplete="email"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                helperText={
+                                                    errors.email &&
+                                                    touched.email
+                                                        ? errors.email
+                                                        : ""
+                                                }
+                                                error={
+                                                    touched.email &&
+                                                    Boolean(errors.email)
+                                                }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                variant="outlined"
+                                                required
+                                                fullWidth
+                                                name="password"
+                                                label="Password"
+                                                type="password"
+                                                id="password"
+                                                autoComplete="current-password"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                helperText={
+                                                    errors.password &&
+                                                    touched.password
+                                                        ? errors.password
+                                                        : ""
+                                                }
+                                                error={
+                                                    touched.password &&
+                                                    Boolean(errors.password)
+                                                }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                variant="outlined"
+                                                required
+                                                fullWidth
+                                                name="confirmPassword"
+                                                label="Confirm Password"
+                                                type="password"
+                                                id="confirmPassword"
+                                                autoComplete="confirm-password"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                helperText={
+                                                    errors.confirmPassword &&
+                                                    touched.confirmPassword
+                                                        ? errors.confirmPassword
+                                                        : ""
+                                                }
+                                                error={
+                                                    touched.confirmPassword &&
+                                                    Boolean(
+                                                        errors.confirmPassword
+                                                    )
+                                                }
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        value="allowExtraEmails"
+                                                        color="primary"
+                                                    />
+                                                }
+                                                label="I want to receive marketing promotions and updates via email."
+                                            />
+                                        </Grid>
                                     </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            variant="outlined"
-                                            margin="normal"
-                                            required
-                                            fullWidth
-                                            id="email"
-                                            type="email"
-                                            label="Email Address"
-                                            name="email"
-                                            autoComplete="email"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            helperText={
-                                                errors.email && touched.email
-                                                    ? errors.email
-                                                    : ""
-                                            }
-                                            error={
-                                                touched.email &&
-                                                Boolean(errors.email)
-                                            }
-                                        />
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting || !isValid}
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        className={classes.submit}
+                                    >
+                                        Sign Up
+                                    </Button>
+                                    <Grid container justify="flex-end">
+                                        <Grid item>
+                                            <Link href="/login" variant="body2">
+                                                Already have an account? Sign in
+                                            </Link>
+                                        </Grid>
                                     </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            variant="outlined"
-                                            required
-                                            fullWidth
-                                            name="password"
-                                            label="Password"
-                                            type="password"
-                                            id="password"
-                                            autoComplete="current-password"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            helperText={
-                                                errors.password &&
-                                                touched.password
-                                                    ? errors.password
-                                                    : ""
-                                            }
-                                            error={
-                                                touched.password &&
-                                                Boolean(errors.password)
-                                            }
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            variant="outlined"
-                                            required
-                                            fullWidth
-                                            name="confirmPassword"
-                                            label="Confirm Password"
-                                            type="password"
-                                            id="confirmPassword"
-                                            autoComplete="confirm-password"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            helperText={
-                                                errors.confirmPassword &&
-                                                touched.confirmPassword
-                                                    ? errors.confirmPassword
-                                                    : ""
-                                            }
-                                            error={
-                                                touched.confirmPassword &&
-                                                Boolean(errors.confirmPassword)
-                                            }
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    value="allowExtraEmails"
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="I want to receive marketing promotions and updates via email."
-                                        />
-                                    </Grid>
-                                </Grid>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting || !isValid}
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}
-                                >
-                                    Sign Up
-                                </Button>
-                                <Grid container justify="flex-end">
-                                    <Grid item>
-                                        <Link href="/login" variant="body2">
-                                            Already have an account? Sign in
-                                        </Link>
-                                    </Grid>
-                                </Grid>
-                            </Form>
-                        )}
-                    </Formik>
-                )}
-            </div>
+                                </Form>
+                            )}
+                        </Formik>
+                    )}
+                </div>
+            )}
             <Box mt={5}>
                 <Copyright />
             </Box>
