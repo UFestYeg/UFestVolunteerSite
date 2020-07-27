@@ -22,10 +22,10 @@ const useStyles = makeStyles((theme: Theme) =>
         button: {
             background: theme.palette.primary.main,
             border: 0,
-            borderRadius: 8,
-            color: "white",
-            paddingBlock: theme.spacing(2),
-            margin: theme.spacing(2),
+            borderRadius: theme.spacing(2),
+            // color: "white",
+            paddingBlock: theme.spacing(3),
+            margin: theme.spacing(3),
         },
         signup: {
             background: theme.palette.secondary.main,
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 width: "40%",
             },
             [theme.breakpoints.up("md")]: {
-                float: "left",
+                // float: "left",
                 width: "40%",
             },
         },
@@ -81,12 +81,24 @@ const LandingPage: React.FC = () => {
             className={mobile ? styles.mobileContainer : styles.container}
             spacing={mobile ? 0 : tablet ? 3 : 6}
         >
-            <Grid item xs={12} sm={6} className={styles.item}>
-                <Typography variant="h1" className={styles.title}>
-                    Volunteer @
+            <Grid
+                container
+                item
+                xs={12}
+                sm={6}
+                className={styles.item}
+                direction="column"
+                justify="center"
+                alignItems="flex-end"
+            >
+                <Typography align="right" variant="h1">
+                    Volunteer
+                </Typography>
+                <Typography align="right" variant="h1">
+                    @
                 </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} className={styles.item}>
+            <Grid container item xs={12} sm={6} className={styles.item}>
                 <Fade in>
                     <img
                         className={styles.image}
@@ -99,27 +111,33 @@ const LandingPage: React.FC = () => {
             </Grid>
             <Grid
                 container
-                direction="column"
+                direction="row"
                 justify="center"
-                alignItems="stretch"
-                spacing={0}
+                alignItems="flex-start"
+                spacing={1}
             >
                 <Grid item className={styles.item}>
                     <Button
-                        size="medium"
+                        size="large"
                         className={clsx(styles.login, styles.button)}
                         component={Link}
                         to={"/login"}
+                        color="primary"
+                        variant="contained"
+                        disableElevation
                     >
                         Login
                     </Button>
                 </Grid>
                 <Grid item className={styles.item}>
                     <Button
-                        size="medium"
+                        size="large"
                         className={clsx(styles.signup, styles.button)}
                         component={Link}
                         to={"/signup"}
+                        color="secondary"
+                        variant="contained"
+                        disableElevation
                     >
                         Sign up
                     </Button>

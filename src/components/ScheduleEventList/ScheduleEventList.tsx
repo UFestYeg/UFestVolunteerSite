@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             width: "100%",
-            maxWidth: 360,
+            // maxWidth: 360,
             backgroundColor: theme.palette.background.paper,
         },
     })
@@ -51,7 +51,7 @@ const ScheduleEventList: React.FC = () => {
 
     return (
         <div className={classes.root}>
-            <Typography variant="h1">List Page</Typography>
+            <Typography variant="h2">List Page</Typography>
             <List component="nav" aria-label="schedule event list">
                 {currentList.map((value, _idx, _arr) => {
                     return (
@@ -67,7 +67,7 @@ const ScheduleEventList: React.FC = () => {
                 })}
             </List>
             <br />
-            <Typography variant="h1">Create Event</Typography>
+            <Typography variant="h2">Create Event</Typography>
             <CustomForm requestTypeProp="POST" buttonText="Create" />
         </div>
     );

@@ -1,0 +1,202 @@
+import { createMuiTheme, responsiveFontSizes } from "@material-ui/core/styles";
+
+let theme = createMuiTheme({
+    palette: {
+        primary: {
+            light: "#b2e4f1",
+            main: "#0098cc",
+            dark: "#005685",
+            contrastText: "#fff",
+        },
+        secondary: {
+            light: "#ffedb0",
+            main: "#ffcc00",
+            dark: "#ffb500",
+            contrastText: "#28352E",
+        },
+        text: {
+            primary: "#000",
+            secondary: "#fff",
+        },
+        background: {
+            paper: "#b2e4f1",
+            default: "#fff",
+        },
+    },
+    typography: {
+        fontFamily: [
+            "Work Sans",
+            "Space Mono",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            '"Segoe UI"',
+            "Roboto",
+            '"Helvetica Neue"',
+            "Arial",
+            "sans-serif",
+            '"Apple Color Emoji"',
+            '"Segoe UI Emoji"',
+            '"Segoe UI Symbol"',
+        ].join(","),
+        h1: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 300,
+            fontSize: "8.6rem",
+            lineHeight: 1.167,
+            letterSpacing: "-0.015em",
+        },
+        h2: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 300,
+            fontSize: "5.4rem",
+            lineHeight: 1.2,
+            letterSpacing: "-0.005em",
+        },
+        h3: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "4.3rem",
+            lineHeight: 1.167,
+            letterSpacing: "0em",
+        },
+        h4: {
+            fontFamily: [
+                "Works Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "3.1rem",
+            lineHeight: 1.235,
+            letterSpacing: "0.0025em",
+        },
+        h5: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "2.2rem",
+            lineHeight: 1.334,
+            letterSpacing: "0em",
+        },
+        h6: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 500,
+            fontSize: "1.8rem",
+            lineHeight: 1.6,
+            letterSpacing: "0.0015em",
+        },
+        subtitle1: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "1.4rem",
+            lineHeight: 1.75,
+            letterSpacing: "0.0015em",
+        },
+        subtitle2: {
+            fontFamily: [
+                "Work Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 500,
+            fontSize: "1.3rem",
+            lineHeight: 1.57,
+            letterSpacing: "0.001em",
+        },
+        body1: {
+            fontFamily: [
+                "Open Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "1.4rem",
+            lineHeight: 1.5,
+            letterSpacing: "0.005em",
+        },
+        body2: {
+            fontFamily: [
+                "Opens Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "1.3rem",
+            lineHeight: 1.43,
+            letterSpacing: "0.0025em",
+        },
+        button: {
+            fontFamily: [
+                "Open Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 500,
+            fontSize: "1.3rem",
+            lineHeight: 1.75,
+            letterSpacing: "0.01em",
+            textTransform: "uppercase",
+        },
+        caption: {
+            fontFamily: [
+                "Open Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "1.1rem",
+            lineHeight: 1.66,
+            letterSpacing: "0.004em",
+        },
+        overline: {
+            fontFamily: [
+                "Open Sans",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+            ].join(","),
+            fontWeight: 400,
+            fontSize: "0.9rem",
+            lineHeight: 2.66,
+            letterSpacing: "0.01em",
+            textTransform: "uppercase",
+        },
+    },
+});
+
+export default responsiveFontSizes(theme);

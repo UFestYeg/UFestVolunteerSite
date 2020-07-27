@@ -5,6 +5,7 @@ import {
     ListItemProps,
     ListItemText,
     Typography,
+    Grid,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import axios from "axios";
@@ -17,7 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             width: "100%",
-            maxWidth: 360,
+            // maxWidth: 360,
             backgroundColor: theme.palette.background.paper,
         },
     })
@@ -70,14 +71,65 @@ const ScheduleEventDetails: React.FC<any> = () => {
 
     return (
         <div className={classes.root}>
-            <Typography variant="h1">Detail Page</Typography>
-            <List component="nav" aria-label="schedule event list">
-                {currentEvent !== undefined ? (
-                    <ListItem button key={`list-${currentEvent.id}`}>
-                        <ListItemText primary={currentEvent.title} />
-                    </ListItem>
-                ) : null}
-            </List>
+            <Typography variant="h2">Detail Page</Typography>
+            {currentEvent !== undefined ? (
+                <Grid
+                    container
+                    direction="column"
+                    justify="flex-start"
+                    alignItems="flex-start"
+                >
+                    <Grid item>
+                        <Typography variant="h5">
+                            {currentEvent.title}
+                        </Typography>
+                    </Grid>
+                    <Grid
+                        item
+                        container
+                        direction="row"
+                        justify="flex-start"
+                        alignItems="flex-start"
+                    >
+                        <Grid
+                            item
+                            container
+                            direction="column"
+                            xs={5}
+                            justify="flex-start"
+                            alignItems="flex-start"
+                        >
+                            <Typography variant="subtitle1">Start:</Typography>
+                            <Typography variant="body1">
+                                {currentEvent.start_time}
+                            </Typography>
+                            <Typography variant="subtitle1">End:</Typography>
+                            <Typography variant="body1">
+                                {currentEvent.end_time}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={7}>
+                            <Typography variant="subtitle1">
+                                Description
+                            </Typography>
+                            <Typography variant="body1">
+                                description of the event
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid
+                        item
+                        xs={12}
+                        justify="flex-start"
+                        alignItems="flex-start"
+                    >
+                        <Typography variant="body1">
+                            Number of volunteer slots available:{" "}
+                            {currentEvent.number_of_slots}
+                        </Typography>
+                    </Grid>
+                </Grid>
+            ) : null}
             <CustomForm
                 requestTypeProp="PUT"
                 eventIdProp={eventID}

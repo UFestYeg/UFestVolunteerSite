@@ -16,7 +16,10 @@ import {
     Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
+import {
+    LockOutlined as LockOutlinedIcon,
+    CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+} from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -37,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        padding: theme.spacing(4),
     },
     avatar: {
         margin: theme.spacing(1),
@@ -48,6 +52,16 @@ const useStyles = makeStyles((theme) => ({
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
+    },
+    textField: {
+        "& label": {
+            color: "black",
+        },
+    },
+    checkbox: {
+        "& input": {
+            color: theme.palette.primary.main,
+        },
     },
 }));
 
@@ -136,7 +150,9 @@ const SignIn: React.FC = () => {
                                     onSubmit={handleSubmit}
                                 >
                                     <TextField
+                                        className={classes.textField}
                                         variant="outlined"
+                                        color="primary"
                                         margin="normal"
                                         required
                                         fullWidth
@@ -158,7 +174,9 @@ const SignIn: React.FC = () => {
                                         autoFocus
                                     />
                                     <TextField
+                                        className={classes.textField}
                                         variant="outlined"
+                                        color="primary"
                                         margin="normal"
                                         required
                                         fullWidth
@@ -184,6 +202,9 @@ const SignIn: React.FC = () => {
                                             <Checkbox
                                                 value="remember"
                                                 color="primary"
+                                                icon={
+                                                    <CheckBoxOutlineBlankIcon color="primary" />
+                                                }
                                             />
                                         }
                                         label="Remember me"
@@ -198,13 +219,13 @@ const SignIn: React.FC = () => {
                                     >
                                         Sign In
                                     </Button>
-                                    <Grid container>
-                                        <Grid item xs>
+                                    <Grid container direction="column">
+                                        <Grid item xs={12}>
                                             <Link href="#" variant="body2">
                                                 Forgot password?
                                             </Link>
                                         </Grid>
-                                        <Grid item>
+                                        <Grid item xs={12}>
                                             <Link
                                                 href="/signup"
                                                 variant="body2"

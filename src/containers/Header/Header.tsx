@@ -27,7 +27,7 @@ interface HeaderProps {
 const useStyles = makeStyles((theme) =>
     createStyles({
         root: {
-            background: theme.palette.primary.light,
+            background: theme.palette.secondary.main,
             border: 0,
             color: theme.palette.primary.dark,
             padding: theme.spacing(1),
@@ -157,9 +157,10 @@ const Header: React.FC<HeaderProps> = (props) => {
                                 aria-haspopup="true"
                                 onClick={handleMenu}
                                 color="inherit"
-                                variant="outlined"
+                                // variant="outlined"
                             >
                                 {/* <UserImage user={user} /> */}
+                                <Avatar>GP</Avatar>
                             </Button>
                             <Menu
                                 id="menu-appbar"
