@@ -14,7 +14,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         dispatch(actions.authCheckState());
-    }, []);
+    }, [dispatch]);
     return (
         <div className="App">
             <ThemeProvider theme={theme}>

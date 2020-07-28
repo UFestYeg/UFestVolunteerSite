@@ -1,4 +1,3 @@
-import React from "react";
 import {
     Drawer,
     List,
@@ -6,13 +5,16 @@ import {
     ListItemIcon,
     ListItemText,
 } from "@material-ui/core";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import SettingsIcon from "@material-ui/icons/Settings";
-import CalendarTodayIcon from "@material-ui/icons/CalendarToday";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { makeStyles } from "@material-ui/core/styles";
-import { NavLink } from "react-router-dom";
+import {
+    AccountCircle as AccountCircleIcon,
+    CalendarToday as CalendarTodayIcon,
+    ExitToApp as ExitToAppIcon,
+    Settings as SettingsIcon,
+} from "@material-ui/icons";
+import React from "react";
 import { useDispatch } from "react-redux";
+import { NavLink } from "react-router-dom";
 import { auth as actions } from "../../store/actions";
 
 const useStyles = makeStyles((theme) => ({
