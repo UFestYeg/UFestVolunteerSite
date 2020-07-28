@@ -1,2 +1,3 @@
 import ProfilePage from "./ProfilePage";
-export { ProfilePage };
+import VolunteerRequestCard from "./VolunteerRequestCard";
+export { ProfilePage, VolunteerRequestCard };
