@@ -25,3 +25,7 @@ export const useLoading = () => {
 export const useError = () => {
     return useSelector((state: State) => state.auth.error);
 };
+
+export const useUserProfile = () => {
+    return useSelector((state: State) => state.user.payload);
+};

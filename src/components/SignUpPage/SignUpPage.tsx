@@ -114,7 +114,7 @@ const SignUp: React.FC = () => {
             {isAuthenticated ? (
                 <Redirect
                     to={{
-                        pathname: "/events",
+                        pathname: "/volunteer/events",
                         state: {
                             from: location,
                         },

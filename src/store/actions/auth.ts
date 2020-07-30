@@ -1,11 +1,16 @@
 import axios from "axios";
+import { AuthUrls } from "../../constants";
+import history from "../../history";
 import * as actionTypes from "./actionTypes";
 
 type ActionType =
     | { type: actionTypes.StartType }
     | { type: actionTypes.SuccessType; token: string }
     | { type: actionTypes.FailType; error: string }
-    | { type: actionTypes.LogoutType };
+    | { type: actionTypes.LogoutType }
+    | { type: actionTypes.ResetPasswordStartType }
+    | { type: actionTypes.ResetPasswordSuccessType }
+    | { type: actionTypes.ResetPasswordFailType; error: string };
 type DispatchType = (action: ActionType) => void;
 
 const SECOND_IN_HOUR = 3600;
@@ -31,8 +36,27 @@ export const authFail = (error: any): ActionType => {
     };
 };
 
+export const resetPasswordStart = (): ActionType => {
+    return {
+        type: actionTypes.RESET_PASSWORD_START,
+    };
+};
+
+export const resetPasswordSuccess = (): ActionType => {
+    return {
+        type: actionTypes.RESET_PASSWORD_SUCCESS,
+    };
+};
+
+export const resetPasswordFail = (error: any): ActionType => {
+    return {
+        error,
+        type: actionTypes.RESET_PASSWORD_FAIL,
+    };
+};
+
 export const logout = (): ActionType => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     localStorage.removeItem("expirationDate");
     return {
         type: actionTypes.AUTH_LOGOUT,
@@ -51,7 +75,7 @@ export const authLogin = (username: string, password: string) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
         axios
-            .post(`${process.env["REACT_APP_API_URI"]}rest-auth/login/`, {
+            .post(AuthUrls.LOGIN, {
                 password,
                 username,
             })
@@ -86,17 +110,14 @@ export const authSignup = (
     return (dispatch: DispatchType) => {
         dispatch(authStart());
         axios
-            .post(
-                `${process.env["REACT_APP_API_URI"]}rest-auth/registration/`,
-                {
-                    first_name: firstName,
-                    last_name: lastName,
-                    email,
-                    password1,
-                    password2,
-                    username,
-                }
-            )
+            .post(AuthUrls.SIGNUP, {
+                first_name: firstName,
+                last_name: lastName,
+                email,
+                password1,
+                password2,
+                username,
+            })
             .then((res) => {
                 const token = res.data.key;
                 const expirationDate = new Date(
@@ -141,3 +162,81 @@ export const authCheckState = () => {
         }
     };
 };
+
+// export function changePassword(formValues, dispatch, props) {
+//     const token = localStorage.getItem("token");
+//     if (token) {
+//         axios.defaults.headers = {
+//             Authorization: token,
+//             "Content-Type": "application/json",
+//         };
+//         return axios
+//             .post(AuthUrls.CHANGE_PASSWORD, formValues)
+//             .then((response) => {
+//                 dispatch(
+//                     notifSend({
+//                         message: "Password has been changed successfully",
+//                         kind: "info",
+//                         dismissAfter: 5000,
+//                     })
+//                 );
+//                 // redirect to the route '/profile'
+//                 history.push("/profile");
+//             })
+//             .catch((error) => {
+//                 // If request is bad...
+//                 // Show an error to the user
+//                 const processedError = processServerError(error.response.data);
+//                 throw new SubmissionError(processedError);
+//             });
+//     }
+// }
+
+export function resetPassword(email: string) {
+    return (dispatch: DispatchType) => {
+        axios
+            .post(AuthUrls.RESET_PASSWORD, { email })
+            .then((response) => {
+                // redirect to reset done page
+                console.log(response);
+                dispatch(resetPasswordSuccess());
+                history.push("/reset_password_done");
+            })
+            .catch((error) => {
+                // If request is bad...
+                // Show an error to the user
+                dispatch(resetPasswordFail(error));
+            });
+    };
+}
+
+export function confirmPasswordChange(
+    password: string,
+    confirmPassword: string
+) {
+    return (dispatch: DispatchType) => {
+        axios
+            .post(AuthUrls.RESET_PASSWORD_CONFIRM, {
+                new_password1: password,
+                new_password2: confirmPassword,
+            })
+            .then((response) => {
+                console.log(response);
+                // dispatch(
+                //     notifSend({
+                //         message:
+                //             "Password has been reset successfully, please log in",
+                //         kind: "info",
+                //         dismissAfter: 5000,
+                //     })
+                // );
+
+                history.push("/login");
+            })
+            .catch((error) => {
+                // If request is bad...
+                // Show an error to the user
+                dispatch(resetPasswordFail(error));
+            });
+    };
+}

@@ -3,7 +3,6 @@ import {
     AppBar,
     Avatar,
     Button,
-    Grid,
     IconButton,
     Menu,
     MenuItem,
@@ -13,11 +12,11 @@ import {
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
-import React, { useState } from "react";
-// import { useAuth0 } from "../../contexts";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { auth as actions } from "../../store/actions";
+import { auth as authActions, user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { userAvatarString } from "../../store/utils";
 import "./Header.css";
 
 interface HeaderProps {
@@ -78,29 +77,12 @@ const Header: React.FC<HeaderProps> = (props) => {
     const xsmallWidth = useMediaQuery(theme.breakpoints.down("xs"));
     const smallWidth = useMediaQuery(theme.breakpoints.down("sm"));
     const dispatch = useDispatch();
-    const UserImage: React.FC<any> = ({ user }: any) => {
-        return (
-            <Grid
-                container
-                direction="row"
-                alignItems="center"
-                justify="flex-start"
-            >
-                <Avatar
-                    src={user.picture}
-                    alt={user.name}
-                    className={
-                        xsmallWidth ? classes.avatarSmall : classes.avatar
-                    }
-                />
-                {xsmallWidth ? null : (
-                    <Typography variant="caption" className={classes.name}>
-                        {user.name}
-                    </Typography>
-                )}
-            </Grid>
-        );
-    };
+
+    useEffect(() => {
+        dispatch(userActions.getUserProfile());
+    }, [dispatch]);
+
+    const userProfile = StateHooks.useUserProfile();
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -113,7 +95,7 @@ const Header: React.FC<HeaderProps> = (props) => {
     const handleLogout = () => {
         handleClose();
         // logout({ returnTo: window.location.origin });
-        dispatch(actions.logout());
+        dispatch(authActions.logout());
     };
     return (
         <>
@@ -159,8 +141,9 @@ const Header: React.FC<HeaderProps> = (props) => {
                                 color="inherit"
                                 // variant="outlined"
                             >
-                                {/* <UserImage user={user} /> */}
-                                <Avatar>GP</Avatar>
+                                <Avatar className={classes.avatar}>
+                                    {userAvatarString(userProfile)}
+                                </Avatar>
                             </Button>
                             <Menu
                                 id="menu-appbar"
