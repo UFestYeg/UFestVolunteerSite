@@ -15,7 +15,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
     LockOutlined as LockOutlinedIcon,
@@ -70,7 +70,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignUp: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const handleFormSubmit = (values: ISignupFormValues) => {

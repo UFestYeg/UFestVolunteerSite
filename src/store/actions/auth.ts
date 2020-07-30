@@ -1,16 +1,9 @@
 import axios from "axios";
 import { AuthUrls } from "../../constants";
 import history from "../../history";
+import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
 
-type ActionType =
-    | { type: actionTypes.StartType }
-    | { type: actionTypes.SuccessType; token: string }
-    | { type: actionTypes.FailType; error: string }
-    | { type: actionTypes.LogoutType }
-    | { type: actionTypes.ResetPasswordStartType }
-    | { type: actionTypes.ResetPasswordSuccessType }
-    | { type: actionTypes.ResetPasswordFailType; error: string };
 type DispatchType = (action: ActionType) => void;
 
 const SECOND_IN_HOUR = 3600;
@@ -194,6 +187,7 @@ export const authCheckState = () => {
 
 export function resetPassword(email: string) {
     return (dispatch: DispatchType) => {
+        dispatch(resetPasswordStart());
         axios
             .post(AuthUrls.RESET_PASSWORD, { email })
             .then((response) => {
@@ -211,12 +205,16 @@ export function resetPassword(email: string) {
 }
 
 export function confirmPasswordChange(
+    uid: string,
+    token: string,
     password: string,
     confirmPassword: string
 ) {
     return (dispatch: DispatchType) => {
         axios
             .post(AuthUrls.RESET_PASSWORD_CONFIRM, {
+                uid,
+                token,
                 new_password1: password,
                 new_password2: confirmPassword,
             })

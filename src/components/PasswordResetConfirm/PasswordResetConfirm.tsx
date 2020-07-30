@@ -3,17 +3,19 @@
 // tslint:disable: use-simple-attributes
 
 import {
+    Avatar,
     Button,
     CircularProgress,
     Container,
     TextField,
     Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { Lock as LockIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { auth } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
@@ -55,9 +57,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const PasswordReset: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const location = useLocation();
+    const { uid, token } = useParams();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
     const errorMessage: any[] = [];
@@ -77,7 +80,9 @@ const PasswordReset: React.FC = () => {
         const password = values.password;
         const confirmPassword = values.confirmPassword;
 
-        dispatch(auth.confirmPasswordChange(password, confirmPassword));
+        dispatch(
+            auth.confirmPasswordChange(uid, token, password, confirmPassword)
+        );
     };
 
     return (
@@ -86,107 +91,119 @@ const PasswordReset: React.FC = () => {
             {loading ? (
                 <CircularProgress />
             ) : (
-                <Formik
-                    initialValues={{
-                        password: "",
-                        confirmPassword: "",
-                    }}
-                    validationSchema={Yup.object({
-                        password: Yup.string()
-                            .min(8, "Must be more than 8 characters")
-                            .required("Required"),
-                        confirmPassword: Yup.string()
-                            .oneOf(
-                                [Yup.ref("password"), undefined],
-                                "Passwords don't match"
-                            )
-                            .required("Confirm Password is required"),
-                    })}
-                    onSubmit={(values, { setSubmitting }) => {
-                        setTimeout(() => {
-                            // alert(JSON.stringify(values, null, 2));
-                            handleFormSubmit(values);
-                            setSubmitting(false);
-                        }, 400);
-                    }}
-                >
-                    {({
-                        values,
-                        errors,
-                        touched,
-                        handleChange,
-                        handleBlur,
-                        handleSubmit,
-                        setFieldValue,
-                        isSubmitting,
-                        isValid,
-                    }) => (
-                        <Form className={classes.form} onSubmit={handleSubmit}>
-                            <Typography component="h1" variant="h4">
-                                Create New Password
-                            </Typography>
-                            <hr />
-
-                            <TextField
-                                className={classes.textField}
-                                color="primary"
-                                variant="outlined"
-                                required
-                                fullWidth
-                                name="password"
-                                label="New Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                helperText={
-                                    errors.password && touched.password
-                                        ? errors.password
-                                        : ""
-                                }
-                                error={
-                                    touched.password && Boolean(errors.password)
-                                }
-                            />
-                            <TextField
-                                className={classes.textField}
-                                color="primary"
-                                variant="outlined"
-                                required
-                                fullWidth
-                                name="confirmPassword"
-                                label="Confirm Password"
-                                type="password"
-                                id="confirmPassword"
-                                autoComplete="confirm-password"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                helperText={
-                                    errors.confirmPassword &&
-                                    touched.confirmPassword
-                                        ? errors.confirmPassword
-                                        : ""
-                                }
-                                error={
-                                    touched.confirmPassword &&
-                                    Boolean(errors.confirmPassword)
-                                }
-                            />
-
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting || !isValid}
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classes.submit}
+                <div className={classes.paper}>
+                    <Avatar className={classes.avatar}>
+                        <LockIcon />
+                    </Avatar>
+                    <Typography component="h1" variant="h4">
+                        Create New Password
+                    </Typography>
+                    <Formik
+                        initialValues={{
+                            password: "",
+                            confirmPassword: "",
+                        }}
+                        validationSchema={Yup.object({
+                            password: Yup.string()
+                                .min(8, "Must be more than 8 characters")
+                                .required("Required"),
+                            confirmPassword: Yup.string()
+                                .oneOf(
+                                    [Yup.ref("password"), undefined],
+                                    "Passwords don't match"
+                                )
+                                .required("Confirm Password is required"),
+                        })}
+                        onSubmit={(values, { setSubmitting }) => {
+                            setTimeout(() => {
+                                // alert(JSON.stringify(values, null, 2));
+                                handleFormSubmit(values);
+                                setSubmitting(false);
+                            }, 400);
+                        }}
+                    >
+                        {({
+                            values,
+                            errors,
+                            touched,
+                            handleChange,
+                            handleBlur,
+                            handleSubmit,
+                            setFieldValue,
+                            isSubmitting,
+                            isValid,
+                        }) => (
+                            <Form
+                                className={classes.form}
+                                onSubmit={handleSubmit}
                             >
-                                Submit
-                            </Button>
-                        </Form>
-                    )}
-                </Formik>
+                                <TextField
+                                    className={classes.textField}
+                                    color="primary"
+                                    variant="outlined"
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="password"
+                                    label="New Password"
+                                    type="password"
+                                    id="password"
+                                    autoComplete="current-password"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    helperText={
+                                        errors.password && touched.password
+                                            ? errors.password
+                                            : ""
+                                    }
+                                    error={
+                                        touched.password &&
+                                        Boolean(errors.password)
+                                    }
+                                    value={values.password}
+                                    autoFocus
+                                />
+                                <TextField
+                                    className={classes.textField}
+                                    color="primary"
+                                    variant="outlined"
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="confirmPassword"
+                                    label="Confirm Password"
+                                    type="password"
+                                    id="confirmPassword"
+                                    autoComplete="confirm-password"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    helperText={
+                                        errors.confirmPassword &&
+                                        touched.confirmPassword
+                                            ? errors.confirmPassword
+                                            : ""
+                                    }
+                                    error={
+                                        touched.confirmPassword &&
+                                        Boolean(errors.confirmPassword)
+                                    }
+                                    value={values.confirmPassword}
+                                />
+
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting || !isValid}
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.submit}
+                                >
+                                    Submit
+                                </Button>
+                            </Form>
+                        )}
+                    </Formik>
+                </div>
             )}
         </Container>
     );
