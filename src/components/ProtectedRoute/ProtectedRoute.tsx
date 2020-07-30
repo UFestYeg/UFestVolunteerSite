@@ -20,7 +20,7 @@ const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
         ) : (
             <Redirect
                 to={{
-                    pathname: "/",
+                    pathname: "/login",
                     state: {
                         from: props.location,
                     },

@@ -1,37 +1,105 @@
 import axios from "axios";
-import * as actionTypes from "./actionTypes";
-import { authCheckState } from "./auth";
-import { StateHooks } from "../hooks";
+import { AuthUrls } from "../../constants";
+import { DefaultUser, IUserProfile } from "../types";
+import * as ActionTypes from "./actionTypes";
 
-type ActionType = { type: actionTypes.UserProfileType; token: string };
+type ActionType = {
+    type: ActionTypes.GetUserProfileType;
+    payload: IUserProfile;
+};
 type DispatchType = (action: ActionType) => void;
 
-function setUserProfile(payload) {
+export const setUserProfile = (payload: IUserProfile): ActionType => {
     return {
-        type: actionTypes.USER_PROFILE,
-        payload: payload,
+        type: ActionTypes.USER_GET_PROFILE,
+        payload,
     };
-}
+};
 
-export function getUserProfile() {
-    return function (dispatch: DispatchType) {
-        const token = useToken();
+export const clearUserProfile = (payload: any): ActionType => {
+    return {
+        type: ActionTypes.USER_GET_PROFILE,
+        payload: DefaultUser,
+    };
+};
+
+export const getUserProfile = () => {
+    const token = localStorage.getItem("token");
+    return (dispatch: DispatchType) => {
         if (token) {
+            axios.defaults.headers = {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+            };
             axios
-                .get(AuthUrls.USER_PROFILE, {
-                    headers: {
-                        authorization: "Token " + token,
-                    },
-                })
+                .get(AuthUrls.USER_PROFILE)
                 .then((response) => {
+                    console.log(response.data);
                     dispatch(setUserProfile(response.data));
                 })
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
-                    console.log(error);
+                    console.error(error);
                     // TODO: send notification and redirect
                 });
+        } else {
+            console.log("Unable to get user without token");
         }
     };
-}
+};
+
+// export function activateUserAccount(formValues, dispatch, props) {
+//     const { key } = props.match.params;
+//     const activateUserUrl = AuthUrls.USER_ACTIVATION;
+//     const data = { ...formValues, key };
+
+//     return axios
+//         .post(activateUserUrl, data)
+//         .then((response) => {
+//             dispatch(
+//                 notifSend({
+//                     message:
+//                         "Your account has been activated successfully, please log in",
+//                     kind: "info",
+//                     dismissAfter: 5000,
+//                 })
+//             );
+
+//             history.push("/login");
+//         })
+//         .catch((error) => {
+//             // If request is bad...
+//             // Show an error to the user
+//             const processedError = processServerError(error.response.data);
+//             throw new SubmissionError(processedError);
+//         });
+// }
+
+// export function updateUserProfile(formValues, dispatch, props) {
+//     const token = getUserToken(store.getState());
+
+//     return axios
+//         .patch(AuthUrls.USER_PROFILE, formValues, {
+//             headers: {
+//                 authorization: "Token " + token,
+//             },
+//         })
+//         .then((response) => {
+//             dispatch(
+//                 notifSend({
+//                     message: "Your profile has been updated successfully",
+//                     kind: "info",
+//                     dismissAfter: 5000,
+//                 })
+//             );
+
+//             history.push("/profile");
+//         })
+//         .catch((error) => {
+//             // If request is bad...
+//             // Show an error to the user
+//             const processedError = processServerError(error.response.data);
+//             throw new SubmissionError(processedError);
+//         });
+// }
