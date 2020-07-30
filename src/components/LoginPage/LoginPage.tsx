@@ -17,8 +17,8 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import {
-    LockOutlined as LockOutlinedIcon,
     CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+    LockOutlined as LockOutlinedIcon,
 } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
     },
     textField: {
         "& label": {
-            color: "black",
+            color: "grey",
         },
     },
     checkbox: {
@@ -68,25 +68,27 @@ const useStyles = makeStyles((theme) => ({
 const SignIn: React.FC = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
+    const location = useLocation();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
     const handleFormSubmit = (values: ILoginFormValues) => {
-        console.log(values.username);
+        console.log(values);
         const username = values.username;
         const password = values.password;
 
         dispatch(actions.authLogin(username, password));
     };
 
-    const location = useLocation();
-
-    let errorMessage = null;
+    const errorMessage: any[] = [];
     if (error) {
-        errorMessage = (
-            <Typography variant="body1" color="error">
-                {error.message}
-            </Typography>
-        );
+        Object.entries(error.response.data).forEach((e) => {
+            const errorMarkup = (
+                <Typography variant="body1" color="error">
+                    {`${e[0]}: ${e[1]}`}
+                </Typography>
+            );
+            errorMessage.push(errorMarkup);
+        });
     }
 
     return (
@@ -114,8 +116,8 @@ const SignIn: React.FC = () => {
                     ) : (
                         <Formik
                             initialValues={{
-                                username: "",
                                 password: "",
+                                username: "",
                             }}
                             validationSchema={Yup.object({
                                 username: Yup.string().required("Required"),
@@ -171,6 +173,7 @@ const SignIn: React.FC = () => {
                                             touched.username &&
                                             Boolean(errors.username)
                                         }
+                                        value={values.username}
                                         autoFocus
                                     />
                                     <TextField
@@ -196,18 +199,7 @@ const SignIn: React.FC = () => {
                                             touched.password &&
                                             Boolean(errors.password)
                                         }
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                value="remember"
-                                                color="primary"
-                                                icon={
-                                                    <CheckBoxOutlineBlankIcon color="primary" />
-                                                }
-                                            />
-                                        }
-                                        label="Remember me"
+                                        value={values.password}
                                     />
                                     <Button
                                         type="submit"
