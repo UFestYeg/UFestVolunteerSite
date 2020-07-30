@@ -13,7 +13,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
@@ -61,7 +61,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignIn: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const location = useLocation();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();

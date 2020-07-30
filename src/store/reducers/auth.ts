@@ -41,6 +41,27 @@ const authLogout = (state: IAuthState, action: any) => {
     });
 };
 
+const resetPasswordStart = (state: IAuthState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: true,
+    });
+};
+
+const resetPasswordSuccess = (state: IAuthState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: false,
+    });
+};
+
+const resetPasswordFail = (state: IAuthState, action: any) => {
+    return updateObject(state, {
+        error: action.error,
+        loading: false,
+    });
+};
+
 export const reducer = (state = initialState, action: any) => {
     switch (action.type) {
         case actionTypes.AUTH_START:
@@ -51,6 +72,12 @@ export const reducer = (state = initialState, action: any) => {
             return authFail(state, action);
         case actionTypes.AUTH_LOGOUT:
             return authLogout(state, action);
+        case actionTypes.RESET_PASSWORD_START:
+            return resetPasswordStart(state, action);
+        case actionTypes.RESET_PASSWORD_SUCCESS:
+            return resetPasswordSuccess(state, action);
+        case actionTypes.RESET_PASSWORD_FAIL:
+            return resetPasswordFail(state, action);
         default:
             return state;
     }

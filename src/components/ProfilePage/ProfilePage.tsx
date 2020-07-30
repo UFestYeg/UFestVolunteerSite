@@ -1,5 +1,5 @@
 import { Avatar, Grid, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { user as userActions } from "../../store/actions";
@@ -18,7 +18,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProfilePage: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
 
     useEffect(() => {

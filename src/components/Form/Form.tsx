@@ -4,7 +4,7 @@
 
 import DateFnsUtils from "@date-io/date-fns";
 import { Box, Button, Container, Grid, TextField } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     KeyboardDateTimePicker,
     MuiPickersUtilsProvider,
@@ -54,7 +54,8 @@ const CustomForm: React.FC<ICustomFormProps> = ({
     eventIdProp,
     buttonText,
 }) => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const token = StateHooks.useToken();
 
     const handleFormSubmit = (

@@ -18,7 +18,7 @@ from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    # path("password-reset/<uidb64>/<token>/", empty_view, name="password_reset_confirm"),
+    re_path(r"^", include("django.contrib.auth.urls")),
     path("api-auth/", include("rest_framework.urls")),
     path("rest-auth/", include("rest_auth.urls")),
     path("rest-auth/registration/", include("rest_auth.registration.urls")),

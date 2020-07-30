@@ -1,4 +1,14 @@
+import { actionTypes } from "./actions";
 import { AuthStateType, UserStateType } from "./reducers";
+
+export type AuthActionType =
+    | { type: actionTypes.StartType }
+    | { type: actionTypes.SuccessType; token: string }
+    | { type: actionTypes.FailType; error: string }
+    | { type: actionTypes.LogoutType }
+    | { type: actionTypes.ResetPasswordStartType }
+    | { type: actionTypes.ResetPasswordSuccessType }
+    | { type: actionTypes.ResetPasswordFailType; error: string };
 
 export interface State {
     auth: AuthStateType;
