@@ -1,10 +1,10 @@
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { NotFoundPage } from "../components/NotFoundPage";
-import { ProfilePage } from "../components/ProfilePage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { ScheduleEventDetails } from "../components/ScheduleEventDetails";
 import { ScheduleEventList } from "../components/ScheduleEventList";
+import ProfileRoutes from "./ProfileRoutes";
 
 const PrivateRoutes: React.FC = () => {
     const { path } = useRouteMatch();
@@ -18,14 +18,12 @@ const PrivateRoutes: React.FC = () => {
                     component={ScheduleEventList}
                 />
                 <ProtectedRoute
-                    exact
                     path={`${path}/events/:eventID`}
                     component={ScheduleEventDetails}
                 />
                 <ProtectedRoute
-                    exact
                     path={`${path}/profile`}
-                    component={ProfilePage}
+                    component={ProfileRoutes}
                 />
                 <Route component={NotFoundPage} />
             </Switch>

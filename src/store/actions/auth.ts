@@ -41,10 +41,35 @@ export const resetPasswordSuccess = (): ActionType => {
     };
 };
 
+export const resetPasswordEmailSent = (): ActionType => {
+    return {
+        type: actionTypes.RESET_PASSWORD_EMAIL_SENT,
+    };
+};
+
 export const resetPasswordFail = (error: any): ActionType => {
     return {
         error,
         type: actionTypes.RESET_PASSWORD_FAIL,
+    };
+};
+
+export const changePasswordStart = (): ActionType => {
+    return {
+        type: actionTypes.CHANGE_PASSWORD_START,
+    };
+};
+
+export const changePasswordSuccess = (): ActionType => {
+    return {
+        type: actionTypes.CHANGE_PASSWORD_SUCCESS,
+    };
+};
+
+export const changePasswordFail = (error: any): ActionType => {
+    return {
+        error,
+        type: actionTypes.CHANGE_PASSWORD_FAIL,
     };
 };
 
@@ -156,34 +181,45 @@ export const authCheckState = () => {
     };
 };
 
-// export function changePassword(formValues, dispatch, props) {
-//     const token = localStorage.getItem("token");
-//     if (token) {
-//         axios.defaults.headers = {
-//             Authorization: token,
-//             "Content-Type": "application/json",
-//         };
-//         return axios
-//             .post(AuthUrls.CHANGE_PASSWORD, formValues)
-//             .then((response) => {
-//                 dispatch(
-//                     notifSend({
-//                         message: "Password has been changed successfully",
-//                         kind: "info",
-//                         dismissAfter: 5000,
-//                     })
-//                 );
-//                 // redirect to the route '/profile'
-//                 history.push("/profile");
-//             })
-//             .catch((error) => {
-//                 // If request is bad...
-//                 // Show an error to the user
-//                 const processedError = processServerError(error.response.data);
-//                 throw new SubmissionError(processedError);
-//             });
-//     }
-// }
+export const changePassword = (
+    oldPassword: string,
+    newPassword1: string,
+    newPassword2: string
+) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+        axios.defaults.headers = {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+        };
+        return (dispatch: DispatchType) => {
+            axios
+                .post(AuthUrls.CHANGE_PASSWORD, {
+                    old_password: oldPassword,
+                    new_password1: newPassword1,
+                    new_password2: newPassword2,
+                })
+                .then((response) => {
+                    console.log(response);
+                    // dispatch(
+                    //     notifSend({
+                    //         message: "Password has been changed successfully",
+                    //         kind: "info",
+                    //         dismissAfter: 5000,
+                    //     })
+                    // );
+                    // redirect to the route '/profile'
+                    dispatch(changePasswordSuccess());
+                    history.push("/volunteer/profile");
+                })
+                .catch((error) => {
+                    // If request is bad...
+                    // Show an error to the user
+                    dispatch(changePasswordFail(error));
+                });
+        };
+    }
+};
 
 export function resetPassword(email: string) {
     return (dispatch: DispatchType) => {
@@ -193,7 +229,7 @@ export function resetPassword(email: string) {
             .then((response) => {
                 // redirect to reset done page
                 console.log(response);
-                dispatch(resetPasswordSuccess());
+                dispatch(resetPasswordEmailSent());
                 history.push("/reset_password_done");
             })
             .catch((error) => {
@@ -228,7 +264,7 @@ export function confirmPasswordChange(
                 //         dismissAfter: 5000,
                 //     })
                 // );
-
+                dispatch(resetPasswordSuccess());
                 history.push("/login");
             })
             .catch((error) => {
