@@ -20,6 +20,20 @@ const authStart = (state: IAuthState, action: any) => {
     });
 };
 
+const authEmailSent = (state: IAuthState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: false,
+    });
+};
+
+const authActivation = (state: IAuthState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: false,
+    });
+};
+
 const authSuccess = (state: IAuthState, action: any) => {
     return updateObject(state, {
         error: null,
@@ -94,6 +108,10 @@ export const reducer = (state = initialState, action: any) => {
     switch (action.type) {
         case actionTypes.AUTH_START:
             return authStart(state, action);
+        case actionTypes.AUTH_EMAIL_SENT:
+            return authEmailSent(state, action);
+        case actionTypes.AUTH_ACTIVATION:
+            return authActivation(state, action);
         case actionTypes.AUTH_SUCCESS:
             return authSuccess(state, action);
         case actionTypes.AUTH_FAIL:

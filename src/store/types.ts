@@ -3,6 +3,8 @@ import { AuthStateType, UserStateType } from "./reducers";
 
 export type AuthActionType =
     | { type: actionTypes.StartType }
+    | { type: actionTypes.EmailSentType }
+    | { type: actionTypes.ActivationType }
     | { type: actionTypes.SuccessType; token: string }
     | { type: actionTypes.FailType; error: string }
     | { type: actionTypes.LogoutType }

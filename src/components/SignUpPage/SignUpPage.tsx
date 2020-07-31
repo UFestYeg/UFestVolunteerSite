@@ -6,20 +6,15 @@ import {
     Avatar,
     Box,
     Button,
-    Checkbox,
     CircularProgress,
     Container,
-    FormControlLabel,
     Grid,
     Link,
     TextField,
     Typography,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import {
-    CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
-    LockOutlined as LockOutlinedIcon,
-} from "@material-ui/icons";
+import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -75,8 +70,6 @@ const SignUp: React.FC = () => {
     const dispatch = useDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const handleFormSubmit = (values: ISignupFormValues) => {
-        console.log(values);
-
         const firstName = values.firstName;
         const lastName = values.lastName;
         const username = values.username;

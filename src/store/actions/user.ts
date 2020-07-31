@@ -49,32 +49,6 @@ export const getUserProfile = () => {
     };
 };
 
-// export function activateUserAccount(formValues, dispatch, props) {
-//     const { key } = props.match.params;
-//     const activateUserUrl = AuthUrls.USER_ACTIVATION;
-//     const data = { ...formValues, key };
-
-//     return axios
-//         .post(activateUserUrl, data)
-//         .then((response) => {
-//             dispatch(
-//                 notifSend({
-//                     message:
-//                         "Your account has been activated successfully, please log in",
-//                     kind: "info",
-//                     dismissAfter: 5000,
-//                 })
-//             );
-
-//             history.push("/login");
-//         })
-//         .catch((error) => {
-//             // If request is bad...
-//             // Show an error to the user
-//             const processedError = processServerError(error.response.data);
-//             throw new SubmissionError(processedError);
-//         });
-// }
 
 // export function updateUserProfile(formValues, dispatch, props) {
 //     const token = getUserToken(store.getState());

@@ -7,21 +7,16 @@ import {
     Button,
     CircularProgress,
     Container,
-    TextField,
     Typography,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { LockOpen as LockOpenIcon } from "@material-ui/icons";
+import { CheckCircleOutline as CheckCircleOutlineIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
-import * as Yup from "yup";
+import { useParams } from "react-router-dom";
 import { auth } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
-
-interface IResetPasswordFormValues {
-    email: string;
-}
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -54,10 +49,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const PasswordReset: React.FC = () => {
+const AccountActivation: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const { key } = useParams();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
     const errorMessage: any[] = [];
@@ -72,12 +68,9 @@ const PasswordReset: React.FC = () => {
         });
     }
 
-    const handleFormSubmit = (values: IResetPasswordFormValues) => {
-        const email = values.email;
-
-        dispatch(auth.resetPassword(email));
+    const handleFormSubmit = () => {
+        dispatch(auth.activateUserAccount(key));
     };
-
     return (
         <Container component="main" maxWidth="xs">
             {errorMessage}
@@ -86,69 +79,27 @@ const PasswordReset: React.FC = () => {
             ) : (
                 <div className={classes.paper}>
                     <Avatar className={classes.avatar}>
-                        <LockOpenIcon />
+                        <CheckCircleOutlineIcon />
                     </Avatar>
                     <Typography component="h1" variant="h4">
-                        Reset Your Password
+                        Please click the button below to activate your account
                     </Typography>
 
                     <Formik
-                        initialValues={{
-                            email: "",
-                        }}
-                        validationSchema={Yup.object({
-                            email: Yup.string()
-                                .email("Invalid email address")
-                                .required("Required"),
-                        })}
-                        onSubmit={(values, { setSubmitting }) => {
+                        initialValues={{}}
+                        onSubmit={(_values, { setSubmitting }) => {
                             setTimeout(() => {
                                 // alert(JSON.stringify(values, null, 2));
-                                handleFormSubmit(values);
+                                handleFormSubmit();
                                 setSubmitting(false);
                             }, 400);
                         }}
                     >
-                        {({
-                            values,
-                            errors,
-                            touched,
-                            handleChange,
-                            handleBlur,
-                            handleSubmit,
-                            setFieldValue,
-                            isSubmitting,
-                            isValid,
-                        }) => (
+                        {({ handleSubmit, isSubmitting, isValid }) => (
                             <Form
                                 className={classes.form}
                                 onSubmit={handleSubmit}
                             >
-                                <TextField
-                                    className={classes.textField}
-                                    color="primary"
-                                    variant="outlined"
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="email"
-                                    type="email"
-                                    label="Please enter your Email Address"
-                                    name="email"
-                                    autoComplete="email"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    helperText={
-                                        errors.email && touched.email
-                                            ? errors.email
-                                            : ""
-                                    }
-                                    error={
-                                        touched.email && Boolean(errors.email)
-                                    }
-                                    value={values.email}
-                                />
-
                                 <Button
                                     type="submit"
                                     disabled={isSubmitting || !isValid}
@@ -157,7 +108,7 @@ const PasswordReset: React.FC = () => {
                                     color="primary"
                                     className={classes.submit}
                                 >
-                                    Submit
+                                    Activate
                                 </Button>
                             </Form>
                         )}
@@ -168,4 +119,4 @@ const PasswordReset: React.FC = () => {
     );
 };
 
-export default PasswordReset;
+export default AccountActivation;
