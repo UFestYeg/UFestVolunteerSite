@@ -206,6 +206,7 @@ const SignUp: React.FC = () => {
                                                     touched.firstName &&
                                                     Boolean(errors.firstName)
                                                 }
+                                                value={values.firstName}
                                                 autoFocus
                                             />
                                         </Grid>
@@ -232,6 +233,7 @@ const SignUp: React.FC = () => {
                                                     touched.lastName &&
                                                     Boolean(errors.lastName)
                                                 }
+                                                value={values.lastName}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -258,6 +260,7 @@ const SignUp: React.FC = () => {
                                                     touched.username &&
                                                     Boolean(errors.username)
                                                 }
+                                                value={values.username}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -285,6 +288,7 @@ const SignUp: React.FC = () => {
                                                     touched.email &&
                                                     Boolean(errors.email)
                                                 }
+                                                value={values.email}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -311,6 +315,7 @@ const SignUp: React.FC = () => {
                                                     touched.password &&
                                                     Boolean(errors.password)
                                                 }
+                                                value={values.password}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -339,6 +344,7 @@ const SignUp: React.FC = () => {
                                                         errors.confirmPassword
                                                     )
                                                 }
+                                                value={values.confirmPassword}
                                             />
                                         </Grid>
                                     </Grid>

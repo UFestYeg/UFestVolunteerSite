@@ -14,6 +14,7 @@ import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { auth as authActions, user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
@@ -163,7 +164,19 @@ const Header: React.FC<HeaderProps> = (props) => {
                                 onClose={handleClose}
                                 className={classes.menuList}
                             >
-                                {/* Handle logout here on click */}
+                                <Link
+                                    to={"/volunteer/profile"}
+                                    style={{ textDecoration: "none" }}
+                                >
+                                    <MenuItem className={classes.menuItem}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            className={classes.logout}
+                                        >
+                                            Profile
+                                        </Typography>
+                                    </MenuItem>
+                                </Link>
                                 <MenuItem
                                     className={classes.menuItem}
                                     onClick={handleLogout}

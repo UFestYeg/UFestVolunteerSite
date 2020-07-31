@@ -8,7 +8,11 @@ export type AuthActionType =
     | { type: actionTypes.LogoutType }
     | { type: actionTypes.ResetPasswordStartType }
     | { type: actionTypes.ResetPasswordSuccessType }
-    | { type: actionTypes.ResetPasswordFailType; error: string };
+    | { type: actionTypes.ResetPasswordEmailSentType }
+    | { type: actionTypes.ResetPasswordFailType; error: string }
+    | { type: actionTypes.ChangePasswordStartType }
+    | { type: actionTypes.ChangePasswordSuccessType }
+    | { type: actionTypes.ChangePasswordFailType; error: string };
 
 export interface State {
     auth: AuthStateType;

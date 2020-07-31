@@ -147,6 +147,7 @@ const PasswordReset: React.FC = () => {
                                     error={
                                         touched.email && Boolean(errors.email)
                                     }
+                                    value={values.email}
                                 />
 
                                 <Button
