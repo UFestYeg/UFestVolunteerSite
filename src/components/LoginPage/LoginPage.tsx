@@ -68,7 +68,6 @@ const SignIn: React.FC = () => {
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
     const handleFormSubmit = (values: ILoginFormValues) => {
-        console.log(values);
         const username = values.username;
         const password = values.password;
 

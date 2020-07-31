@@ -76,7 +76,6 @@ const PasswordReset: React.FC = () => {
     }
 
     const handleFormSubmit = (values: IResetPasswordFormValues) => {
-        console.log(values);
         const password = values.password;
         const confirmPassword = values.confirmPassword;
 

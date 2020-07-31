@@ -74,7 +74,6 @@ const PasswordChange: React.FC = () => {
     }
 
     const handleFormSubmit = (values: IResetPasswordFormValues) => {
-        console.log(values);
         const old_password = values.old_password;
         const new_password1 = values.new_password1;
         const new_password2 = values.new_password2;

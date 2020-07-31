@@ -1,6 +1,8 @@
 // Auth
 export const AUTH_START = "AUTH_START";
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
+export const AUTH_EMAIL_SENT = "AUTH_EMAIL_SENT";
+export const AUTH_ACTIVATION = "AUTH_ACTIVATION";
 export const AUTH_FAIL = "AUTH_FAIL";
 export const AUTH_LOGOUT = "AUTH_LOGOUT";
 export const RESET_PASSWORD_START = "RESET_PASSWORD_START";
@@ -13,6 +15,8 @@ export const CHANGE_PASSWORD_FAIL = "CHANGE_PASSWORD_FAIL";
 
 export type StartType = typeof AUTH_START;
 export type SuccessType = typeof AUTH_SUCCESS;
+export type EmailSentType = typeof AUTH_EMAIL_SENT;
+export type ActivationType = typeof AUTH_ACTIVATION;
 export type FailType = typeof AUTH_FAIL;
 export type LogoutType = typeof AUTH_LOGOUT;
 export type ResetPasswordStartType = typeof RESET_PASSWORD_START;

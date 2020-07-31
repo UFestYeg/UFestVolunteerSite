@@ -15,6 +15,18 @@ export const authStart = (): ActionType => {
     };
 };
 
+export const authEmailSent = (): ActionType => {
+    return {
+        type: actionTypes.AUTH_EMAIL_SENT,
+    };
+};
+
+export const authActivationSent = (): ActionType => {
+    return {
+        type: actionTypes.AUTH_ACTIVATION,
+    };
+};
+
 export const authSuccess = (token: string): ActionType => {
     return {
         token,
@@ -137,18 +149,9 @@ export const authSignup = (
                 username,
             })
             .then((res) => {
-                const token = res.data.key;
-                const expirationDate = new Date(
-                    new Date().getTime() +
-                        SECOND_IN_HOUR * MILLISECONDS_IN_SECOND
-                );
-                localStorage.setItem("token", token);
-                localStorage.setItem(
-                    "expirationDate",
-                    expirationDate.toISOString()
-                );
-                dispatch(authSuccess(token));
-                checkAuthTimeout(SECOND_IN_HOUR)(dispatch);
+                console.log(res);
+                dispatch(authEmailSent());
+                history.push("/signup_done");
             })
             .catch((err) => {
                 dispatch(authFail(err));
@@ -221,7 +224,7 @@ export const changePassword = (
     }
 };
 
-export function resetPassword(email: string) {
+export const resetPassword = (email: string) => {
     return (dispatch: DispatchType) => {
         dispatch(resetPasswordStart());
         axios
@@ -238,14 +241,14 @@ export function resetPassword(email: string) {
                 dispatch(resetPasswordFail(error));
             });
     };
-}
+};
 
-export function confirmPasswordChange(
+export const confirmPasswordChange = (
     uid: string,
     token: string,
     password: string,
     confirmPassword: string
-) {
+) => {
     return (dispatch: DispatchType) => {
         axios
             .post(AuthUrls.RESET_PASSWORD_CONFIRM, {
@@ -273,4 +276,26 @@ export function confirmPasswordChange(
                 dispatch(resetPasswordFail(error));
             });
     };
-}
+};
+
+export const activateUserAccount = (key: string) => {
+    return (dispatch: DispatchType) => {
+        axios
+            .post(AuthUrls.USER_ACTIVATION, { key })
+            .then((response) => {
+                console.log(response);
+                // dispatch(notifSend({
+                //     message: "Your account has been activated successfully, please log in",
+                //     kind: "info",
+                //     dismissAfter: 5000
+                // }));
+                dispatch(authActivationSent());
+                history.push("/login");
+            })
+            .catch((error) => {
+                // If request is bad...
+                // Show an error to the user
+                dispatch(authFail(error));
+            });
+    };
+};
