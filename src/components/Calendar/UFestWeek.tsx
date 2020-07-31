@@ -1,44 +1,41 @@
+import * as Moment from "moment";
+import { extendMoment } from "moment-range";
+
 import React from "react";
-import TimeGrid from 'react-big-calendar/lib/TimeGrid';
+import { NavigateAction, TitleOptions } from "react-big-calendar";
+import TimeGrid from "react-big-calendar/lib/TimeGrid";
 
-const UFestWeek: React.FC = () => {
+const moment = extendMoment(Moment);
+
+const UFEST_VOLUNTEERING_START_DATE = new Date("May 19, 2021");
+const UFEST_VOLUNTEERING_END_DATE = new Date("May 23, 2021");
+
+class UFestWeek extends React.Component {
+    range = Array.from(
+        moment
+            .range(UFEST_VOLUNTEERING_START_DATE, UFEST_VOLUNTEERING_END_DATE)
+            .by("day")
+    ).map((m) => m.toDate());
+
+    static navigate = (date: Date, action: NavigateAction) => {
+        switch (action) {
+            case "PREV":
+                return moment(date).subtract(5, "d").toDate();
+
+            case "NEXT":
+                return moment(date).add(5, "d").toDate();
+
+            default:
+                return date;
+        }
+    };
+    static title = (date: Date, options: TitleOptions) => {
+        return `UFest Volunteer Schedule: ${UFEST_VOLUNTEERING_START_DATE.toLocaleDateString()} to ${UFEST_VOLUNTEERING_END_DATE.toLocaleDateString()}`;
+    };
+
     render() {
-        let { date } = this.props;
-        let range = MyWeek.range(date);
-
-        return <TimeGrid {...this.props} range={range} eventOffset={15} />;
+        return <TimeGrid {...this.props} range={this.range} />;
     }
-
-
-MyWeek.range = (date) => {
-    let start = date;
-    let end = dates.add(start, 2, "day");
-
-    let current = start;
-    let range = [];
-
-    while (dates.lte(current, end, "day")) {
-        range.push(current);
-        current = dates.add(current, 1, "day");
-    }
-
-    return range;
-};
-
-MyWeek.navigate = (date, action) => {
-    switch (action) {
-        case Navigate.PREVIOUS:
-            return dates.add(date, -3, "day");
-
-        case Navigate.NEXT:
-            return dates.add(date, 3, "day");
-
-        default:
-            return date;
-    }
-};
-
-MyWeek.title = (date) => {
-    return `My awesome week: ${date.toLocaleDateString()}`;
-};
 }
+
+export default UFestWeek;

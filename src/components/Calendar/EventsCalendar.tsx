@@ -1,9 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { StateHooks } from "../../store/hooks";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import UFestWeek from "./UFestWeek";
+import CalendarToolbar from "./CalendarToolbar";
 
 type ScheduleEventType = {
     id: number;
@@ -50,6 +52,9 @@ const EventsCalendar: React.FC = () => {
                 endAccessor="end_time"
                 style={{ height: 600 }}
                 defaultView="week"
+                defaultDate={new Date(2021, 4, 21)}
+                views={{ day: true, week: UFestWeek }}
+                components={{ toolbar: CalendarToolbar }}
             />
         </div>
     );
