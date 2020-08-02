@@ -26,7 +26,7 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
             - run: npm ci
-            - name: Setup Python ${{ matrix.python-version } environment
+            - name: Setup Python ${{ matrix.python-version }} environment
               uses: actions/setup-python@v2
               with:
                   python-version: ${{ matrix.python-version }}
@@ -40,7 +40,8 @@ jobs:
             - run: npm run compile
             - run: npm run check
             - name: Run migrations
-                run: python manage.py migrate
+              run: |
+                    python manage.py migrate
             - name: Run tests
               uses: GabrielBB/xvfb-action@v1.2
               with:

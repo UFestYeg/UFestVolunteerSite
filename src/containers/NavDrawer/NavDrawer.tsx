@@ -5,7 +5,7 @@ import {
     ListItemIcon,
     ListItemText,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     AccountCircle as AccountCircleIcon,
     CalendarToday as CalendarTodayIcon,
@@ -14,7 +14,7 @@ import {
 } from "@material-ui/icons";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { NavLink, useRouteMatch } from "react-router-dom";
 import { auth as actions } from "../../store/actions";
 
 const useStyles = makeStyles((theme) => ({
@@ -75,8 +75,10 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
     open,
     onCloseFunc,
 }: NavDrawerProps) => {
-    const styles = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const match = useRouteMatch();
     const handleLogout = () => {
         onCloseFunc(false);
         // logout({ returnTo: window.location.origin });
@@ -84,33 +86,33 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
     };
     return (
         <Drawer open={open} onClose={() => onCloseFunc(false)}>
-            <List className={styles.inactive}>
+            <List className={classes.inactive}>
                 <NavListItem
-                    to="/events"
+                    to={`${match.url}/events`}
                     icon={<CalendarTodayIcon />}
                     text="Schedule"
-                    activeClassName={styles.active}
+                    activeClassName={classes.active}
                     onClose={onCloseFunc}
                 />
                 <NavListItem
-                    to="/profile"
+                    to={`${match.url}/profile`}
                     icon={<AccountCircleIcon />}
                     text="Profile"
-                    activeClassName={styles.active}
+                    activeClassName={classes.active}
                     onClose={onCloseFunc}
                 />
                 <NavListItem
-                    to="/settings"
+                    to={`${match.url}/settings`}
                     icon={<SettingsIcon />}
                     text="Settings"
-                    activeClassName={styles.active}
+                    activeClassName={classes.active}
                     onClose={onCloseFunc}
                 />
                 <NavListItem
                     to=""
                     icon={<ExitToAppIcon />}
                     text="Logout"
-                    activeClassName={styles.active}
+                    activeClassName={classes.active}
                     onClose={handleLogout}
                 />
             </List>
