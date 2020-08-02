@@ -6,20 +6,15 @@ import {
     Avatar,
     Box,
     Button,
-    Checkbox,
     CircularProgress,
     Container,
-    FormControlLabel,
     Grid,
     Link,
     TextField,
     Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import {
-    CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
-    LockOutlined as LockOutlinedIcon,
-} from "@material-ui/icons";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -66,13 +61,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignIn: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const location = useLocation();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
     const handleFormSubmit = (values: ILoginFormValues) => {
-        console.log(values);
         const username = values.username;
         const password = values.password;
 
@@ -96,7 +91,7 @@ const SignIn: React.FC = () => {
             {isAuthenticated ? (
                 <Redirect
                     to={{
-                        pathname: "/events",
+                        pathname: "/volunteer/events",
                         state: {
                             from: location,
                         },
@@ -125,10 +120,7 @@ const SignIn: React.FC = () => {
                                     .min(8, "Must be more than 8 characters")
                                     .required("Required"),
                             })}
-                            onSubmit={(
-                                values,
-                                { setSubmitting, resetForm }
-                            ) => {
+                            onSubmit={(values, { setSubmitting }) => {
                                 setTimeout(() => {
                                     // alert(JSON.stringify(values, null, 2));
                                     handleFormSubmit(values);
@@ -213,7 +205,10 @@ const SignIn: React.FC = () => {
                                     </Button>
                                     <Grid container direction="column">
                                         <Grid item xs={12}>
-                                            <Link href="#" variant="body2">
+                                            <Link
+                                                href="/reset_password"
+                                                variant="body2"
+                                            >
                                                 Forgot password?
                                             </Link>
                                         </Grid>

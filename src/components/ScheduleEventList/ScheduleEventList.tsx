@@ -5,7 +5,12 @@ import {
     ListItemText,
     Typography,
 } from "@material-ui/core";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import {
+    createStyles,
+    makeStyles,
+    Theme,
+    useTheme,
+} from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -31,7 +36,8 @@ type ScheduleEventType = {
 };
 
 const ScheduleEventList: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
     const token = StateHooks.useToken();
 
@@ -60,7 +66,7 @@ const ScheduleEventList: React.FC = () => {
                         <ListItem
                             button
                             component={Link}
-                            to={`events/${value.id}`}
+                            to={`volunteer/events/${value.id}`}
                             key={`list-${value.id}`}
                         >
                             <ListItemText primary={value.title} />

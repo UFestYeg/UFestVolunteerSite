@@ -6,20 +6,15 @@ import {
     Avatar,
     Box,
     Button,
-    Checkbox,
     CircularProgress,
     Container,
-    FormControlLabel,
     Grid,
     Link,
     TextField,
     Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import {
-    CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
-    LockOutlined as LockOutlinedIcon,
-} from "@material-ui/icons";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -70,12 +65,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignUp: React.FC = () => {
-    const classes = useStyles();
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const handleFormSubmit = (values: ISignupFormValues) => {
-        console.log(values);
-
         const firstName = values.firstName;
         const lastName = values.lastName;
         const username = values.username;
@@ -114,7 +108,7 @@ const SignUp: React.FC = () => {
             {isAuthenticated ? (
                 <Redirect
                     to={{
-                        pathname: "/events",
+                        pathname: "/volunteer/events",
                         state: {
                             from: location,
                         },
@@ -205,6 +199,7 @@ const SignUp: React.FC = () => {
                                                     touched.firstName &&
                                                     Boolean(errors.firstName)
                                                 }
+                                                value={values.firstName}
                                                 autoFocus
                                             />
                                         </Grid>
@@ -231,6 +226,7 @@ const SignUp: React.FC = () => {
                                                     touched.lastName &&
                                                     Boolean(errors.lastName)
                                                 }
+                                                value={values.lastName}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -257,6 +253,7 @@ const SignUp: React.FC = () => {
                                                     touched.username &&
                                                     Boolean(errors.username)
                                                 }
+                                                value={values.username}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -284,6 +281,7 @@ const SignUp: React.FC = () => {
                                                     touched.email &&
                                                     Boolean(errors.email)
                                                 }
+                                                value={values.email}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -310,6 +308,7 @@ const SignUp: React.FC = () => {
                                                     touched.password &&
                                                     Boolean(errors.password)
                                                 }
+                                                value={values.password}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -338,6 +337,7 @@ const SignUp: React.FC = () => {
                                                         errors.confirmPassword
                                                     )
                                                 }
+                                                value={values.confirmPassword}
                                             />
                                         </Grid>
                                     </Grid>
