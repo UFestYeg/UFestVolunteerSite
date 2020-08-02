@@ -42,10 +42,12 @@ const ScheduleEventList: React.FC = () => {
                 "Content-Type": "application/json",
             };
 
-            axios.get(`${process.env["REACT_APP_API_URI"]}api/`).then((res) => {
-                setList(res.data);
-                console.log(res.data);
-            });
+            axios
+                .get(`${process.env["REACT_APP_API_URI"]}api/events`)
+                .then((res) => {
+                    setList(res.data);
+                    console.log(res.data);
+                });
         }
     }, [token]);
 
