@@ -12,6 +12,9 @@ const useStyles = makeStyles((theme) => ({
     grid: {
         margin: theme.spacing(2),
     },
+    active: {
+        backgroundColor: theme.palette.primary.dark,
+    },
 }));
 
 const CustomToolbar: React.FC<ToolbarProps> = (props) => {
@@ -33,7 +36,7 @@ const CustomToolbar: React.FC<ToolbarProps> = (props) => {
             return viewNames.map((name: View) => (
                 <Button
                     key={name}
-                    className={view === name ? "rbc-active" : ""}
+                    className={view === name ? classes.active : ""}
                     onClick={viewItem.bind(null, name)}
                 >
                     {messages[name]}
@@ -65,7 +68,7 @@ const CustomToolbar: React.FC<ToolbarProps> = (props) => {
             ) : (
                 ""
             )}
-            <Typography variant="h6">{props.label}</Typography>
+            <Typography variant="subtitle1">{props.label}</Typography>
             <ButtonGroup
                 variant="contained"
                 color="primary"
