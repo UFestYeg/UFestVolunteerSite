@@ -1,13 +1,15 @@
 import axios from "axios";
 import { actions as notifActions } from "redux-notifications";
 import { AuthUrls } from "../../constants";
-import { DefaultUser, IUserProfile } from "../types";
+import history from "../../history";
+import { IProfileEditFormValues } from "../../store/types";
+import {
+    DefaultUser,
+    IUserProfile,
+    UserActionType as ActionType,
+} from "../types";
 import * as ActionTypes from "./actionTypes";
 
-type ActionType = {
-    type: ActionTypes.GetUserProfileType;
-    payload: IUserProfile;
-};
 type DispatchType = (action: ActionType) => void;
 
 export const setUserProfile = (payload: IUserProfile): ActionType => {
@@ -21,6 +23,25 @@ export const clearUserProfile = (payload: any): ActionType => {
     return {
         type: ActionTypes.USER_GET_PROFILE,
         payload: DefaultUser,
+    };
+};
+
+export const updateProfileStart = (): ActionType => {
+    return {
+        type: ActionTypes.UPDATE_PROFILE_START,
+    };
+};
+
+export const updateProfileSuccess = (): ActionType => {
+    return {
+        type: ActionTypes.UPDATE_PROFILE_SUCCESS,
+    };
+};
+
+export const updateProfileFail = (error: any): ActionType => {
+    return {
+        error,
+        type: ActionTypes.UPDATE_PROFILE_FAIL,
     };
 };
 
@@ -50,31 +71,34 @@ export const getUserProfile = () => {
     };
 };
 
+export const updateUserProfile = (formValues: IProfileEditFormValues) => {
+    const token = localStorage.getItem("token");
 
-// export function updateUserProfile(formValues, dispatch, props) {
-//     const token = getUserToken(store.getState());
+    return (dispatch: DispatchType) => {
+        dispatch(updateProfileStart());
+        axios.defaults.headers = {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+        };
+        axios
+            .patch(AuthUrls.USER_PROFILE, formValues)
+            .then((response) => {
+                console.log(response);
 
-//     return axios
-//         .patch(AuthUrls.USER_PROFILE, formValues, {
-//             headers: {
-//                 authorization: "Token " + token,
-//             },
-//         })
-//         .then((response) => {
-//             dispatch(
-//                 notifSend({
-//                     message: "Your profile has been updated successfully",
-//                     kind: "info",
-//                     dismissAfter: 5000,
-//                 })
-//             );
-
-//             history.push("/profile");
-//         })
-//         .catch((error) => {
-//             // If request is bad...
-//             // Show an error to the user
-//             const processedError = processServerError(error.response.data);
-//             throw new SubmissionError(processedError);
-//         });
-// }
+                // dispatch(
+                //     notifSend({
+                //         message: "Your profile has been updated successfully",
+                //         kind: "info",
+                //         dismissAfter: 5000,
+                //     })
+                // );
+                dispatch(updateProfileSuccess());
+                history.push("/volunteer/profile");
+            })
+            .catch((error) => {
+                // If request is bad...
+                // Show an error to the user
+                dispatch(updateProfileFail(error));
+            });
+    };
+};

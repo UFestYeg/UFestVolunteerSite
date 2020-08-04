@@ -89,6 +89,19 @@ const ProfilePage: React.FC = () => {
                             Change Password
                         </Button>
                     </Grid>
+                    <Grid className={classes.grid} item xs={12}>
+                        <Button
+                            size="large"
+                            className={clsx(classes.change, classes.button)}
+                            component={Link}
+                            to={`${url}/edit`}
+                            color="secondary"
+                            variant="contained"
+                            disableElevation
+                        >
+                            Edit Profile
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
