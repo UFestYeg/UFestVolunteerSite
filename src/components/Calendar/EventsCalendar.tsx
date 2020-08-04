@@ -52,18 +52,16 @@ const EventsCalendar: React.FC = () => {
                 "Content-Type": "application/json",
             };
 
-            axios
-                .get(`${process.env["REACT_APP_API_URI"]}api/events`)
-                .then((res) => {
-                    var data = res.data;
-                    var mappedData = data.map((d: any) => {
-                        d.start_time = new Date(d.start_time);
-                        d.end_time = new Date(d.end_time);
-                        return d;
-                    });
-                    setList(mappedData);
-                    console.log(mappedData);
+            axios.get(`${process.env["REACT_APP_API_URI"]}api`).then((res) => {
+                var data = res.data;
+                var mappedData = data.map((d: any) => {
+                    d.start_time = new Date(d.start_time);
+                    d.end_time = new Date(d.end_time);
+                    return d;
                 });
+                setList(mappedData);
+                console.log(mappedData);
+            });
         }
     }, [token]);
 
