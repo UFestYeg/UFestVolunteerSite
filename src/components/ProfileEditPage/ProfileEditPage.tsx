@@ -297,7 +297,7 @@ const Login: React.FC = () => {
                                         item
                                         container
                                         xs={12}
-                                        sm={values.over_eighteen ? 6 : 12}
+                                        sm={values.over_eighteen ? 12 : 6}
                                         justify="center"
                                         alignItems="center"
                                     >
@@ -325,7 +325,7 @@ const Login: React.FC = () => {
                                             label="18+?"
                                         />
                                     </Grid>
-                                    {values.over_eighteen ? (
+                                    {!values.over_eighteen ? (
                                         <Grid item xs={12} sm={6}>
                                             <TextField
                                                 id="age"
