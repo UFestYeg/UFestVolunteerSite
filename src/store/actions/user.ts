@@ -1,5 +1,4 @@
 import axios from "axios";
-import { actions as notifActions } from "redux-notifications";
 import { AuthUrls } from "../../constants";
 import { DefaultUser, IUserProfile } from "../types";
 import * as ActionTypes from "./actionTypes";
@@ -49,7 +48,6 @@ export const getUserProfile = () => {
         }
     };
 };
-
 
 // export function updateUserProfile(formValues, dispatch, props) {
 //     const token = getUserToken(store.getState());
