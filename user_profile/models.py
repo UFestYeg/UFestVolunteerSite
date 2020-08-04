@@ -33,3 +33,4 @@ class UserProfile(models.Model):
     t_shirt_size = models.CharField(
         max_length=4, choices=T_SHIRT_SIZES_CHOICES, default=M,
     )
+    users = models.Manager()

@@ -49,7 +49,6 @@ export const getUserProfile = () => {
     };
 };
 
-
 // export function updateUserProfile(formValues, dispatch, props) {
 //     const token = getUserToken(store.getState());
 

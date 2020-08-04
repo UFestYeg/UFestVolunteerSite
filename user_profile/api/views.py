@@ -9,5 +9,5 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     This viewset automatically provides `list`, `detail`, `create`, `update` and `delete` actions.
     """
 
-    queryset = UserProfile.events.all()
+    queryset = UserProfile.users.all()
     serializer_class = UserProfileSerializer
