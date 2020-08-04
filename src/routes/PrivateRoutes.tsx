@@ -5,6 +5,7 @@ import { ProtectedRoute } from "../components/ProtectedRoute";
 import { ScheduleEventDetails } from "../components/ScheduleEventDetails";
 import { ScheduleEventList } from "../components/ScheduleEventList";
 import ProfileRoutes from "./ProfileRoutes";
+import { EventsCalendar } from "../components/Calendar";
 
 const PrivateRoutes: React.FC = () => {
     const { path } = useRouteMatch();
@@ -12,6 +13,11 @@ const PrivateRoutes: React.FC = () => {
     return (
         <React.Fragment>
             <Switch>
+                <ProtectedRoute
+                    exact
+                    path={`${path}/calendar`}
+                    component={EventsCalendar}
+                />
                 <ProtectedRoute
                     exact
                     path={`${path}/events`}

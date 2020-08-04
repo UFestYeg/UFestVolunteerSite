@@ -64,7 +64,7 @@ const ScheduleEventList: React.FC = () => {
                         <ListItem
                             button
                             component={Link}
-                            to={`volunteer/events/${value.id}`}
+                            to={`events/${value.id}`}
                             key={`list-${value.id}`}
                         >
                             <ListItemText primary={value.title} />

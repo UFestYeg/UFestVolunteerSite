@@ -65,6 +65,27 @@ const EventsCalendar: React.FC = () => {
         }
     }, [token]);
 
+    const updateEvent = (
+        event: ScheduleEventType,
+        start: string | Date,
+        end: string | Date
+    ) => {
+        axios.defaults.headers = {
+            Authorization: token,
+            "Content-Type": "application/json",
+        };
+        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+            axios
+                .put(`${process.env["REACT_APP_API_URI"]}api/${event.id}/`, {
+                    ...event,
+                    start_time: start,
+                    end_time: end,
+                })
+                .then((res) => console.log(res))
+                .catch((err) => console.error(err));
+        }
+    };
+
     const onEventResize = (data: DragAndDropData) => {
         const { start, end, event } = data;
         console.log(start, end);
@@ -73,6 +94,7 @@ const EventsCalendar: React.FC = () => {
                 ? { ...existingEvent, start_time: start, end_time: end }
                 : existingEvent;
         });
+        updateEvent(event, start, end);
         setList(nextEvents);
     };
 
@@ -116,7 +138,7 @@ const EventsCalendar: React.FC = () => {
                 ? { ...existingEvent, start_time: start, end_time: end, allDay }
                 : existingEvent;
         });
-
+        updateEvent(event, start, end);
         setList(nextEvents);
     };
 
