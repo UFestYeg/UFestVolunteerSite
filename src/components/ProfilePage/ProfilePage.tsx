@@ -7,6 +7,7 @@ import { Link, useRouteMatch } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
     large: {
@@ -38,12 +39,30 @@ const ProfilePage: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
+    const token = StateHooks.useToken();
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile());
-    }, [dispatch]);
+        dispatch(userActions.getUserProfile()).then(
+            ({ payload }: userActions.ActionType) => {
+                if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+                    axios.defaults.headers = {
+                        Authorization: token,
+                        "Content-Type": "application/json",
+                    };
+
+                    axios
+                        .get(`${process.env["REACT_APP_API_URI"]}api/users`)
+                        .then((res) => {
+                            setList(res.data);
+                            console.log(res.data);
+                        });
+                }
+            }
+        );
+    }, [dispatch, token]);
 
     const userProfile = StateHooks.useUserProfile();
+    console.log(userProfile);
     return (
         <Grid
             className={classes.grid}
