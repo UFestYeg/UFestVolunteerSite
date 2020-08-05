@@ -19,7 +19,7 @@ let theme = createMuiTheme({
             secondary: "#fff",
         },
         background: {
-            paper: "#b2e4f1",
+            paper: "#fff",
             default: "#fff",
         },
     },

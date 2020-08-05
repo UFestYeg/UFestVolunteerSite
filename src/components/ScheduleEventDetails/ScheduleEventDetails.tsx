@@ -60,7 +60,9 @@ const ScheduleEventDetails: React.FC<any> = () => {
                 "Content-Type": "application/json",
             };
             axios
-                .get(`${process.env["REACT_APP_API_URI"]}api/${eventID}/`)
+                .get(
+                    `${process.env["REACT_APP_API_URI"]}api/events/${eventID}/`
+                )
                 .then((res) => {
                     setEvent(res.data);
                     console.log(res.data);
@@ -70,7 +72,9 @@ const ScheduleEventDetails: React.FC<any> = () => {
 
     const handleDelete = () => {
         if (token) {
-            axios.delete(`${process.env["REACT_APP_API_URI"]}api/${eventID}/`);
+            axios.delete(
+                `${process.env["REACT_APP_API_URI"]}api/events/${eventID}/`
+            );
             history.push("/events");
         }
     };

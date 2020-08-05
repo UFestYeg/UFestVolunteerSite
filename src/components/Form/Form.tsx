@@ -18,6 +18,7 @@ import * as Yup from "yup";
 import Copyright from "../Copyright";
 
 interface IFormValues {
+    category: string;
     title: string;
     description: string;
     startTime: Date | null;
@@ -64,6 +65,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         eventID: number | undefined
     ) => {
         console.log(values.title);
+        const category = values.category;
         const title = values.title;
         const description = values.description;
         const startTime = values.startTime;
@@ -79,7 +81,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
             switch (requestType) {
                 case "POST":
                     axios
-                        .post(`${process.env["REACT_APP_API_URI"]}api`, {
+                        .post(`${process.env["REACT_APP_API_URI"]}api/events`, {
                             title,
                             description,
                             start_time: startTime,
@@ -92,7 +94,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                 case "PUT":
                     axios
                         .put(
-                            `${process.env["REACT_APP_API_URI"]}api/${eventID}/`,
+                            `${process.env["REACT_APP_API_URI"]}api/events/${eventID}/`,
                             {
                                 title,
                                 description,
@@ -115,6 +117,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
             <div className={classes.paper}>
                 <Formik
                     initialValues={{
+                        category: "",
                         title: "",
                         description: "",
                         startTime: new Date(),
@@ -122,6 +125,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                         numberOfSlots: 0,
                     }}
                     validationSchema={Yup.object({
+                        category: Yup.string().required("Required"),
                         title: Yup.string().required("Required"),
                         description: Yup.string().required("Required"),
                         startTime: Yup.date().required("Required"),
@@ -156,12 +160,32 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                     }) => (
                         <Form className={classes.form} onSubmit={handleSubmit}>
                             <TextField
-                                variant="outlined"
+                                variant="filled"
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="category"
+                                label="Position Category"
+                                name="category"
+                                autoComplete="category"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.category}
+                                helperText={
+                                    errors.category && touched.category
+                                        ? errors.title
+                                        : ""
+                                }
+                                error={touched.title && Boolean(errors.title)}
+                                autoFocus
+                            />
+                            <TextField
+                                variant="filled"
                                 margin="normal"
                                 required
                                 fullWidth
                                 id="title"
-                                label="Event Title"
+                                label="Position Title"
                                 name="title"
                                 autoComplete="title"
                                 onChange={handleChange}
@@ -176,12 +200,12 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                 autoFocus
                             />
                             <TextField
-                                variant="outlined"
+                                variant="filled"
                                 margin="normal"
                                 required
                                 fullWidth
                                 name="description"
-                                label="Description"
+                                label="Position Description"
                                 type="description"
                                 id="description"
                                 autoComplete="description"
@@ -264,9 +288,10 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                 </Grid>
                             </MuiPickersUtilsProvider>
                             <TextField
+                                variant="filled"
                                 id="standard-number"
                                 name="numberOfSlots"
-                                label="Number"
+                                label="Number of positions"
                                 type="number"
                                 InputLabelProps={{
                                     shrink: true,

@@ -1,14 +1,28 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { StateHooks } from "../../store/hooks";
-import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import {
+    Calendar,
+    momentLocalizer,
+    Views,
+    ToolbarProps,
+} from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import UFestWeek from "./UFestWeek";
 import CalendarToolbar from "./CalendarToolbar";
-import { Container } from "@material-ui/core";
+import {
+    Container,
+    Dialog,
+    DialogActions,
+    DialogTitle,
+    DialogContent,
+    Button,
+    TextField,
+    DialogContentText,
+} from "@material-ui/core";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-
+import { CustomForm } from "../Form";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
 type ScheduleEventType = {
@@ -43,6 +57,8 @@ const EventsCalendar: React.FC = () => {
     const [displayDragItemInCell, setDisplayDragItemInCell] = useState<boolean>(
         true
     );
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+
     const token = StateHooks.useToken();
 
     useEffect(() => {
@@ -52,16 +68,18 @@ const EventsCalendar: React.FC = () => {
                 "Content-Type": "application/json",
             };
 
-            axios.get(`${process.env["REACT_APP_API_URI"]}api`).then((res) => {
-                var data = res.data;
-                var mappedData = data.map((d: any) => {
-                    d.start_time = new Date(d.start_time);
-                    d.end_time = new Date(d.end_time);
-                    return d;
+            axios
+                .get(`${process.env["REACT_APP_API_URI"]}api/events`)
+                .then((res) => {
+                    var data = res.data;
+                    var mappedData = data.map((d: any) => {
+                        d.start_time = new Date(d.start_time);
+                        d.end_time = new Date(d.end_time);
+                        return d;
+                    });
+                    setList(mappedData);
+                    console.log(mappedData);
                 });
-                setList(mappedData);
-                console.log(mappedData);
-            });
         }
     }, [token]);
 
@@ -76,11 +94,14 @@ const EventsCalendar: React.FC = () => {
         };
         if (token && process.env["REACT_APP_API_URI"] !== undefined) {
             axios
-                .put(`${process.env["REACT_APP_API_URI"]}api/${event.id}/`, {
-                    ...event,
-                    start_time: start,
-                    end_time: end,
-                })
+                .put(
+                    `${process.env["REACT_APP_API_URI"]}api/events/${event.id}/`,
+                    {
+                        ...event,
+                        start_time: start,
+                        end_time: end,
+                    }
+                )
                 .then((res) => console.log(res))
                 .catch((err) => console.error(err));
         }
@@ -156,7 +177,14 @@ const EventsCalendar: React.FC = () => {
                 defaultView="week"
                 defaultDate={new Date(2021, 4, 21)}
                 views={{ day: true, week: UFestWeek }}
-                components={{ toolbar: CalendarToolbar }}
+                components={{
+                    toolbar: (props: ToolbarProps) => (
+                        <CalendarToolbar
+                            {...props}
+                            openModal={() => setModalOpen(true)}
+                        />
+                    ),
+                }}
                 onEventDrop={moveEvent}
                 onEventResize={onEventResize}
                 resizable
@@ -167,7 +195,23 @@ const EventsCalendar: React.FC = () => {
                 // }
                 // onDropFromOutside={onDropFromOutside}
                 onDragStart={handleDragStart}
+                scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
             />
+            <Dialog
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                aria-labelledby="form-dialog-title"
+            >
+                <DialogActions>
+                    <Button onClick={() => setModalOpen(false)} color="primary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+                <DialogTitle id="form-dialog-title">Create Event</DialogTitle>
+                <DialogContent>
+                    <CustomForm requestTypeProp="POST" buttonText="Create" />
+                </DialogContent>
+            </Dialog>
         </Container>
     );
 };
