@@ -95,6 +95,13 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     onClose={onCloseFunc}
                 />
                 <NavListItem
+                    to={`${match.url}/calendar`}
+                    icon={<CalendarTodayIcon />}
+                    text="Calendar"
+                    activeClassName={classes.active}
+                    onClose={onCloseFunc}
+                />
+                <NavListItem
                     to={`${match.url}/profile`}
                     icon={<AccountCircleIcon />}
                     text="Profile"

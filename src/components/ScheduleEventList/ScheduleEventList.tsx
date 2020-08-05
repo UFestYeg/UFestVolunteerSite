@@ -48,7 +48,7 @@ const ScheduleEventList: React.FC = () => {
                 "Content-Type": "application/json",
             };
 
-            axios.get(`${process.env["REACT_APP_API_URI"]}api/`).then((res) => {
+            axios.get(`${process.env["REACT_APP_API_URI"]}api`).then((res) => {
                 setList(res.data);
                 console.log(res.data);
             });
@@ -64,7 +64,7 @@ const ScheduleEventList: React.FC = () => {
                         <ListItem
                             button
                             component={Link}
-                            to={`volunteer/events/${value.id}`}
+                            to={`events/${value.id}`}
                             key={`list-${value.id}`}
                         >
                             <ListItemText primary={value.title} />

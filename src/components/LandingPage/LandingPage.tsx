@@ -45,11 +45,11 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         image: {
             [theme.breakpoints.down("md")]: {
-                width: "40%",
+                width: "90%",
             },
             [theme.breakpoints.up("md")]: {
                 // float: "left",
-                width: "40%",
+                width: "90%",
             },
         },
         item: {
@@ -85,20 +85,20 @@ const LandingPage: React.FC = () => {
                 container
                 item
                 xs={12}
-                sm={6}
+                sm={9}
                 className={styles.item}
                 direction="column"
                 justify="center"
                 alignItems="flex-end"
             >
-                <Typography align="right" variant="h1">
-                    Volunteer
+                <Typography align="right" variant="h2">
+                    UFest Edmonton Ukranian Festival
                 </Typography>
-                <Typography align="right" variant="h1">
-                    @
+                <Typography align="right" variant="h3">
+                    Volunteer Sign-up Portal
                 </Typography>
             </Grid>
-            <Grid container item xs={12} sm={6} className={styles.item}>
+            <Grid container item xs={6} sm={3} className={styles.item}>
                 <Fade in>
                     <img
                         className={styles.image}
