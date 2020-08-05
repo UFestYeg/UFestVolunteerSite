@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 
@@ -7,7 +9,7 @@ from django.contrib.auth.models import User
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     over_eighteen = models.BooleanField(default=False)
-    age = models.IntegerField()
+    age = models.IntegerField(blank=True, null=True)
     previous_volunteer = models.BooleanField(default=False)
     dietary_restrictions = models.TextField()
     medical_restrictions = models.TextField()
@@ -33,3 +35,21 @@ class UserProfile(models.Model):
     t_shirt_size = models.CharField(
         max_length=4, choices=T_SHIRT_SIZES_CHOICES, default=M,
     )
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+    profiles = models.Manager()
+
+
+@receiver(post_save, sender=User, dispatch_uid="create_new_user_profile")
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.profiles.create(user=instance)
+
+
+@receiver(post_save, sender=User, dispatch_uid="update_user_profile")
+def save_user_profile(sender, instance, **kwargs):
+    post_save.disconnect(save_user_profile, sender=User)
+    instance.userprofile.save()
+    post_save.connect(save_user_profile, sender=User)

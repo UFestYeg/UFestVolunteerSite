@@ -168,7 +168,10 @@ const Header: React.FC<HeaderProps> = (props) => {
                                     to={"/volunteer/profile"}
                                     style={{ textDecoration: "none" }}
                                 >
-                                    <MenuItem className={classes.menuItem}>
+                                    <MenuItem
+                                        className={classes.menuItem}
+                                        onClick={handleClose}
+                                    >
                                         <Typography
                                             variant="subtitle2"
                                             className={classes.logout}

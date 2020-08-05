@@ -162,6 +162,14 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"anon": "100/day", "user": "1000/day"},
 }
 
+## User Authentication Settings
+
+ACCOUNT_ADAPTER = "user_profile.adapter.MyAccountAdapter"
+
+REST_AUTH_SERIALIZERS = {
+    "USER_DETAILS_SERIALIZER": "user_profile.serializers.UserSerializer"
+}
+
 # all auth
 
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"

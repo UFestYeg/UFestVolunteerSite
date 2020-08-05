@@ -30,6 +30,12 @@ export type ChangePasswordFailType = typeof CHANGE_PASSWORD_FAIL;
 // User
 export const USER_GET_PROFILE = "USER_GET_PROFILE";
 export const USER_CLEAR_PROFILE = "USER_CLEAR_PROFILE";
+export const UPDATE_PROFILE_START = "UPDATE_PROFILE_START";
+export const UPDATE_PROFILE_SUCCESS = "UPDATE_PROFILE_SUCCESS";
+export const UPDATE_PROFILE_FAIL = "UPDATE_PROFILE_FAIL";
 
 export type GetUserProfileType = typeof USER_GET_PROFILE;
 export type ClearUserProfileType = typeof USER_CLEAR_PROFILE;
+export type UpdateProfileStartType = typeof UPDATE_PROFILE_START;
+export type UpdateProfileSuccessType = typeof UPDATE_PROFILE_SUCCESS;
+export type UpdateProfileFailType = typeof UPDATE_PROFILE_FAIL;
