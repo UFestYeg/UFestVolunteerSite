@@ -7,13 +7,19 @@ import {
     Button,
     CircularProgress,
     Container,
+    InputAdornment,
+    IconButton,
     TextField,
     Typography,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { Lock as LockIcon } from "@material-ui/icons";
+import {
+    Lock as LockIcon,
+    Visibility,
+    VisibilityOff,
+} from "@material-ui/icons";
 import { Form, Formik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import * as Yup from "yup";
@@ -62,6 +68,21 @@ const PasswordReset: React.FC = () => {
     const dispatch = useDispatch();
     const { uid, token } = useParams();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
+    const [showPassword1, setShowPassword1] = useState(false);
+    const [showPassword2, setShowPassword2] = useState(false);
+
+    const handleClickShowPassword1 = () => {
+        setShowPassword1((oldShowPassword: boolean) => !oldShowPassword);
+    };
+    const handleClickShowPassword2 = () => {
+        setShowPassword2((oldShowPassword: boolean) => !oldShowPassword);
+    };
+
+    const handleMouseDownPassword = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        event.preventDefault();
+    };
 
     const errorMessage: any[] = [];
     if (error) {
@@ -137,58 +158,99 @@ const PasswordReset: React.FC = () => {
                                 onSubmit={handleSubmit}
                             >
                                 <TextField
+                                    autoFocus
                                     className={classes.textField}
-                                    color="primary"
                                     variant="outlined"
+                                    color="primary"
                                     margin="normal"
-                                    required
                                     fullWidth
+                                    required
                                     name="password"
                                     label="New Password"
-                                    type="password"
                                     id="password"
-                                    autoComplete="current-password"
+                                    type={showPassword1 ? "text" : "password"}
+                                    value={values.password}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle old password visibility"
+                                                    onClick={
+                                                        handleClickShowPassword1
+                                                    }
+                                                    onMouseDown={
+                                                        handleMouseDownPassword
+                                                    }
+                                                    edge="end"
+                                                >
+                                                    {showPassword1 ? (
+                                                        <Visibility />
+                                                    ) : (
+                                                        <VisibilityOff />
+                                                    )}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    error={
+                                        touched.password &&
+                                        Boolean(errors.password)
+                                    }
                                     helperText={
                                         errors.password && touched.password
                                             ? errors.password
                                             : ""
                                     }
-                                    error={
-                                        touched.password &&
-                                        Boolean(errors.password)
-                                    }
-                                    value={values.password}
-                                    autoFocus
                                 />
                                 <TextField
                                     className={classes.textField}
-                                    color="primary"
                                     variant="outlined"
+                                    color="primary"
                                     margin="normal"
-                                    required
                                     fullWidth
+                                    required
                                     name="confirmPassword"
                                     label="Confirm Password"
-                                    type="password"
                                     id="confirmPassword"
-                                    autoComplete="confirm-password"
+                                    type={showPassword2 ? "text" : "password"}
+                                    value={values.confirmPassword}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle old password visibility"
+                                                    onClick={
+                                                        handleClickShowPassword2
+                                                    }
+                                                    onMouseDown={
+                                                        handleMouseDownPassword
+                                                    }
+                                                    edge="end"
+                                                >
+                                                    {showPassword2 ? (
+                                                        <Visibility />
+                                                    ) : (
+                                                        <VisibilityOff />
+                                                    )}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    error={
+                                        touched.confirmPassword &&
+                                        Boolean(errors.confirmPassword)
+                                    }
                                     helperText={
                                         errors.confirmPassword &&
                                         touched.confirmPassword
                                             ? errors.confirmPassword
                                             : ""
                                     }
-                                    error={
-                                        touched.confirmPassword &&
-                                        Boolean(errors.confirmPassword)
-                                    }
-                                    value={values.confirmPassword}
                                 />
-
                                 <Button
                                     type="submit"
                                     disabled={isSubmitting || !isValid}

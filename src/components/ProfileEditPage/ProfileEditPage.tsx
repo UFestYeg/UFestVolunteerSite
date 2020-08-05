@@ -74,6 +74,7 @@ const Login: React.FC = () => {
     const dispatch = useDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const handleFormSubmit = (values: IProfileEditFormValues) => {
+        values.age = values.age === "" ? null : values.age;
         dispatch(userActions.updateUserProfile(values));
     };
 
@@ -147,9 +148,20 @@ const Login: React.FC = () => {
                             username: Yup.string().required("Required."),
                             email: Yup.string()
                                 .email("Invalid email address")
-                                .required("Required"),
+                                .required("Required."),
                             over_eighteen: Yup.boolean(),
-                            age: Yup.number().min(1).integer().nullable(),
+                            age: Yup.number()
+                                .min(1)
+                                .integer()
+                                .nullable()
+                                .when("over_eighteen", {
+                                    is: false,
+                                    then: Yup.number()
+                                        .min(1)
+                                        .integer()
+                                        .nullable()
+                                        .required("Required."),
+                                }),
                             previous_volunteer: Yup.boolean(),
                             dietary_restrictions: Yup.string(),
                             medical_restrictions: Yup.string(),

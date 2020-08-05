@@ -9,14 +9,20 @@ import {
     CircularProgress,
     Container,
     Grid,
+    IconButton,
+    InputAdornment,
     Link,
     TextField,
     Typography,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
+import {
+    LockOutlined as LockOutlinedIcon,
+    Visibility,
+    VisibilityOff,
+} from "@material-ui/icons";
 import { Form, Formik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
@@ -48,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
+    margin: {
+        marginTop: theme.spacing(1),
+    },
     textField: {
         "& label": {
             color: "grey",
@@ -66,6 +75,17 @@ const SignIn: React.FC = () => {
     const dispatch = useDispatch();
     const location = useLocation();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleClickShowPassword = () => {
+        setShowPassword((oldShowPassword) => !oldShowPassword);
+    };
+
+    const handleMouseDownPassword = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        event.preventDefault();
+    };
 
     const handleFormSubmit = (values: ILoginFormValues) => {
         const username = values.username;
@@ -115,10 +135,10 @@ const SignIn: React.FC = () => {
                                 username: "",
                             }}
                             validationSchema={Yup.object({
-                                username: Yup.string().required("Required"),
                                 password: Yup.string()
                                     .min(8, "Must be more than 8 characters")
                                     .required("Required"),
+                                username: Yup.string().required("Required"),
                             })}
                             onSubmit={(values, { setSubmitting }) => {
                                 setTimeout(() => {
@@ -135,7 +155,6 @@ const SignIn: React.FC = () => {
                                 handleChange,
                                 handleBlur,
                                 handleSubmit,
-                                setFieldValue,
                                 isSubmitting,
                                 isValid,
                             }) => (
@@ -173,25 +192,48 @@ const SignIn: React.FC = () => {
                                         variant="outlined"
                                         color="primary"
                                         margin="normal"
-                                        required
                                         fullWidth
+                                        required
                                         name="password"
                                         label="Password"
-                                        type="password"
                                         id="password"
-                                        autoComplete="current-password"
+                                        type={
+                                            showPassword ? "text" : "password"
+                                        }
+                                        value={values.password}
                                         onChange={handleChange}
                                         onBlur={handleBlur}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle password visibility"
+                                                        onClick={
+                                                            handleClickShowPassword
+                                                        }
+                                                        onMouseDown={
+                                                            handleMouseDownPassword
+                                                        }
+                                                        edge="end"
+                                                    >
+                                                        {showPassword ? (
+                                                            <Visibility />
+                                                        ) : (
+                                                            <VisibilityOff />
+                                                        )}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        error={
+                                            touched.password &&
+                                            Boolean(errors.password)
+                                        }
                                         helperText={
                                             errors.password && touched.password
                                                 ? errors.password
                                                 : ""
                                         }
-                                        error={
-                                            touched.password &&
-                                            Boolean(errors.password)
-                                        }
-                                        value={values.password}
                                     />
                                     <Button
                                         type="submit"
