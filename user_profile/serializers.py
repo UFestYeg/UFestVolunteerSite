@@ -5,8 +5,10 @@ from .models import UserProfile
 
 class UserSerializer(UserDetailsSerializer):
 
-    over_eighteen = serializers.BooleanField(source="userprofile.over_eighteen")
-    age = serializers.IntegerField(source="userprofile.age")
+    over_eighteen = serializers.BooleanField(
+        source="userprofile.over_eighteen")
+    age = serializers.IntegerField(
+        source="userprofile.age", allow_null=True, required=False)
     previous_volunteer = serializers.BooleanField(
         source="userprofile.previous_volunteer"
     )

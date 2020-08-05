@@ -125,7 +125,7 @@ const Login: React.FC = () => {
                             username: userProfile.username || "",
                             email: userProfile.email || "",
                             over_eighteen: userProfile.over_eighteen || false,
-                            age: userProfile.age || "",
+                            age: userProfile.age || null,
                             previous_volunteer:
                                 userProfile.previous_volunteer || false,
                             dietary_restrictions:
@@ -149,10 +149,7 @@ const Login: React.FC = () => {
                                 .email("Invalid email address")
                                 .required("Required"),
                             over_eighteen: Yup.boolean(),
-                            age: Yup.number()
-                                .min(1)
-                                .integer()
-                                .required("Required."),
+                            age: Yup.number().min(1).integer().nullable(),
                             previous_volunteer: Yup.boolean(),
                             dietary_restrictions: Yup.string(),
                             medical_restrictions: Yup.string(),
@@ -445,7 +442,7 @@ const Login: React.FC = () => {
                                             variant="outlined"
                                             margin="normal"
                                             name="emergency_contact"
-                                            label="Emergenct Contact"
+                                            label="Emergency Contact"
                                             fullWidth
                                             onChange={handleChange}
                                             onBlur={handleBlur}

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { actions as notifActions } from "redux-notifications";
 import { AuthUrls } from "../../constants";
 import history from "../../history";
 import { IProfileEditFormValues } from "../../store/types";
