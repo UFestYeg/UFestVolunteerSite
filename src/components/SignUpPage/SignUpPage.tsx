@@ -9,14 +9,20 @@ import {
     CircularProgress,
     Container,
     Grid,
+    IconButton,
+    InputAdornment,
     Link,
     TextField,
     Typography,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { LockOutlined as LockOutlinedIcon } from "@material-ui/icons";
+import {
+    LockOutlined as LockOutlinedIcon,
+    Visibility,
+    VisibilityOff,
+} from "@material-ui/icons";
 import { Form, Formik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
@@ -69,6 +75,22 @@ const SignUp: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
+    const [showPassword1, setShowPassword1] = useState(false);
+    const [showPassword2, setShowPassword2] = useState(false);
+
+    const handleClickShowPassword1 = () => {
+        setShowPassword1((oldShowPassword: boolean) => !oldShowPassword);
+    };
+    const handleClickShowPassword2 = () => {
+        setShowPassword2((oldShowPassword: boolean) => !oldShowPassword);
+    };
+
+    const handleMouseDownPassword = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        event.preventDefault();
+    };
+
     const handleFormSubmit = (values: ISignupFormValues) => {
         const firstName = values.firstName;
         const lastName = values.lastName;
@@ -108,7 +130,7 @@ const SignUp: React.FC = () => {
             {isAuthenticated ? (
                 <Redirect
                     to={{
-                        pathname: "/volunteer/events",
+                        pathname: "/volunteer",
                         state: {
                             from: location,
                         },
@@ -287,57 +309,109 @@ const SignUp: React.FC = () => {
                                         <Grid item xs={12}>
                                             <TextField
                                                 className={classes.textField}
-                                                color="primary"
                                                 variant="outlined"
-                                                required
+                                                color="primary"
+                                                margin="normal"
                                                 fullWidth
+                                                required
                                                 name="password"
                                                 label="Password"
-                                                type="password"
                                                 id="password"
-                                                autoComplete="current-password"
+                                                type={
+                                                    showPassword1
+                                                        ? "text"
+                                                        : "password"
+                                                }
+                                                value={values.password}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
+                                                InputProps={{
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton
+                                                                aria-label="toggle old password visibility"
+                                                                onClick={
+                                                                    handleClickShowPassword1
+                                                                }
+                                                                onMouseDown={
+                                                                    handleMouseDownPassword
+                                                                }
+                                                                edge="end"
+                                                            >
+                                                                {showPassword1 ? (
+                                                                    <Visibility />
+                                                                ) : (
+                                                                    <VisibilityOff />
+                                                                )}
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                                error={
+                                                    touched.password &&
+                                                    Boolean(errors.password)
+                                                }
                                                 helperText={
                                                     errors.password &&
                                                     touched.password
                                                         ? errors.password
                                                         : ""
                                                 }
-                                                error={
-                                                    touched.password &&
-                                                    Boolean(errors.password)
-                                                }
-                                                value={values.password}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
                                             <TextField
                                                 className={classes.textField}
-                                                color="primary"
                                                 variant="outlined"
-                                                required
+                                                color="primary"
+                                                margin="normal"
                                                 fullWidth
+                                                required
                                                 name="confirmPassword"
                                                 label="Confirm Password"
-                                                type="password"
                                                 id="confirmPassword"
-                                                autoComplete="confirm-password"
+                                                type={
+                                                    showPassword2
+                                                        ? "text"
+                                                        : "password"
+                                                }
+                                                value={values.confirmPassword}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                helperText={
-                                                    errors.confirmPassword &&
-                                                    touched.confirmPassword
-                                                        ? errors.confirmPassword
-                                                        : ""
-                                                }
+                                                InputProps={{
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton
+                                                                aria-label="toggle old password visibility"
+                                                                onClick={
+                                                                    handleClickShowPassword2
+                                                                }
+                                                                onMouseDown={
+                                                                    handleMouseDownPassword
+                                                                }
+                                                                edge="end"
+                                                            >
+                                                                {showPassword2 ? (
+                                                                    <Visibility />
+                                                                ) : (
+                                                                    <VisibilityOff />
+                                                                )}
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
                                                 error={
                                                     touched.confirmPassword &&
                                                     Boolean(
                                                         errors.confirmPassword
                                                     )
                                                 }
-                                                value={values.confirmPassword}
+                                                helperText={
+                                                    errors.confirmPassword &&
+                                                    touched.confirmPassword
+                                                        ? errors.confirmPassword
+                                                        : ""
+                                                }
                                             />
                                         </Grid>
                                     </Grid>
