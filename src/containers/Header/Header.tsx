@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = (props) => {
                         }
                         className={classes.root}
                         component="a"
-                        href="/"
+                        href={isAuthenticated ? "/volunteer" : "/"}
                     >
                         UFest Volunteering
                     </Typography>
