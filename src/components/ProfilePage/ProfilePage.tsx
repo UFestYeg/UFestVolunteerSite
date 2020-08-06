@@ -1,7 +1,16 @@
-import { Avatar, Button, Grid, Typography } from "@material-ui/core";
+import {
+    Avatar,
+    Button,
+    Grid,
+    Typography,
+    Paper,
+    Tabs,
+    Tab,
+} from "@material-ui/core";
+import { TabPanel } from "@material-ui/lab";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useRouteMatch } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
@@ -14,8 +23,12 @@ const useStyles = makeStyles((theme) => ({
         height: theme.spacing(8),
     },
     grid: {
-        border: "1px solid black",
+        // border: "1px solid black",
         marginTop: theme.spacing(2),
+        backgroundColor: theme.palette.primary.dark,
+        "&:before": {
+            opacity: 0.5,
+        },
     },
     button: {
         background: theme.palette.primary.main,
@@ -30,6 +43,9 @@ const useStyles = makeStyles((theme) => ({
         "&:hover": {
             background: theme.palette.secondary.dark,
         },
+        tabs: {
+            width: "100vw",
+        },
     },
 }));
 
@@ -38,6 +54,10 @@ const ProfilePage: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
+    const [value, setValue] = useState<string>("one");
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
+        setValue(newValue);
+    };
 
     useEffect(() => {
         dispatch(userActions.getUserProfile());
@@ -49,10 +69,28 @@ const ProfilePage: React.FC = () => {
             className={classes.grid}
             container
             spacing={2}
-            direction="row"
+            direction="column"
             justify="center"
-            alignItems="flex-start"
+            alignItems="center"
         >
+            <Paper>
+                <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    centered
+                >
+                    <Tab label="My Profile" />
+                    <Tab label="My Schedule" />
+                </Tabs>
+            </Paper>
+            {/* <TabPanel value={value} index={0} dir={theme.direction}>
+                Item One
+            </TabPanel>
+            <TabPanel value={value} index={1} dir={theme.direction}>
+                Item Two
+            </TabPanel> */}
             <Grid className={classes.grid} item xs={4}>
                 <Avatar className={classes.large}>
                     {userAvatarString(userProfile)}
