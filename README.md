@@ -1,4 +1,5 @@
 # UFest Volunteer Site
+![Master](https://github.com/UFestYeg/UFestVolunteerSite/workflows/CI/badge.svg)
 
 This site is for organization/management of volunteering at the annual Edmonton Ukrainian Festival
 
