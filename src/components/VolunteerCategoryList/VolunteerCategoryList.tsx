@@ -13,8 +13,10 @@ import {
 } from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { UserUrls } from "../../constants";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
@@ -40,17 +42,19 @@ type VolunteerCategoryType = {
 const VolunteerCategoryList: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
+    const dispatch = useDispatch();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const token = StateHooks.useToken();
 
     useEffect(() => {
         if (token) {
+            dispatch(volunteerActions.getVolunteerCategoryTypes());
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
 
-            axios.get(UserUrls.EVENT_LIST).then((res) => {
+            axios.get(UserUrls.POSITION_LIST).then((res) => {
                 setList(res.data);
                 console.log(res.data);
             });
@@ -66,7 +70,7 @@ const VolunteerCategoryList: React.FC = () => {
                         <ListItem
                             button
                             component={Link}
-                            to={`events/${value.id}`}
+                            to={`positions/${value.id}`}
                             key={`list-${value.id}`}
                         >
                             <ListItemText primary={value.title} />

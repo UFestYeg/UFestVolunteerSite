@@ -20,7 +20,9 @@ import {
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useDispatch } from "react-redux";
 import { UserUrls } from "../../constants";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 import CalendarToolbar from "./CalendarToolbar";
@@ -51,6 +53,7 @@ type DragStartArgs = {
 };
 
 const EventsCalendar: React.FC = () => {
+    const dispatch = useDispatch();
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
     const [draggedEvent, setDraggedEvent] = useState<ScheduleEventType | null>(
         null
@@ -64,12 +67,13 @@ const EventsCalendar: React.FC = () => {
 
     useEffect(() => {
         if (token) {
+            dispatch(volunteerActions.getVolunteerCategoryTypes());
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
 
-            axios.get(UserUrls.EVENT_LIST).then((res) => {
+            axios.get(UserUrls.POSITION_LIST).then((res) => {
                 const data = res.data;
                 const mappedData = data.map((d: any) => {
                     d.start_time = new Date(d.start_time);
@@ -93,14 +97,11 @@ const EventsCalendar: React.FC = () => {
         };
         if (token && process.env.REACT_APP_API_URI !== undefined) {
             axios
-                .put(
-                    `${process.env.REACT_APP_API_URI}api/events/${event.id}/`,
-                    {
-                        ...event,
-                        start_time: start,
-                        end_time: end,
-                    }
-                )
+                .put(UserUrls.POSITION_DETAILS(event.id), {
+                    ...event,
+                    start_time: start,
+                    end_time: end,
+                })
                 .then((res) => console.log(res))
                 .catch((err) => console.error(err));
         }
@@ -154,7 +155,7 @@ const EventsCalendar: React.FC = () => {
         }
 
         const nextEvents = currentList.map((existingEvent) => {
-            return existingEvent.id == event.id
+            return existingEvent.id === event.id
                 ? { ...existingEvent, start_time: start, end_time: end, allDay }
                 : existingEvent;
         });

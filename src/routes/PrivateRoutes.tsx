@@ -22,11 +22,11 @@ const PrivateRoutes: React.FC = () => {
                 />
                 <ProtectedRoute
                     exact
-                    path={`${path}/events`}
+                    path={`${path}/positions`}
                     component={VolunteerCategoryList}
                 />
                 <ProtectedRoute
-                    path={`${path}/events/:eventID`}
+                    path={`${path}/positions/:positionID`}
                     component={VolunteerCategoryDetails}
                 />
                 <ProtectedRoute

@@ -13,8 +13,10 @@ import {
 } from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { UserUrls } from "../../constants";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
@@ -47,28 +49,30 @@ type VolunteerCategoryType = {
 const VolunteerCategoryDetails: React.FC<any> = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
-    const { eventID } = useParams();
+    const { positionID } = useParams();
+    const dispatch = useDispatch();
     const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
     const token = StateHooks.useToken();
     const history = useHistory();
 
     useEffect(() => {
-        if (token && eventID) {
+        if (token && positionID) {
+            dispatch(volunteerActions.getVolunteerCategoryTypes());
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
-            axios.get(UserUrls.EVENT_DETAILS(eventID)).then((res) => {
+            axios.get(UserUrls.POSITION_DETAILS(positionID)).then((res) => {
                 setEvent(res.data);
                 console.log(res.data);
             });
         }
-    }, [eventID, token]);
+    }, [positionID, token]);
 
     const handleDelete = () => {
-        if (token && eventID) {
-            axios.delete(UserUrls.EVENT_DETAILS(eventID));
-            history.push("/events");
+        if (token && positionID) {
+            axios.delete(UserUrls.POSITION_DETAILS(positionID));
+            history.push("/positions");
         }
     };
 
@@ -135,7 +139,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
             ) : null}
             <CustomForm
                 requestTypeProp="PUT"
-                eventIdProp={eventID}
+                eventIdProp={positionID}
                 buttonText="Update"
             />
             <form onSubmit={handleDelete}>

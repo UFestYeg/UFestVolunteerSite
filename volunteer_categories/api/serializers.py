@@ -22,6 +22,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class VolunteerCategorySerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
+    category_type = CategoryTypeSerializer(read_only=True)
 
     class Meta:
         model = VolunteerCategory

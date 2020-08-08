@@ -1,8 +1,9 @@
 import { ROOT_URL } from "./urls";
 
 const UserUrls = {
-    EVENT_DETAILS: (eventID: number) => `${ROOT_URL}api/events/${eventID}/`,
-    EVENT_LIST: `${ROOT_URL}api/events`,
+    POSITION_DETAILS: (positionID: number) =>
+        `${ROOT_URL}api/positions/${positionID}/`,
+    POSITION_LIST: `${ROOT_URL}api/positions/`,
 };
 
 export default UserUrls;

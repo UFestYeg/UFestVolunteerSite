@@ -28,12 +28,17 @@ class CategoryType(models.Model):
 class VolunteerCategory(models.Model):
     class Meta:
         verbose_name_plural = "volunteer categories"
+
     title = models.CharField(max_length=120)
     description = models.TextField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     category_type = models.ForeignKey(
-        CategoryType, on_delete=models.SET_NULL, null=True, blank=True
+        CategoryType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="category_types",
     )
 
     categories = models.Manager()
@@ -41,12 +46,15 @@ class VolunteerCategory(models.Model):
     def __str__(self):
         return f"{self.title} {self.start_time}-{self.end_time}"
 
+
 class Role(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField()
     number_of_slots = models.IntegerField(default=1)
 
-    category = models.ForeignKey(VolunteerCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        VolunteerCategory, on_delete=models.CASCADE, related_name="roles",
+    )
 
     roles = models.Manager()
 
@@ -56,8 +64,8 @@ class Role(models.Model):
 
 class Request(models.Model):
     # category = models.ManyToManyField(VolunteerCategory, through="Role")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="requests")
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="requests")
 
     ACCEPTED = "ACCEPTED"
     DENIED = "DENIED"
