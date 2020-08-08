@@ -13,8 +13,9 @@ import axios from "axios";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { StateHooks } from "../../store/hooks";
 import * as Yup from "yup";
+import { UserUrls } from "../../constants";
+import { StateHooks } from "../../store/hooks";
 import Copyright from "../Copyright";
 
 interface IFormValues {
@@ -77,11 +78,11 @@ const CustomForm: React.FC<ICustomFormProps> = ({
             Authorization: token,
             "Content-Type": "application/json",
         };
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token) {
             switch (requestType) {
                 case "POST":
                     axios
-                        .post(`${process.env["REACT_APP_API_URI"]}api/events`, {
+                        .post(UserUrls.EVENT_LIST, {
                             title,
                             description,
                             start_time: startTime,
@@ -92,19 +93,20 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                         .catch((err) => console.error(err));
                     break;
                 case "PUT":
-                    axios
-                        .put(
-                            `${process.env["REACT_APP_API_URI"]}api/events/${eventID}/`,
-                            {
+                    if (eventID) {
+                        axios
+                            .put(UserUrls.EVENT_DETAILS(eventID), {
                                 title,
                                 description,
                                 start_time: startTime,
                                 end_time: endTime,
                                 number_of_slots: numberOfSlots,
-                            }
-                        )
-                        .then((res) => console.log(res))
-                        .catch((err) => console.error(err));
+                            })
+                            .then((res) => console.log(res))
+                            .catch((err) => console.error(err));
+                    } else {
+                        console.log("cannot update without `eventID`");
+                    }
                     break;
             }
         }

@@ -1,29 +1,30 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { StateHooks } from "../../store/hooks";
 import {
-    Calendar,
-    momentLocalizer,
-    Views,
-    ToolbarProps,
-} from "react-big-calendar";
-import moment from "moment";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import UFestWeek from "./UFestWeek";
-import CalendarToolbar from "./CalendarToolbar";
-import {
+    Button,
     Container,
     Dialog,
     DialogActions,
-    DialogTitle,
     DialogContent,
-    Button,
-    TextField,
     DialogContentText,
+    DialogTitle,
+    TextField,
 } from "@material-ui/core";
+import axios from "axios";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import {
+    Calendar,
+    momentLocalizer,
+    ToolbarProps,
+    Views,
+} from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import { CustomForm } from "../Form";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { UserUrls } from "../../constants";
+import { StateHooks } from "../../store/hooks";
+import { CustomForm } from "../Form";
+import CalendarToolbar from "./CalendarToolbar";
+import UFestWeek from "./UFestWeek";
 
 type ScheduleEventType = {
     id: number;
@@ -62,24 +63,22 @@ const EventsCalendar: React.FC = () => {
     const token = StateHooks.useToken();
 
     useEffect(() => {
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token) {
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
 
-            axios
-                .get(`${process.env["REACT_APP_API_URI"]}api/events`)
-                .then((res) => {
-                    var data = res.data;
-                    var mappedData = data.map((d: any) => {
-                        d.start_time = new Date(d.start_time);
-                        d.end_time = new Date(d.end_time);
-                        return d;
-                    });
-                    setList(mappedData);
-                    console.log(mappedData);
+            axios.get(UserUrls.EVENT_LIST).then((res) => {
+                const data = res.data;
+                const mappedData = data.map((d: any) => {
+                    d.start_time = new Date(d.start_time);
+                    d.end_time = new Date(d.end_time);
+                    return d;
                 });
+                setList(mappedData);
+                console.log(mappedData);
+            });
         }
     }, [token]);
 
@@ -92,10 +91,10 @@ const EventsCalendar: React.FC = () => {
             Authorization: token,
             "Content-Type": "application/json",
         };
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token && process.env.REACT_APP_API_URI !== undefined) {
             axios
                 .put(
-                    `${process.env["REACT_APP_API_URI"]}api/events/${event.id}/`,
+                    `${process.env.REACT_APP_API_URI}api/events/${event.id}/`,
                     {
                         ...event,
                         start_time: start,
@@ -111,7 +110,7 @@ const EventsCalendar: React.FC = () => {
         const { start, end, event } = data;
         console.log(start, end);
         const nextEvents = currentList.map((existingEvent) => {
-            return existingEvent.id == event.id
+            return existingEvent.id === event.id
                 ? { ...existingEvent, start_time: start, end_time: end }
                 : existingEvent;
         });

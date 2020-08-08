@@ -14,6 +14,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { UserUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-type ScheduleEventType = {
+type VolunteerCategoryType = {
     id: number;
     title: string;
     start_time: Date;
@@ -36,25 +37,23 @@ type ScheduleEventType = {
     category: string;
 };
 
-const ScheduleEventList: React.FC = () => {
+const VolunteerCategoryList: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
-    const [currentList, setList] = useState<ScheduleEventType[]>([]);
+    const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const token = StateHooks.useToken();
 
     useEffect(() => {
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token) {
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
 
-            axios
-                .get(`${process.env["REACT_APP_API_URI"]}api/events`)
-                .then((res) => {
-                    setList(res.data);
-                    console.log(res.data);
-                });
+            axios.get(UserUrls.EVENT_LIST).then((res) => {
+                setList(res.data);
+                console.log(res.data);
+            });
         }
     }, [token]);
 
@@ -82,4 +81,4 @@ const ScheduleEventList: React.FC = () => {
     );
 };
 
-export default ScheduleEventList;
+export default VolunteerCategoryList;

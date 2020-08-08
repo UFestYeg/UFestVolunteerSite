@@ -1,11 +1,9 @@
 import {
     Button,
-    List,
+    Grid,
     ListItem,
     ListItemProps,
-    ListItemText,
     Typography,
-    Grid,
 } from "@material-ui/core";
 import {
     createStyles,
@@ -16,6 +14,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import { UserUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
@@ -34,10 +33,10 @@ function ListItemLink(props: ListItemProps<"a", { button?: true }>) {
 }
 
 type SimpleListType = {
-    events: ScheduleEventType[];
+    events: VolunteerCategoryType[];
 };
 
-type ScheduleEventType = {
+type VolunteerCategoryType = {
     id: number;
     title: string;
     start_time: Date;
@@ -45,36 +44,30 @@ type ScheduleEventType = {
     number_of_slots: number;
 };
 
-const ScheduleEventDetails: React.FC<any> = () => {
+const VolunteerCategoryDetails: React.FC<any> = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const { eventID } = useParams();
-    const [currentEvent, setEvent] = useState<ScheduleEventType>();
+    const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
     const token = StateHooks.useToken();
     const history = useHistory();
 
     useEffect(() => {
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token && eventID) {
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
-            axios
-                .get(
-                    `${process.env["REACT_APP_API_URI"]}api/events/${eventID}/`
-                )
-                .then((res) => {
-                    setEvent(res.data);
-                    console.log(res.data);
-                });
+            axios.get(UserUrls.EVENT_DETAILS(eventID)).then((res) => {
+                setEvent(res.data);
+                console.log(res.data);
+            });
         }
     }, [eventID, token]);
 
     const handleDelete = () => {
-        if (token) {
-            axios.delete(
-                `${process.env["REACT_APP_API_URI"]}api/events/${eventID}/`
-            );
+        if (token && eventID) {
+            axios.delete(UserUrls.EVENT_DETAILS(eventID));
             history.push("/events");
         }
     };
@@ -159,4 +152,4 @@ const ScheduleEventDetails: React.FC<any> = () => {
     );
 };
 
-export default ScheduleEventDetails;
+export default VolunteerCategoryDetails;

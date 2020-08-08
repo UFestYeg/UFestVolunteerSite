@@ -1,14 +1,16 @@
 from rest_framework import serializers
 from rest_auth.serializers import UserDetailsSerializer
+from volunteer_categories.api.serializers import RequestSerializer
 from .models import UserProfile
 
 
 class UserSerializer(UserDetailsSerializer):
+    requests = RequestSerializer(many=True, read_only=True)
 
-    over_eighteen = serializers.BooleanField(
-        source="userprofile.over_eighteen")
+    over_eighteen = serializers.BooleanField(source="userprofile.over_eighteen")
     age = serializers.IntegerField(
-        source="userprofile.age", allow_null=True, required=False)
+        source="userprofile.age", allow_null=True, required=False
+    )
     previous_volunteer = serializers.BooleanField(
         source="userprofile.previous_volunteer"
     )
@@ -49,6 +51,7 @@ class UserSerializer(UserDetailsSerializer):
             "emergency_contact",
             "comments",
             "t_shirt_size",
+            "requests",
         )
 
     def update(self, instance, validated_data):
