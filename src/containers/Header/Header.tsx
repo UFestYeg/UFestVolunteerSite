@@ -2,6 +2,7 @@
 import {
     AppBar,
     Avatar,
+    Box,
     Button,
     IconButton,
     Menu,
@@ -19,6 +20,7 @@ import { auth as authActions, user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
 import "./Header.css";
+import Copyright from "../../components/Copyright";
 
 interface HeaderProps {
     onMenuClick: (clicked: boolean) => void;
@@ -33,6 +35,9 @@ const useStyles = makeStyles((theme) =>
             padding: theme.spacing(1),
             flexGrow: 1,
             "& a": { textDecoration: "none" },
+        },
+        copyright: {
+            padding: theme.spacing(2),
         },
         logo: {
             marginLeft: theme.spacing(3),
@@ -197,6 +202,9 @@ const Header: React.FC<HeaderProps> = (props) => {
                 </Toolbar>
             </AppBar>
             {props.children}
+            <Box mt={8} bgcolor="primary.main" className={classes.copyright}>
+                <Copyright />
+            </Box>
         </>
     );
 };

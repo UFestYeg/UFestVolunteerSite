@@ -59,7 +59,7 @@ const VolunteerCategoryList: React.FC = () => {
                 console.log(res.data);
             });
         }
-    }, [token]);
+    }, [token, dispatch]);
 
     return (
         <div className={classes.root}>

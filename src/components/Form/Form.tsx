@@ -27,7 +27,6 @@ import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { UserUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
-import Copyright from "../Copyright";
 
 interface IFormValues {
     category: string;
@@ -332,9 +331,6 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                     )}
                 </Formik>
             </div>
-            <Box mt={8}>
-                <Copyright />
-            </Box>
         </Container>
     );
 };
