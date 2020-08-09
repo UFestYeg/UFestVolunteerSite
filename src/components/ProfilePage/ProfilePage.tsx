@@ -10,7 +10,6 @@ import {
     Divider,
     Box,
 } from "@material-ui/core";
-import { TabPanel } from "@material-ui/lab";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
@@ -19,6 +18,7 @@ import { Link, useRouteMatch } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
+import { MySchedule } from "../Calendar";
 
 const useStyles = makeStyles((theme) => ({
     large: {
@@ -72,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
     heading: {
         marginLeft: theme.spacing(4),
         width: "95%",
+    },
+    age: {
+        marginLeft: theme.spacing(2),
     },
 }));
 
@@ -252,7 +255,7 @@ const ProfilePage: React.FC = () => {
                                 {userProfile.username}
                             </Typography>
                         </Grid>
-                        {!userProfile.over_eighteen ? (
+                        {!userProfile.over_eighteen && userProfile.age ? (
                             <Grid
                                 className={classes.grid}
                                 item
@@ -262,23 +265,28 @@ const ProfilePage: React.FC = () => {
                                 // xs={10}
                             >
                                 <Typography variant="subtitle2">
-                                    Over 110?
+                                    Over 18?
                                 </Typography>
                                 <Box
                                     flexGrow={1}
                                     alignItems="center"
                                     justifyContent="center"
                                 >
-                                    <Divider className={classes.divider} />
+                                    <Divider style={{ margin: "4%" }} />
                                 </Box>
                                 <Typography variant="body1">No</Typography>
-                                <Typography variant="subtitle2">Age</Typography>
+                                <Typography
+                                    className={classes.age}
+                                    variant="subtitle2"
+                                >
+                                    Age
+                                </Typography>
                                 <Box
                                     flexGrow={1}
                                     alignItems="center"
                                     justifyContent="center"
                                 >
-                                    <Divider className={classes.divider} />
+                                    <Divider style={{ margin: "4%" }} />
                                 </Box>
                                 <Typography variant="body1">
                                     {userProfile.age}
@@ -423,7 +431,7 @@ const ProfilePage: React.FC = () => {
                 </TabPanel>
             </Grid>
             <TabPanel value={value} index={1}>
-                <Typography variant="h1">Item Two</Typography>
+                <MySchedule requests={userProfile.requests} />
             </TabPanel>
         </Grid>
     );

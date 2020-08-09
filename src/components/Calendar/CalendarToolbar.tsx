@@ -64,21 +64,16 @@ const CustomToolbar: React.FC<ToolbarProps & AddPositionProps> = (props) => {
             alignItems="center"
             className={classes.grid}
         >
-            {props.view === "day" ? (
-                <ButtonGroup
-                    variant="contained"
-                    color="primary"
-                    aria-label="contained primary button group"
-                    size="small"
-                >
-                    <Button onClick={navigate.bind(null, "PREV")}>
-                        Previous
-                    </Button>
-                    <Button onClick={navigate.bind(null, "NEXT")}>Next</Button>
-                </ButtonGroup>
-            ) : (
-                ""
-            )}
+            <ButtonGroup
+                variant="contained"
+                color="primary"
+                aria-label="contained primary button group"
+                size="small"
+            >
+                <Button onClick={navigate.bind(null, "PREV")}>Previous</Button>
+                <Button onClick={navigate.bind(null, "NEXT")}>Next</Button>
+            </ButtonGroup>
+
             <Typography variant="subtitle1">{props.label}</Typography>
             <Grid item direction="row" justify="flex-end" alignItems="center">
                 <ButtonGroup

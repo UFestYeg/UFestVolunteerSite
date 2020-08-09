@@ -3,16 +3,16 @@ import { DefaultUser, IUserProfile } from "../types";
 import { updateObject } from "../utils";
 
 export interface IUserProfileState {
-    payload: IUserProfile;
+    profile: IUserProfile;
 }
 
 const initialState: IUserProfileState = {
-    payload: DefaultUser,
+    profile: DefaultUser,
 };
 
 const userGetProfile = (state: IUserProfileState, action: any) => {
     return updateObject(state, {
-        payload: action.payload,
+        profile: action.payload,
     });
 };
 

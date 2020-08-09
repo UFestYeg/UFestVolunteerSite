@@ -1,2 +1,3 @@
 import EventsCalendar from "./EventsCalendar";
-export { EventsCalendar };
+import MySchedule from "./MySchedule";
+export { EventsCalendar, MySchedule };

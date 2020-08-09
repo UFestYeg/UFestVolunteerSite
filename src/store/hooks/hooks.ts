@@ -27,7 +27,7 @@ export const useError = () => {
 };
 
 export const useUserProfile = () => {
-    return useSelector((state: State) => state.user.payload);
+    return useSelector((state: State) => state.user.profile);
 };
 
 export const useVolunteerCategoryTypes = () => {
