@@ -1,11 +1,9 @@
 import {
     Button,
-    List,
+    Grid,
     ListItem,
     ListItemProps,
-    ListItemText,
     Typography,
-    Grid,
 } from "@material-ui/core";
 import {
     createStyles,
@@ -15,7 +13,10 @@ import {
 } from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import { UserUrls } from "../../constants";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
@@ -34,10 +35,10 @@ function ListItemLink(props: ListItemProps<"a", { button?: true }>) {
 }
 
 type SimpleListType = {
-    events: ScheduleEventType[];
+    events: VolunteerCategoryType[];
 };
 
-type ScheduleEventType = {
+type VolunteerCategoryType = {
     id: number;
     title: string;
     start_time: Date;
@@ -45,33 +46,33 @@ type ScheduleEventType = {
     number_of_slots: number;
 };
 
-const ScheduleEventDetails: React.FC<any> = () => {
+const VolunteerCategoryDetails: React.FC<any> = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
-    const { eventID } = useParams();
-    const [currentEvent, setEvent] = useState<ScheduleEventType>();
+    const { positionID } = useParams();
+    const dispatch = useDispatch();
+    const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
     const token = StateHooks.useToken();
     const history = useHistory();
 
     useEffect(() => {
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token && positionID) {
+            dispatch(volunteerActions.getVolunteerCategoryTypes());
             axios.defaults.headers = {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
-            axios
-                .get(`${process.env["REACT_APP_API_URI"]}api/${eventID}/`)
-                .then((res) => {
-                    setEvent(res.data);
-                    console.log(res.data);
-                });
+            axios.get(UserUrls.POSITION_DETAILS(positionID)).then((res) => {
+                setEvent(res.data);
+                console.log(res.data);
+            });
         }
-    }, [eventID, token]);
+    }, [positionID, token]);
 
     const handleDelete = () => {
-        if (token) {
-            axios.delete(`${process.env["REACT_APP_API_URI"]}api/${eventID}/`);
-            history.push("/events");
+        if (token && positionID) {
+            axios.delete(UserUrls.POSITION_DETAILS(positionID));
+            history.push("/positions");
         }
     };
 
@@ -138,7 +139,7 @@ const ScheduleEventDetails: React.FC<any> = () => {
             ) : null}
             <CustomForm
                 requestTypeProp="PUT"
-                eventIdProp={eventID}
+                eventIdProp={positionID}
                 buttonText="Update"
             />
             <form onSubmit={handleDelete}>
@@ -155,4 +156,4 @@ const ScheduleEventDetails: React.FC<any> = () => {
     );
 };
 
-export default ScheduleEventDetails;
+export default VolunteerCategoryDetails;

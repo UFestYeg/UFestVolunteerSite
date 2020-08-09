@@ -39,3 +39,8 @@ export type ClearUserProfileType = typeof USER_CLEAR_PROFILE;
 export type UpdateProfileStartType = typeof UPDATE_PROFILE_START;
 export type UpdateProfileSuccessType = typeof UPDATE_PROFILE_SUCCESS;
 export type UpdateProfileFailType = typeof UPDATE_PROFILE_FAIL;
+
+// Volunteer
+export const GET_VOLUNTEER_CATEGORY_TYPES = "GET_VOLUNTEER_CATEGORY_TYPES";
+
+export type GetVolunteerCategoriesTypesType = typeof GET_VOLUNTEER_CATEGORY_TYPES;

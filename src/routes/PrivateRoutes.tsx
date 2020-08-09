@@ -4,8 +4,8 @@ import { EventsCalendar } from "../components/Calendar";
 import { HomePage } from "../components/HomePage";
 import { NotFoundPage } from "../components/NotFoundPage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
-import { ScheduleEventDetails } from "../components/ScheduleEventDetails";
-import { ScheduleEventList } from "../components/ScheduleEventList";
+import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails";
+import { VolunteerCategoryList } from "../components/VolunteerCategoryList";
 import ProfileRoutes from "./ProfileRoutes";
 
 const PrivateRoutes: React.FC = () => {
@@ -22,12 +22,12 @@ const PrivateRoutes: React.FC = () => {
                 />
                 <ProtectedRoute
                     exact
-                    path={`${path}/events`}
-                    component={ScheduleEventList}
+                    path={`${path}/positions`}
+                    component={VolunteerCategoryList}
                 />
                 <ProtectedRoute
-                    path={`${path}/events/:eventID`}
-                    component={ScheduleEventDetails}
+                    path={`${path}/positions/:positionID`}
+                    component={VolunteerCategoryDetails}
                 />
                 <ProtectedRoute
                     path={`${path}/profile`}
