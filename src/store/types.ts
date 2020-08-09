@@ -1,6 +1,6 @@
 import { TShirtSizeType } from "../types";
 import { actionTypes } from "./actions";
-import { AuthStateType, UserStateType } from "./reducers";
+import { AuthStateType, UserStateType, VolunteerStateType } from "./reducers";
 
 export type AuthActionType =
     | { type: actionTypes.StartType }
@@ -24,9 +24,15 @@ export type UserActionType =
     | { type: actionTypes.UpdateProfileSuccessType }
     | { type: actionTypes.UpdateProfileFailType; error: string };
 
+export type VolunteerActionType = {
+    type: actionTypes.GetVolunteerCategoriesTypesType;
+    payload: IVolunteerCategory[];
+};
+
 export interface State {
     auth: AuthStateType;
     user: UserStateType;
+    volunteer: VolunteerStateType;
 }
 
 export interface IUserProfile {
@@ -81,3 +87,13 @@ export interface IProfileEditFormValues {
     student_volunteer_hours: boolean;
     t_shirt_size: TShirtSizeType;
 }
+
+export interface IVolunteerCategory {
+    pk: number;
+    tag: string;
+}
+
+export const DefaultVolunteerCategory: IVolunteerCategory = {
+    pk: -1,
+    tag: "",
+};

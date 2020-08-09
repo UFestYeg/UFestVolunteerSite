@@ -3,26 +3,38 @@
 // tslint:disable: use-simple-attributes
 
 import DateFnsUtils from "@date-io/date-fns";
-import { Box, Button, Container, Grid, TextField } from "@material-ui/core";
+import {
+    Box,
+    Button,
+    Container,
+    FormControl,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+} from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     KeyboardDateTimePicker,
     MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import axios from "axios";
+import clsx from "clsx";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { StateHooks } from "../../store/hooks";
 import * as Yup from "yup";
+import { UserUrls } from "../../constants";
+import { StateHooks } from "../../store/hooks";
 import Copyright from "../Copyright";
 
 interface IFormValues {
+    category: string;
     title: string;
     description: string;
     startTime: Date | null;
     endTime: Date | null;
-    numberOfSlots: number;
 }
 
 type RequestType = "PUT" | "POST";
@@ -42,7 +54,16 @@ const useStyles = makeStyles((theme) => ({
     },
     form: {
         width: "100%", // Fix IE 11 issue.
-        marginTop: theme.spacing(1),
+        marginTop: theme.spacing(3),
+    },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
+    },
+    textField: {
+        "& label": {
+            color: "grey",
+        },
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
@@ -57,78 +78,96 @@ const CustomForm: React.FC<ICustomFormProps> = ({
     const theme = useTheme();
     const classes = useStyles(theme);
     const token = StateHooks.useToken();
+    const history = useHistory();
+    const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
+    const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
+        return categoryType.tag;
+    });
 
     const handleFormSubmit = (
         values: IFormValues,
         requestType: RequestType,
-        eventID: number | undefined
+        positionID: number | undefined
     ) => {
         console.log(values.title);
+        const category = values.category;
         const title = values.title;
         const description = values.description;
         const startTime = values.startTime;
         const endTime = values.endTime;
-        const numberOfSlots = values.numberOfSlots;
 
-        console.log(title, description, startTime, endTime, numberOfSlots);
+        console.log(title, category, description, startTime, endTime);
         axios.defaults.headers = {
             Authorization: token,
             "Content-Type": "application/json",
         };
-        if (token && process.env["REACT_APP_API_URI"] !== undefined) {
+        if (token) {
             switch (requestType) {
                 case "POST":
                     axios
-                        .post(`${process.env["REACT_APP_API_URI"]}api/`, {
+                        .post(UserUrls.POSITION_LIST, {
                             title,
+                            category,
                             description,
                             start_time: startTime,
                             end_time: endTime,
-                            number_of_slots: numberOfSlots,
                         })
-                        .then((res) => console.log(res))
+                        .then((res) => {
+                            console.log(res);
+                            history.push("/volunteer/calendar");
+                        })
                         .catch((err) => console.error(err));
                     break;
                 case "PUT":
-                    axios
-                        .put(
-                            `${process.env["REACT_APP_API_URI"]}api/${eventID}/`,
-                            {
+                    if (positionID) {
+                        axios
+                            .put(UserUrls.POSITION_DETAILS(positionID), {
                                 title,
+                                category,
                                 description,
                                 start_time: startTime,
                                 end_time: endTime,
-                                number_of_slots: numberOfSlots,
-                            }
-                        )
-                        .then((res) => console.log(res))
-                        .catch((err) => console.error(err));
+                            })
+                            .then((res) => {
+                                console.log(res);
+                                history.push("/volunteer/calendar");
+                            })
+                            .catch((err) => console.error(err));
+                    } else {
+                        console.log("cannot update without `positionID`");
+                    }
                     break;
             }
         }
     };
 
-    const history = useHistory();
+    const SelectChoices = () => {
+        return volunteerCategoryTypes.map((element, idx, arr) => {
+            return (
+                <MenuItem key={idx} value={element}>
+                    {element}
+                </MenuItem>
+            );
+        });
+    };
 
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
                 <Formik
                     initialValues={{
+                        category: "",
                         title: "",
                         description: "",
                         startTime: new Date(),
                         endTime: new Date(),
-                        numberOfSlots: 0,
                     }}
                     validationSchema={Yup.object({
+                        category: Yup.string().oneOf(volunteerCategoryTypes),
                         title: Yup.string().required("Required"),
                         description: Yup.string().required("Required"),
                         startTime: Yup.date().required("Required"),
                         endTime: Yup.date().required("Required"),
-                        numberOfSlots: Yup.number()
-                            .min(1, "Must be a positive number")
-                            .required("Required"),
                     })}
                     onSubmit={(values, { setSubmitting, resetForm }) => {
                         setTimeout(() => {
@@ -139,7 +178,6 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                 eventIdProp
                             );
                             setSubmitting(false);
-                            history.go(0);
                         }, 400);
                     }}
                 >
@@ -155,13 +193,30 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                         isValid,
                     }) => (
                         <Form className={classes.form} onSubmit={handleSubmit}>
+                            <FormControl
+                                className={clsx(
+                                    classes.formControl,
+                                    classes.textField
+                                )}
+                            >
+                                <InputLabel>Category</InputLabel>
+                                <Select
+                                    value={values.category}
+                                    onChange={handleChange}
+                                    label="Position Category"
+                                    name="category"
+                                    fullWidth
+                                >
+                                    {SelectChoices()}
+                                </Select>
+                            </FormControl>
                             <TextField
-                                variant="outlined"
+                                variant="filled"
                                 margin="normal"
                                 required
                                 fullWidth
                                 id="title"
-                                label="Event Title"
+                                label="Position Title"
                                 name="title"
                                 autoComplete="title"
                                 onChange={handleChange}
@@ -176,12 +231,12 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                 autoFocus
                             />
                             <TextField
-                                variant="outlined"
+                                variant="filled"
                                 margin="normal"
                                 required
                                 fullWidth
                                 name="description"
-                                label="Description"
+                                label="Position Description"
                                 type="description"
                                 id="description"
                                 autoComplete="description"
@@ -263,28 +318,6 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                     />
                                 </Grid>
                             </MuiPickersUtilsProvider>
-                            <TextField
-                                id="standard-number"
-                                name="numberOfSlots"
-                                label="Number"
-                                type="number"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.numberOfSlots}
-                                helperText={
-                                    errors.numberOfSlots &&
-                                    touched.numberOfSlots
-                                        ? errors.numberOfSlots
-                                        : ""
-                                }
-                                error={
-                                    touched.numberOfSlots &&
-                                    Boolean(errors.numberOfSlots)
-                                }
-                            />
                             <Button
                                 type="submit"
                                 disabled={isSubmitting || !isValid || !token}

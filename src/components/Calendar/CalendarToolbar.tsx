@@ -5,8 +5,15 @@ import {
     View,
     Messages,
 } from "react-big-calendar";
-import { ButtonGroup, Button, Grid, Typography } from "@material-ui/core";
+import {
+    ButtonGroup,
+    Button,
+    Grid,
+    Typography,
+    IconButton,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 const useStyles = makeStyles((theme) => ({
     grid: {
@@ -17,7 +24,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const CustomToolbar: React.FC<ToolbarProps> = (props) => {
+type AddPositionProps = {
+    openModal: () => void;
+};
+
+const CustomToolbar: React.FC<ToolbarProps & AddPositionProps> = (props) => {
     const classes = useStyles();
 
     function navigate(action: NavigateAction) {
@@ -69,14 +80,23 @@ const CustomToolbar: React.FC<ToolbarProps> = (props) => {
                 ""
             )}
             <Typography variant="subtitle1">{props.label}</Typography>
-            <ButtonGroup
-                variant="contained"
-                color="primary"
-                aria-label="contained primary button group"
-                size="small"
-            >
-                {viewNamesGroup(props.localizer.messages)}
-            </ButtonGroup>
+            <Grid item direction="row" justify="flex-end" alignItems="center">
+                <ButtonGroup
+                    variant="contained"
+                    color="primary"
+                    aria-label="contained primary button group"
+                    size="small"
+                >
+                    {viewNamesGroup(props.localizer.messages)}
+                </ButtonGroup>
+                <IconButton
+                    aria-label="add-event"
+                    color="primary"
+                    onClick={props.openModal}
+                >
+                    <AddCircleIcon fontSize="large" />
+                </IconButton>
+            </Grid>
         </Grid>
     );
 };

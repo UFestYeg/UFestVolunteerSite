@@ -88,7 +88,7 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
         <Drawer open={open} onClose={() => onCloseFunc(false)}>
             <List className={classes.inactive}>
                 <NavListItem
-                    to={`${match.url}/events`}
+                    to={`${match.url}/positions`}
                     icon={<CalendarTodayIcon />}
                     text="Schedule"
                     activeClassName={classes.active}

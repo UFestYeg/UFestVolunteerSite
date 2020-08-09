@@ -29,3 +29,7 @@ export const useError = () => {
 export const useUserProfile = () => {
     return useSelector((state: State) => state.user.payload);
 };
+
+export const useVolunteerCategoryTypes = () => {
+    return useSelector((state: State) => state.volunteer.categories);
+};
