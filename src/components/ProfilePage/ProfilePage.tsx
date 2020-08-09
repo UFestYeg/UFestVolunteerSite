@@ -3,41 +3,78 @@ import {
     Button,
     Grid,
     Typography,
-    List,
-    ListItem,
+    Paper,
+    Tabs,
+    Tab,
+    Container,
+    Divider,
+    Box,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useRouteMatch } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
+import { MySchedule } from "../Calendar";
 
 const useStyles = makeStyles((theme) => ({
     large: {
-        width: theme.spacing(8),
-        height: theme.spacing(8),
-        margin: theme.spacing(2),
+        width: theme.spacing(10),
+        height: theme.spacing(10),
     },
     grid: {
         // border: "1px solid black",
-        marginTop: theme.spacing(2),
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
+    },
+    container: {
+        // border: "1px solid black",
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
+        width: "99%",
     },
     button: {
         background: theme.palette.primary.main,
         border: 0,
         borderRadius: theme.spacing(2),
         // color: "white",
-        paddingBlock: theme.spacing(3),
-        margin: theme.spacing(3),
+        paddingBlock: theme.spacing(2),
+        margin: theme.spacing(1),
     },
     change: {
         background: theme.palette.secondary.main,
         "&:hover": {
             background: theme.palette.secondary.dark,
         },
+        tabs: {
+            width: "100vw",
+        },
+    },
+    paper: {
+        background: theme.palette.secondary.main,
+    },
+    hidden: {
+        display: "none",
+    },
+    fullWidth: {
+        width: "95%",
+        padding: theme.spacing(2),
+    },
+    tabPanel: {
+        margin: theme.spacing(2),
+    },
+    divider: {
+        margin: "2.1%",
+    },
+    heading: {
+        marginLeft: theme.spacing(4),
+        width: "95%",
+    },
+    age: {
+        marginLeft: theme.spacing(2),
     },
 }));
 
@@ -46,91 +83,356 @@ const ProfilePage: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
+    const [value, setValue] = useState<number>(0);
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+        setValue(newValue);
+    };
 
     useEffect(() => {
         dispatch(userActions.getUserProfile());
     }, [dispatch]);
 
     const userProfile = StateHooks.useUserProfile();
-    console.log(userProfile);
+    type TabPanelProps = {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    };
+    function TabPanel(props: TabPanelProps) {
+        const { children, value, index, ...other } = props;
+
+        return (
+            <Container
+                maxWidth="lg"
+                className={value != index ? classes.hidden : classes.tabPanel}
+                children={[children]}
+            />
+        );
+    }
+
     return (
         <Grid
-            className={classes.grid}
+            className={classes.container}
             container
             spacing={2}
             direction="column"
             justify="center"
-            alignItems="flex-start"
+            alignItems="center"
         >
-            <Grid
-                className={classes.grid}
-                item
-                container
-                direction="row"
-                alignItems="flex-start"
-                justify="flex-start"
-            >
-                <Avatar className={classes.large}>
-                    {userAvatarString(userProfile)}
-                </Avatar>
+            <Paper className={classes.paper}>
+                <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    centered
+                >
+                    <Tab label="My Profile" />
+                    <Tab label="My Schedule" />
+                </Tabs>
+            </Paper>
 
-                <Typography variant="h3">
-                    {userProfile.first_name
-                        ? `${userProfile.first_name} ${userProfile.last_name}`
-                        : "Firstname Lastname"}
-                </Typography>
-            </Grid>
             <Grid
                 className={classes.grid}
-                item
                 container
-                direction="column"
+                spacing={1}
+                justify="center"
                 alignItems="flex-start"
-                justify="flex-start"
+                direction="column"
                 xs={12}
             >
-                <Typography variant="h5">Other Info</Typography>
-                <List dense>
-                    <ListItem>email</ListItem>
-                    <ListItem>username</ListItem>
-                    <ListItem>over_eighteen</ListItem>
-                    <ListItem>age</ListItem>
-                    <ListItem>dietary_restrictions</ListItem>
-                    <ListItem>emergency_contact</ListItem>
-                    <ListItem>previous_volunteer</ListItem>
-                    <ListItem>special_interests</ListItem>
-                    <ListItem>student_volunteer_hours</ListItem>
-                    <ListItem>medical_restrictions</ListItem>
-                    <ListItem>t_shirt_size</ListItem>
-                    <ListItem>comments</ListItem>
-                </List>
-            </Grid>
-            <Grid className={classes.grid} item>
-                <Button
-                    size="large"
-                    className={clsx(classes.change, classes.button)}
-                    component={Link}
-                    to={`${url}/change_password`}
-                    color="secondary"
-                    variant="contained"
-                    disableElevation
+                <Grid
+                    container
+                    item
+                    direction="row"
+                    alignItems="center"
+                    justify="flex-start"
+                    className={classes.heading}
                 >
-                    Change Password
-                </Button>
+                    <Grid className={classes.grid} item>
+                        <Avatar className={classes.large}>
+                            {userAvatarString(userProfile)}
+                        </Avatar>
+                    </Grid>
+                    <Grid className={classes.tabPanel} item>
+                        <Typography variant="h2">
+                            {userProfile.first_name
+                                ? `${userProfile.first_name} ${userProfile.last_name}`
+                                : "Firstname Lastname"}
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <TabPanel value={value} index={0}>
+                    <Paper elevation={3} className={classes.fullWidth}>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            alignItems="center"
+                        >
+                            <Typography variant="h3">Other Info</Typography>
+                            <Divider orientation="vertical" flexItem />
+                            <Grid
+                                item
+                                container
+                                direction="column"
+                                alignItems="stretch"
+                                justify="flex-start"
+                                xs={3}
+                            >
+                                <Button
+                                    size="small"
+                                    className={clsx(
+                                        classes.change,
+                                        classes.button
+                                    )}
+                                    component={Link}
+                                    to={`${url}/change_password`}
+                                    color="secondary"
+                                    variant="contained"
+                                    disableElevation
+                                >
+                                    Change Password
+                                </Button>
+
+                                <Button
+                                    size="small"
+                                    className={clsx(
+                                        classes.change,
+                                        classes.button
+                                    )}
+                                    component={Link}
+                                    to={`${url}/edit`}
+                                    color="secondary"
+                                    variant="contained"
+                                    disableElevation
+                                >
+                                    Edit Profile
+                                </Button>
+                            </Grid>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">Email</Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.email}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                Username
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.username}
+                            </Typography>
+                        </Grid>
+                        {!userProfile.over_eighteen && userProfile.age ? (
+                            <Grid
+                                className={classes.grid}
+                                item
+                                container
+                                direction="row"
+                                justify="space-between"
+                                // xs={10}
+                            >
+                                <Typography variant="subtitle2">
+                                    Over 18?
+                                </Typography>
+                                <Box
+                                    flexGrow={1}
+                                    alignItems="center"
+                                    justifyContent="center"
+                                >
+                                    <Divider style={{ margin: "4%" }} />
+                                </Box>
+                                <Typography variant="body1">No</Typography>
+                                <Typography
+                                    className={classes.age}
+                                    variant="subtitle2"
+                                >
+                                    Age
+                                </Typography>
+                                <Box
+                                    flexGrow={1}
+                                    alignItems="center"
+                                    justifyContent="center"
+                                >
+                                    <Divider style={{ margin: "4%" }} />
+                                </Box>
+                                <Typography variant="body1">
+                                    {userProfile.age}
+                                </Typography>
+                            </Grid>
+                        ) : null}
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                Medical Resitrictions
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.medical_restrictions}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                Dietary Restrictions
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.dietary_restrictions}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                Emergency Contact Info
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.emergency_contact}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                Were you a previous volunteer?
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.previous_volunteer ? "Yes" : "No"}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                Do you want to claim student volunteer hours?
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.student_volunteer_hours
+                                    ? "Yes"
+                                    : "No"}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            className={classes.grid}
+                            item
+                            container
+                            direction="row"
+                            justify="space-between"
+                            // xs={10}
+                        >
+                            <Typography variant="subtitle2">
+                                T-shirt size?
+                            </Typography>
+                            <Box
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Divider className={classes.divider} />
+                            </Box>
+                            <Typography variant="body1">
+                                {userProfile.t_shirt_size}
+                            </Typography>
+                        </Grid>
+                    </Paper>
+                </TabPanel>
             </Grid>
-            <Grid className={classes.grid} item>
-                <Button
-                    size="large"
-                    className={clsx(classes.change, classes.button)}
-                    component={Link}
-                    to={`${url}/edit`}
-                    color="secondary"
-                    variant="contained"
-                    disableElevation
-                >
-                    Edit Profile
-                </Button>
-            </Grid>
+            <TabPanel value={value} index={1}>
+                <MySchedule requests={userProfile.requests} />
+            </TabPanel>
         </Grid>
     );
 };
