@@ -56,6 +56,7 @@ export interface IUserProfile {
     previous_volunteer: boolean;
     student_volunteer_hours: boolean;
     t_shirt_size: TShirtSizeType;
+    requests: IUserRequest[];
 }
 
 export const DefaultUser: IUserProfile = {
@@ -74,6 +75,7 @@ export const DefaultUser: IUserProfile = {
     previous_volunteer: false,
     student_volunteer_hours: false,
     t_shirt_size: "M",
+    requests: [],
 };
 
 export interface IProfileEditFormValues {
@@ -121,4 +123,28 @@ export const DefaultVolunteerCategory: IVolunteerCategory = {
     start_time: null,
     end_time: null,
     category_type: "",
+};
+
+export type IUserRequest = {
+    id: number;
+    user: number;
+    status: string;
+    role: IRole;
+};
+
+export type IVolunteerPosition = {
+    category_type: number;
+    description: string;
+    end_time: string | Date;
+    id: number;
+    start_time: string | Date;
+    title: string;
+};
+
+export type IRole = {
+    id: number;
+    title: string;
+    description: string;
+    number_of_slots: number;
+    category: IVolunteerPosition;
 };

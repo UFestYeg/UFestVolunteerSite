@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
             border: 0,
             borderRadius: theme.spacing(2),
             // color: "white",
-            paddingBlock: theme.spacing(3),
+            paddingBlock: theme.spacing(4),
             margin: theme.spacing(3),
         },
         signup: {

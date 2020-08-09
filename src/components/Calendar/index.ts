@@ -1,4 +1,6 @@
 import CalendarToolbar from "./CalendarToolbar";
 import EventsCalendar from "./EventsCalendar";
 import UFestWeek from "./UFestWeek";
-export { CalendarToolbar, EventsCalendar, UFestWeek };
+import MySchedule from "./MySchedule";
+
+export { CalendarToolbar, EventsCalendar, UFestWeek, MySchedule };

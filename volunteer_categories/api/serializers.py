@@ -2,12 +2,6 @@ from rest_framework import serializers
 from volunteer_categories.models import VolunteerCategory, Request, Role, CategoryType
 
 
-class RequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Request
-        fields = ("id", "user", "status")
-
-
 class CategoryTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryType
@@ -18,6 +12,15 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = ("id", "title", "description", "number_of_positions", "category")
+        depth = 1
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Request
+        fields = ("id", "user", "status", "role")
 
 
 class VolunteerCategorySerializer(serializers.ModelSerializer):

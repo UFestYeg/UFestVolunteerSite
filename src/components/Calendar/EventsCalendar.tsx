@@ -4,9 +4,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
-    TextField,
 } from "@material-ui/core";
 import axios from "axios";
 import moment from "moment";
@@ -17,8 +15,11 @@ import {
     ToolbarProps,
     Views,
 } from "react-big-calendar";
+// tslint:disable-next-line: no-submodule-imports
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
+// tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+// tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useDispatch } from "react-redux";
 import { UserUrls } from "../../constants";
@@ -99,8 +100,8 @@ const EventsCalendar: React.FC = () => {
             axios
                 .put(UserUrls.POSITION_DETAILS(event.id), {
                     ...event,
-                    start_time: start,
                     end_time: end,
+                    start_time: start,
                 })
                 .then((res) => console.log(res))
                 .catch((err) => console.error(err));
@@ -124,25 +125,25 @@ const EventsCalendar: React.FC = () => {
         setDraggedEvent(event);
     };
 
-    const dragFromOutsideItem = () => {
-        return draggedEvent;
-    };
+    // const dragFromOutsideItem = () => {
+    //     return draggedEvent;
+    // };
 
-    const onDropFromOutside = (data: DragAndDropData) => {
-        const { start, end, allDay } = data;
-        if (draggedEvent) {
-            const event: ScheduleEventType = {
-                id: draggedEvent.id,
-                title: draggedEvent.title,
-                start_time: start,
-                end_time: end,
-                allDay,
-            };
+    // const onDropFromOutside = (data: DragAndDropData) => {
+    //     const { start, end, allDay } = data;
+    //     if (draggedEvent) {
+    //         const event: ScheduleEventType = {
+    //             id: draggedEvent.id,
+    //             title: draggedEvent.title,
+    //             start_time: start,
+    //             end_time: end,
+    //             allDay,
+    //         };
 
-            setDraggedEvent(null);
-            moveEvent({ event, start, end, allDay });
-        }
-    };
+    //         setDraggedEvent(null);
+    //         moveEvent({ event, start, end, allDay });
+    //     }
+    // };
 
     const moveEvent = (data: DragAndDropData) => {
         const { event, start, end, allDay: droppedOnAllDaySlot } = data;
@@ -174,8 +175,8 @@ const EventsCalendar: React.FC = () => {
                 startAccessor="start_time"
                 endAccessor="end_time"
                 style={{ height: 600 }}
-                defaultView="week"
-                defaultDate={new Date(2021, 4, 21)}
+                defaultView="day"
+                defaultDate={new Date(2021, 4, 22)}
                 views={{ day: true, week: UFestWeek }}
                 components={{
                     toolbar: (props: ToolbarProps) => (

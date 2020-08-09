@@ -10,21 +10,28 @@ const moment = extendMoment(Moment);
 const UFEST_VOLUNTEERING_START_DATE = new Date("May 19, 2021");
 const UFEST_VOLUNTEERING_END_DATE = new Date("May 23, 2021");
 
-class UFestWeek extends React.Component {
-    range = Array.from(
-        moment
-            .range(UFEST_VOLUNTEERING_START_DATE, UFEST_VOLUNTEERING_END_DATE)
-            .by("day")
-    ).map((m) => m.toDate());
+class UFestWeek extends React.Component<{ date: Date }> {
+    range = (date: Date) =>
+        Array.from(
+            moment.range(date, moment(date).add(1, "d")).by("day")
+        ).map((m) => m.toDate());
 
     static navigate = (date: Date, action: NavigateAction) => {
         switch (action) {
             case "PREV":
-                return moment(date).subtract(5, "d").toDate();
-
+                if (moment(date).isAfter(UFEST_VOLUNTEERING_START_DATE)) {
+                    console.log("prev");
+                    return moment(date).subtract(1, "d").toDate();
+                } else {
+                    return date;
+                }
             case "NEXT":
-                return moment(date).add(5, "d").toDate();
-
+                if (moment(date).isBefore(UFEST_VOLUNTEERING_END_DATE)) {
+                    console.log("next");
+                    return moment(date).add(1, "d").toDate();
+                } else {
+                    return date;
+                }
             default:
                 return date;
         }
@@ -34,7 +41,15 @@ class UFestWeek extends React.Component {
     };
 
     render() {
-        return <TimeGrid {...this.props} range={this.range} />;
+        let { date } = this.props;
+        let range = this.range(date);
+        return (
+            <TimeGrid
+                {...this.props}
+                range={range}
+                onNavigate={UFestWeek.navigate}
+            />
+        );
     }
 }
 
