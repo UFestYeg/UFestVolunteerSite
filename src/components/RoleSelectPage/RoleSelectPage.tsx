@@ -1,11 +1,10 @@
 // tslint:disable: use-simple-attributes
 import {
-    Card,
-    CardContent,
-    CardMedia,
+    Divider,
     Grid,
-    GridList,
-    GridListTile,
+    List,
+    ListItem,
+    ListItemText,
     Typography,
     useMediaQuery,
 } from "@material-ui/core";
@@ -26,7 +25,7 @@ import {
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 
@@ -45,23 +44,25 @@ const useStyles = makeStyles((theme) =>
                 background: theme.palette.secondary.dark,
             },
         },
-        card: {
+        list: {
             transition: "0.3s",
             boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
             margin: 8,
             color: theme.palette.primary.dark,
             justifyContent: "center",
+            width: "80vw",
         },
-        cardContent: {
+        listContent: {
+            padding: theme.spacing(1),
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             alignItems: "center",
             textAlign: "center",
-            width: "100%",
+            width: "80vw",
         },
         grid: {
             overflow: "hidden",
@@ -106,48 +107,67 @@ const nameToIconMapKey = (name: string) => {
     return newName in iconMap ? newName : "other";
 };
 
-const CategorySelectPage: React.FC = () => {
+const RoleSelectPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
-    const smallWidth = useMediaQuery(theme.breakpoints.down("xs"));
-    const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
-    const volunteerCategoryTypeMap = volunteerCategories.reduce<any>(
-        (acc, categoryType) => {
-            acc[categoryType.tag] = categoryType.id;
-            return acc;
-        },
-        {}
-    );
-    const volunteerCategoryTypes = Object.keys(volunteerCategoryTypeMap);
-
+    const { categoryTypeID } = useParams();
+    const volunteerCategories = StateHooks.useVolunteerCategoriesOfType();
+    const roles = volunteerCategories.map((category, idx, _arr) => {
+        return category.roles;
+    });
+    const combinedRoles: any = {};
+    roles.flat().forEach((role) => {
+        if (role) {
+            if (role.title in combinedRoles) {
+                combinedRoles[role.title].number_of_positions +=
+                    role.number_of_positions;
+            } else {
+                combinedRoles[role.title] = role;
+            }
+        }
+    });
+    console.log("categoryTypeID");
+    console.log(categoryTypeID);
     useEffect(() => {
-        dispatch(volunteerActions.getVolunteerCategoryTypes());
-    }, [dispatch]);
+        dispatch(volunteerActions.getVolunteerCategoryOfType(categoryTypeID));
+    }, [dispatch, categoryTypeID]);
 
-    const GridTiles = () => {
-        return volunteerCategoryTypes.map((categoryType, idx, _arr) => (
-            <Link
-                to={`${url}/${volunteerCategoryTypeMap[categoryType]}`}
-                key={idx}
-                className={classes.link}
-            >
-                <GridListTile cols={1}>
-                    <Card className={classes.card}>
-                        <CardMedia
-                            className={classes.media}
-                            component={iconMap[nameToIconMapKey(categoryType)]}
-                        />
-                        <CardContent className={classes.cardContent}>
-                            <Typography color="textPrimary" variant="h3">
-                                {categoryType}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                </GridListTile>
-            </Link>
-        ));
+    const ListItems = () => {
+        console.log(roles);
+        console.log(volunteerCategories);
+        const flatRoles = Object.values(combinedRoles);
+        return flatRoles !== undefined && flatRoles.length > 0
+            ? flatRoles.map((role: any, idx: number, _arr: any[]) => {
+                  console.log(role);
+                  console.log("above");
+                  if (role) {
+                      return (
+                          <Link
+                              to={`${url}/roles/${role.id}`}
+                              key={idx}
+                              className={classes.link}
+                          >
+                              <ListItem button className={classes.listContent}>
+                                  <ListItemText>
+                                      <Typography color="textPrimary">
+                                          {role.title}
+                                      </Typography>
+                                  </ListItemText>
+                                  <ListItemText>
+                                      <Typography color="textPrimary">
+                                          positions available:{" "}
+                                          {role.number_of_positions}
+                                      </Typography>
+                                  </ListItemText>
+                              </ListItem>
+                              <Divider />
+                          </Link>
+                      );
+                  }
+              })
+            : null;
     };
 
     return (
@@ -163,16 +183,10 @@ const CategorySelectPage: React.FC = () => {
                 <Typography variant="h2">Request to Volunteer</Typography>
             </Grid>
             <Grid item>
-                <GridList
-                    cellHeight="auto"
-                    className={classes.gridList}
-                    cols={smallWidth ? 1 : 2}
-                >
-                    {GridTiles()}
-                </GridList>
+                <List className={classes.list}>{ListItems()}</List>
             </Grid>
         </Grid>
     );
 };
 
-export default CategorySelectPage;
+export default RoleSelectPage;

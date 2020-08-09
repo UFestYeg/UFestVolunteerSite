@@ -35,7 +35,7 @@ type VolunteerCategoryType = {
     title: string;
     start_time: Date;
     end_time: Date;
-    number_of_slots: number;
+    number_of_positions: number;
     category: string;
 };
 

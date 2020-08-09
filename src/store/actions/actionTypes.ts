@@ -42,5 +42,7 @@ export type UpdateProfileFailType = typeof UPDATE_PROFILE_FAIL;
 
 // Volunteer
 export const GET_VOLUNTEER_CATEGORY_TYPES = "GET_VOLUNTEER_CATEGORY_TYPES";
+export const GET_VOLUNTEER_CATEGORY_OF_TYPE = "GET_VOLUNTEER_CATEGORY_OF_TYPE";
 
 export type GetVolunteerCategoriesTypesType = typeof GET_VOLUNTEER_CATEGORY_TYPES;
+export type GetVolunteerCategoriesOfTypeType = typeof GET_VOLUNTEER_CATEGORY_OF_TYPE;

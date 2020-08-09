@@ -31,5 +31,9 @@ export const useUserProfile = () => {
 };
 
 export const useVolunteerCategoryTypes = () => {
+    return useSelector((state: State) => state.volunteer.categoryTypes);
+};
+
+export const useVolunteerCategoriesOfType = () => {
     return useSelector((state: State) => state.volunteer.categories);
 };

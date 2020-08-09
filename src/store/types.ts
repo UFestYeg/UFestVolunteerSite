@@ -24,10 +24,15 @@ export type UserActionType =
     | { type: actionTypes.UpdateProfileSuccessType }
     | { type: actionTypes.UpdateProfileFailType; error: string };
 
-export type VolunteerActionType = {
-    type: actionTypes.GetVolunteerCategoriesTypesType;
-    payload: IVolunteerCategory[];
-};
+export type VolunteerActionType =
+    | {
+          type: actionTypes.GetVolunteerCategoriesTypesType;
+          payload: IVolunteerCategoryType[];
+      }
+    | {
+          type: actionTypes.GetVolunteerCategoriesOfTypeType;
+          payload: IVolunteerCategory[];
+      };
 
 export interface State {
     auth: AuthStateType;
@@ -88,13 +93,32 @@ export interface IProfileEditFormValues {
     t_shirt_size: TShirtSizeType;
 }
 
-export interface IVolunteerCategory {
+export interface IVolunteerCategoryType {
     [x: string]: any;
     pk: number;
     tag: string;
 }
 
-export const DefaultVolunteerCategory: IVolunteerCategory = {
+export const DefaultVolunteerCategoryType: IVolunteerCategoryType = {
     pk: -1,
     tag: "",
+};
+
+export interface IVolunteerCategory {
+    [x: string]: any;
+    pk: number;
+    title: string;
+    description: string;
+    start_time: Date | null;
+    end_time: Date | null;
+    category_type: string;
+}
+
+export const DefaultVolunteerCategory: IVolunteerCategory = {
+    pk: -1,
+    title: "",
+    description: "",
+    start_time: null,
+    end_time: null,
+    category_type: "",
 };

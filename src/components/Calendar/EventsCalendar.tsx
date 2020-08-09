@@ -35,7 +35,7 @@ type ScheduleEventType = {
     end_time: string | Date;
     allDay?: boolean;
     resource?: any;
-    number_of_slots?: number;
+    number_of_positions?: number;
     description?: string;
 };
 

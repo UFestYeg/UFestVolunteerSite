@@ -50,7 +50,7 @@ class VolunteerCategory(models.Model):
 class Role(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField()
-    number_of_slots = models.IntegerField(default=1)
+    number_of_positions= models.IntegerField(default=1)
 
     category = models.ForeignKey(
         VolunteerCategory, on_delete=models.CASCADE, related_name="roles",
@@ -59,7 +59,7 @@ class Role(models.Model):
     roles = models.Manager()
 
     def __str__(self):
-        return f"Role {self.title}: {self.number_of_slots}"
+        return f"Role {self.title}: {self.number_of_positions}"
 
 
 class Request(models.Model):
