@@ -22,8 +22,22 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class VolunteerCategorySerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
-    category_type = CategoryTypeSerializer(read_only=True)
+    category_type = CategoryTypeSerializer()
 
     class Meta:
         model = VolunteerCategory
-        fields = ("id", "title", "start_time", "end_time", "category_type", "roles")
+        fields = "__all__"
+
+    def create(self, validated_data):
+        category_type_validated_data = validated_data.pop("category_type")
+        volunteer_category = VolunteerCategory.categories.create(**validated_data)
+
+        category_type = CategoryType.types.get(
+            tag=category_type_validated_data.get("tag")
+        )
+
+        volunteer_category.category_type = category_type
+
+        volunteer_category.save()
+
+        return volunteer_category

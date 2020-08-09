@@ -89,6 +89,7 @@ export interface IProfileEditFormValues {
 }
 
 export interface IVolunteerCategory {
+    [x: string]: any;
     pk: number;
     tag: string;
 }

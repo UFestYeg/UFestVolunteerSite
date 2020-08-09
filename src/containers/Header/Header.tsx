@@ -16,11 +16,11 @@ import { Menu as MenuIcon } from "@material-ui/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import Copyright from "../../components/Copyright";
 import { auth as authActions, user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
 import "./Header.css";
-import Copyright from "../../components/Copyright";
 
 interface HeaderProps {
     onMenuClick: (clicked: boolean) => void;
@@ -38,6 +38,7 @@ const useStyles = makeStyles((theme) =>
         },
         copyright: {
             padding: theme.spacing(2),
+            marginTop: "calc(5% + 60px)",
         },
         logo: {
             marginLeft: theme.spacing(3),
