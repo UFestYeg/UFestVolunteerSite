@@ -3,16 +3,17 @@ import {
     Card,
     CardActions,
     CardContent,
+    CardHeader,
     Container,
     Grid,
-    Popover,
-    Typography,
-    CardHeader,
     IconButton,
     List,
     ListItem,
+    Popover,
+    Typography,
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { Cancel } from "@material-ui/icons";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -26,13 +27,11 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import { UserUrls, VolunteerUrls } from "../../constants";
+import { useHistory, useParams } from "react-router-dom";
+import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CalendarToolbar, UFestWeek } from "../Calendar";
-import { CustomForm } from "../Form";
-import { Cancel } from "@material-ui/icons";
 
 type ScheduleEventType = {
     id: number;
@@ -78,6 +77,12 @@ const useStyles = makeStyles((theme) =>
             textAlign: "center",
             width: "100%",
         },
+        cardHeader: {
+            width: "inherit",
+        },
+        eventRoot: {
+            height: "inherit",
+        },
         typography: {
             padding: theme.spacing(2),
         },
@@ -88,16 +93,11 @@ const PositionRequestPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const history = useHistory();
     const { categoryTypeID, roleID } = useParams();
+    const userProfile = StateHooks.useUserProfile();
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
     const [currentCategory, setCategory] = useState<string>("");
-    const [draggedEvent, setDraggedEvent] = useState<ScheduleEventType | null>(
-        null
-    );
-    const [displayDragItemInCell, setDisplayDragItemInCell] = useState<boolean>(
-        true
-    );
-    const [modalOpen, setModalOpen] = useState<boolean>(false);
 
     const token = StateHooks.useToken();
 
@@ -128,88 +128,13 @@ const PositionRequestPage: React.FC = () => {
                     });
                     setList(mappedData);
                     console.log(mappedData);
-                });
+                })
+                .catch((err) => console.error(err));
         }
     }, [categoryTypeID, dispatch, roleID, token]);
 
-    const updateEvent = (
-        event: ScheduleEventType,
-        start: string | Date,
-        end: string | Date
-    ) => {
-        if (token) {
-            axios.defaults.headers = {
-                Authorization: token,
-                "Content-Type": "application/json",
-            };
-            axios
-                .put(UserUrls.POSITION_DETAILS(event.id), {
-                    ...event,
-                    start_time: start,
-                    end_time: end,
-                })
-                .then((res) => console.log(res))
-                .catch((err) => console.error(err));
-        }
-    };
-
-    const onEventResize = (data: DragAndDropData) => {
-        const { start, end, event } = data;
-        console.log(start, end);
-        const nextEvents = currentList.map((existingEvent) => {
-            return existingEvent.id === event.id
-                ? { ...existingEvent, start_time: start, end_time: end }
-                : existingEvent;
-        });
-        updateEvent(event, start, end);
-        setList(nextEvents);
-    };
-
-    const handleDragStart = (data: DragStartArgs) => {
-        const { event } = data;
-        setDraggedEvent(event);
-    };
-
-    // const dragFromOutsideItem = () => {
-    //     return draggedEvent;
-    // };
-
-    // const onDropFromOutside = (data: DragAndDropData) => {
-    //     const { start, end, allDay } = data;
-    //     if (draggedEvent) {
-    //         const event: ScheduleEventType = {
-    //             id: draggedEvent.id,
-    //             title: draggedEvent.title,
-    //             start_time: start,
-    //             end_time: end,
-    //             allDay,
-    //         };
-
-    //         setDraggedEvent(null);
-    //         moveEvent({ event, start, end, allDay });
-    //     }
-    // };
-
-    const moveEvent = (data: DragAndDropData) => {
-        const { event, start, end, allDay: droppedOnAllDaySlot } = data;
-        let allDay = event.allDay;
-
-        if (!event.allDay && droppedOnAllDaySlot) {
-            allDay = true;
-        } else if (event.allDay && !droppedOnAllDaySlot) {
-            allDay = false;
-        }
-
-        const nextEvents = currentList.map((existingEvent) => {
-            return existingEvent.id === event.id
-                ? { ...existingEvent, start_time: start, end_time: end, allDay }
-                : existingEvent;
-        });
-        updateEvent(event, start, end);
-        setList(nextEvents);
-    };
-
     const Event = ({ event }: { event: any }) => {
+        const [requestError, setRequestError] = useState<any>();
         const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(
             null
         );
@@ -222,15 +147,44 @@ const PositionRequestPage: React.FC = () => {
             setAnchorEl(null);
         };
 
+        const handleSubmit = (role: any) => {
+            console.log(role);
+            console.log("role");
+            axios
+                .post(VolunteerUrls.REQUESTS, {
+                    status: "PENDING",
+                    user: userProfile.pk,
+                    role,
+                })
+                .then((res) => {
+                    console.log(res);
+                    history.push("/volunteer/profile/edit");
+                })
+                .catch((err) => {
+                    setRequestError(err);
+                    console.log(err.response);
+                    console.error(err);
+                });
+        };
+
+        const errorMessage =
+            requestError &&
+            requestError.response.data &&
+            requestError.response.data.detail ? (
+                <Typography variant="body1" color="error">
+                    {requestError.response.data.detail}
+                </Typography>
+            ) : null;
+
         const open = Boolean(anchorEl);
         const id = open ? "simple-popover" : undefined;
         const selectedRole = event.roles.find(
-            (e: any) => e.title === currentCategory
+            (r: any) => r.title === currentCategory
         );
         return (
             <>
-                <Container onClick={handleClick}>
-                    <strong>{event.title}</strong>
+                <Container onClick={handleClick} className={classes.eventRoot}>
+                    <strong>{event.title}</strong> : {currentCategory}
                     <br />
                     {selectedRole.number_of_positions &&
                         "Available Positions:  " +
@@ -253,6 +207,7 @@ const PositionRequestPage: React.FC = () => {
                     <Card className={classes.card}>
                         <CardContent className={classes.cardContent}>
                             <CardHeader
+                                className={classes.cardHeader}
                                 action={
                                     <IconButton
                                         aria-label="settings"
@@ -263,6 +218,7 @@ const PositionRequestPage: React.FC = () => {
                                 }
                                 title="Submit Request"
                             />
+                            {errorMessage}
                             <List dense>
                                 <ListItem>
                                     category:{" "}
@@ -274,14 +230,23 @@ const PositionRequestPage: React.FC = () => {
                                     position: {selectedRole.title}
                                 </ListItem>
                                 <ListItem>
-                                    start date: {event.start_time.getTime()}
+                                    start date:{" "}
+                                    {moment(event.start_time.getTime()).format(
+                                        "YYYY-MM-DD hh:mm a"
+                                    )}
                                 </ListItem>
                                 <ListItem>
-                                    end date: {event.end_time.getTime()}
+                                    end date:{" "}
+                                    {moment(event.end_time.getTime()).format(
+                                        "YYYY-MM-DD hh:mm a"
+                                    )}
                                 </ListItem>
                             </List>
                             <CardActions disableSpacing>
-                                <Button aria-label="add to favorites">
+                                <Button
+                                    aria-label="add to favorites"
+                                    onClick={() => handleSubmit(selectedRole)}
+                                >
                                     Submit
                                 </Button>
                                 <Button
@@ -315,22 +280,12 @@ const PositionRequestPage: React.FC = () => {
                 components={{
                     event: Event,
                     toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar
-                            {...props}
-                            openModal={() => setModalOpen(true)}
-                        />
+                        <CalendarToolbar {...props} openModal={() => null} />
                     ),
                 }}
-                onEventDrop={moveEvent}
-                onEventResize={onEventResize}
                 resizable
                 selectable
                 popup={true}
-                // dragFromOutsideItem={
-                //     displayDragItemInCell ? dragFromOutsideItem : null
-                // }
-                // onDropFromOutside={onDropFromOutside}
-                onDragStart={handleDragStart}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
             />
         </Container>

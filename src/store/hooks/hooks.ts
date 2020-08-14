@@ -30,6 +30,12 @@ export const useUserProfile = () => {
     return useSelector((state: State) => state.user.profile);
 };
 
+export const useUserInfo = () => {
+    const loading = useSelector((state: State) => state.user.loading);
+    const error = useSelector((state: State) => state.user.error);
+    return [useUserProfile(), loading, error];
+};
+
 export const useVolunteerCategoryTypes = () => {
     return useSelector((state: State) => state.volunteer.categoryTypes);
 };

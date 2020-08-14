@@ -50,7 +50,7 @@ class VolunteerCategory(models.Model):
 class Role(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField()
-    number_of_positions= models.IntegerField(default=1)
+    number_of_positions = models.IntegerField(default=1)
 
     category = models.ForeignKey(
         VolunteerCategory, on_delete=models.CASCADE, related_name="roles",
@@ -63,6 +63,11 @@ class Role(models.Model):
 
 
 class Request(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "role"], name="unique appversion")
+        ]
+
     # category = models.ManyToManyField(VolunteerCategory, through="Role")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="requests")
     role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="requests")

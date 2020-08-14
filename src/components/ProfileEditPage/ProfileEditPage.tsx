@@ -62,17 +62,18 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
+    subtitle: { color: "grey" },
     formControl: {
         margin: theme.spacing(1),
         minWidth: 120,
     },
 }));
 
-const Login: React.FC = () => {
+const ProfileEditPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
+    const [_userProfile, loading, error] = StateHooks.useUserInfo();
     const handleFormSubmit = (values: IProfileEditFormValues) => {
         values.age = values.age === "" ? null : values.age;
         dispatch(userActions.updateUserProfile(values));
@@ -114,6 +115,10 @@ const Login: React.FC = () => {
                 </Avatar>
                 <Typography component="h1" variant="h5">
                     Edit Profile
+                </Typography>
+                <Typography variant="subtitle2" className={classes.subtitle}>
+                    Fill out all relevant details in order to be considered for
+                    volunteer positions
                 </Typography>
                 {errorMessage}
                 {loading ? (
@@ -579,7 +584,7 @@ const Login: React.FC = () => {
                                     color="primary"
                                     className={classes.submit}
                                 >
-                                    Edit
+                                    Save Profile
                                 </Button>
                             </Form>
                         )}
@@ -590,4 +595,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default ProfileEditPage;

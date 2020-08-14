@@ -63,6 +63,7 @@ const useStyles = makeStyles((theme) =>
             textAlign: "center",
             width: "100%",
         },
+        root: { overflow: "hidden" },
         grid: {
             overflow: "hidden",
             marginTop: theme.spacing(3),
@@ -151,27 +152,29 @@ const CategorySelectPage: React.FC = () => {
     };
 
     return (
-        <Grid
-            container
-            spacing={3}
-            direction="column"
-            justify="center"
-            alignItems="center"
-            className={classes.grid}
-        >
-            <Grid item>
-                <Typography variant="h2">Request to Volunteer</Typography>
+        <div className={classes.root}>
+            <Grid
+                container
+                spacing={3}
+                direction="column"
+                justify="center"
+                alignItems="center"
+                className={classes.grid}
+            >
+                <Grid item>
+                    <Typography variant="h2">Request to Volunteer</Typography>
+                </Grid>
+                <Grid item>
+                    <GridList
+                        cellHeight="auto"
+                        className={classes.gridList}
+                        cols={smallWidth ? 1 : 2}
+                    >
+                        {GridTiles()}
+                    </GridList>
+                </Grid>
             </Grid>
-            <Grid item>
-                <GridList
-                    cellHeight="auto"
-                    className={classes.gridList}
-                    cols={smallWidth ? 1 : 2}
-                >
-                    {GridTiles()}
-                </GridList>
-            </Grid>
-        </Grid>
+        </div>
     );
 };
 
