@@ -7,10 +7,12 @@ import {
     DialogTitle,
 } from "@material-ui/core";
 import axios from "axios";
+import * as chroma from "chroma-js";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
     Calendar,
+    EventPropGetter,
     momentLocalizer,
     ToolbarProps,
     Views,
@@ -28,8 +30,9 @@ import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 import CalendarToolbar from "./CalendarToolbar";
 import UFestWeek from "./UFestWeek";
+import { customRequestStyle } from "./RequestEvent";
 
-type ScheduleEventType = {
+type VolunteerCategoryType = {
     id: number;
     title: string;
     start_time: string | Date;
@@ -38,27 +41,29 @@ type ScheduleEventType = {
     resource?: any;
     number_of_slots?: number;
     description?: string;
+    category?: string;
 };
 
 type DragAndDropData = {
-    event: ScheduleEventType;
+    event: VolunteerCategoryType;
     start: string | Date;
     end: string | Date;
     allDay: boolean;
 };
 
 type DragStartArgs = {
-    event: ScheduleEventType;
+    event: VolunteerCategoryType;
     action: "resize" | "move";
     direction: "UP" | "DOWN" | "LEFT" | "RIGHT";
 };
 
 const EventsCalendar: React.FC = () => {
     const dispatch = useDispatch();
-    const [currentList, setList] = useState<ScheduleEventType[]>([]);
-    const [draggedEvent, setDraggedEvent] = useState<ScheduleEventType | null>(
-        null
-    );
+    const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
+    const [
+        draggedEvent,
+        setDraggedEvent,
+    ] = useState<VolunteerCategoryType | null>(null);
     const [displayDragItemInCell, setDisplayDragItemInCell] = useState<boolean>(
         true
     );
@@ -79,16 +84,28 @@ const EventsCalendar: React.FC = () => {
                 const mappedData = data.map((d: any) => {
                     d.start_time = new Date(d.start_time);
                     d.end_time = new Date(d.end_time);
+                    d.category = d.category_type.tag;
                     return d;
                 });
                 setList(mappedData);
-                console.log(mappedData);
+                console.log("events", mappedData);
             });
         }
     }, [token]);
-
+    const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
+    const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
+        return categoryType.tag;
+    });
+    const colours = chroma
+        .scale(["#ffcc00", "#0099cc"])
+        .colors(volunteerCategoryTypes.length);
+    const colourMap = new Map<string, any>();
+    volunteerCategoryTypes.map((c: string, i: number) => {
+        colourMap.set(c, { backgroundColor: colours[i] });
+    });
+    console.log("colours", colourMap);
     const updateEvent = (
-        event: ScheduleEventType,
+        event: VolunteerCategoryType,
         start: string | Date,
         end: string | Date
     ) => {
@@ -164,6 +181,19 @@ const EventsCalendar: React.FC = () => {
         setList(nextEvents);
     };
 
+    const customEventStyle: EventPropGetter<VolunteerCategoryType> = (
+        event: VolunteerCategoryType,
+        start: string | Date,
+        end: string | Date,
+        isSelected: boolean
+    ) => {
+        if (event.category !== undefined) {
+            return { style: colourMap.get(event.category) };
+        } else {
+            return { className: "rbc-event" };
+        }
+    };
+
     const localizer = momentLocalizer(moment);
     const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -197,6 +227,7 @@ const EventsCalendar: React.FC = () => {
                 // onDropFromOutside={onDropFromOutside}
                 onDragStart={handleDragStart}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
+                eventPropGetter={customEventStyle}
             />
             <Dialog
                 open={modalOpen}
