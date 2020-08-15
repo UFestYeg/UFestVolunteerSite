@@ -2,6 +2,7 @@
 import {
     AppBar,
     Avatar,
+    Box,
     Button,
     IconButton,
     Menu,
@@ -15,6 +16,7 @@ import { Menu as MenuIcon } from "@material-ui/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import Copyright from "../../components/Copyright";
 import { auth as authActions, user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
@@ -33,6 +35,10 @@ const useStyles = makeStyles((theme) =>
             padding: theme.spacing(1),
             flexGrow: 1,
             "& a": { textDecoration: "none" },
+        },
+        copyright: {
+            padding: theme.spacing(2),
+            marginTop: "calc(5% + 60px)",
         },
         logo: {
             marginLeft: theme.spacing(3),
@@ -197,6 +203,9 @@ const Header: React.FC<HeaderProps> = (props) => {
                 </Toolbar>
             </AppBar>
             {props.children}
+            <Box mt={8} bgcolor="primary.main" className={classes.copyright}>
+                <Copyright />
+            </Box>
         </>
     );
 };

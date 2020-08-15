@@ -27,7 +27,6 @@ import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { UserUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
-import Copyright from "../Copyright";
 
 interface IFormValues {
     category: string;
@@ -83,6 +82,9 @@ const CustomForm: React.FC<ICustomFormProps> = ({
     const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
         return categoryType.tag;
     });
+    const getVolunteerCategory = (title: string) => {
+        return volunteerCategories.find((category) => category.tag === title);
+    };
 
     const handleFormSubmit = (
         values: IFormValues,
@@ -90,7 +92,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         positionID: number | undefined
     ) => {
         console.log(values.title);
-        const category = values.category;
+        const category = getVolunteerCategory(values.category);
         const title = values.title;
         const description = values.description;
         const startTime = values.startTime;
@@ -107,7 +109,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                     axios
                         .post(UserUrls.POSITION_LIST, {
                             title,
-                            category,
+                            category_type: category,
                             description,
                             start_time: startTime,
                             end_time: endTime,
@@ -123,7 +125,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                         axios
                             .put(UserUrls.POSITION_DETAILS(positionID), {
                                 title,
-                                category,
+                                category_type: category,
                                 description,
                                 start_time: startTime,
                                 end_time: endTime,
@@ -332,9 +334,6 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                     )}
                 </Formik>
             </div>
-            <Box mt={8}>
-                <Copyright />
-            </Box>
         </Container>
     );
 };

@@ -92,7 +92,7 @@ const LandingPage: React.FC = () => {
                 alignItems="flex-end"
             >
                 <Typography align="right" variant="h2">
-                    UFest Edmonton Ukranian Festival
+                    UFest Edmonton Ukrainian Festival
                 </Typography>
                 <Typography align="right" variant="h3">
                     Volunteer Sign-up Portal

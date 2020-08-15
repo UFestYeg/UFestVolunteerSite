@@ -7,8 +7,10 @@ import {
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
+    AccessibilityNew as AccessibilityNewIcon,
     AccountCircle as AccountCircleIcon,
     CalendarToday as CalendarTodayIcon,
+    Event as EventIcon,
     ExitToApp as ExitToAppIcon,
     Settings as SettingsIcon,
 } from "@material-ui/icons";
@@ -89,7 +91,7 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
             <List className={classes.inactive}>
                 <NavListItem
                     to={`${match.url}/positions`}
-                    icon={<CalendarTodayIcon />}
+                    icon={<EventIcon />}
                     text="Schedule"
                     activeClassName={classes.active}
                     onClose={onCloseFunc}
@@ -98,6 +100,13 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     to={`${match.url}/calendar`}
                     icon={<CalendarTodayIcon />}
                     text="Calendar"
+                    activeClassName={classes.active}
+                    onClose={onCloseFunc}
+                />
+                <NavListItem
+                    to={`${match.url}/categories`}
+                    icon={<AccessibilityNewIcon />}
+                    text="Volunteer"
                     activeClassName={classes.active}
                     onClose={onCloseFunc}
                 />

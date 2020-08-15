@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) =>
         },
         fab: {
             position: "fixed",
-            bottom: theme.spacing(2),
+            bottom: theme.spacing(3),
             left: "50%",
         },
     })
@@ -111,10 +111,7 @@ const HomePage: React.FC = () => {
         <main>
             <section id="home" className={clsx(classes.home, classes.parallax)}>
                 <Typography variant="h1" style={{ fontWeight: "bold" }}>
-                    Thanks For Signing Up!{" "}
-                    <span role="img" aria-label="Ukrainian Flag">
-                        🇺🇦
-                    </span>
+                    Thanks For Signing Up!
                 </Typography>
                 <ScrollTop>
                     <Fab

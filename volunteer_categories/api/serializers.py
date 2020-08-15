@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from volunteer_categories.models import VolunteerCategory, Request, Role, CategoryType
+from django.db.utils import IntegrityError
 
 
 class CategoryTypeSerializer(serializers.ModelSerializer):
@@ -9,26 +10,89 @@ class CategoryTypeSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Role
-        fields = ("id", "title", "description", "number_of_slots", "category")
+        fields = ("id", "title", "description", "number_of_positions", "category")
         depth = 1
 
 
 class RequestSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(many=False, read_only=True)
+    role = RoleSerializer()
 
     class Meta:
         model = Request
         fields = ("id", "user", "status", "role")
 
+    def create(self, validated_data):
+        try:
+            role_validated_data = validated_data.pop("role")
+            role = Role.roles.get(
+                title=role_validated_data.get("title"),
+                description=role_validated_data.get("description"),
+            )
+            validated_data["role"] = role
+            request = Request.requests.create(**validated_data)
+
+            # request.role = role
+
+            # request.save()
+
+            return request
+        except IntegrityError:
+            raise serializers.ValidationError(
+                {"detail": "Duplicate requests not allowed."}
+            )
+        except:
+            print("unexpected error")
+
+    # def update(self, instance, validated_data):
+    #     category_type_validated_data = validated_data.pop("role")
+
+    #     instance.status = validated_data.get("status", instance.status)
+
+    #     role = Role.roles.get(pk=role_validated_data.get("id"))
+
+    #     instance.role = role
+
+    #     instance.save()
+
+    #     return instance
+
 
 class VolunteerCategorySerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
-    category_type = CategoryTypeSerializer(read_only=True)
+    category_type = CategoryTypeSerializer()
 
     class Meta:
         model = VolunteerCategory
-        fields = ("id", "title", "start_time",
-                  "end_time", "category_type", "roles")
+        fields = "__all__"
+
+    def create(self, validated_data):
+        category_type_validated_data = validated_data.pop("category_type")
+        volunteer_category = VolunteerCategory.categories.create(**validated_data)
+        category_type = CategoryType.types.get(
+            tag=category_type_validated_data.get("tag")
+        )
+
+        volunteer_category.category_type = category_type
+
+        volunteer_category.save()
+        return volunteer_category
+
+    def update(self, instance, validated_data):
+        category_type_validated_data = validated_data.pop("category_type")
+
+        instance.title = validated_data.get("title", instance.title)
+        instance.description = validated_data.get("description", instance.description)
+        instance.start_time = validated_data.get("start_time", instance.start_time)
+        instance.end_time = validated_data.get("end_time", instance.end_time)
+
+        category_type = CategoryType.types.get(
+            tag=category_type_validated_data.get("tag")
+        )
+
+        instance.category_type = category_type
+
+        instance.save()
+
+        return instance

@@ -14,7 +14,7 @@ class RoleAdmin(admin.ModelAdmin):
 
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
-    list_display = ["status"]
+    list_display = ["status", "user", "role"]
 
     list_filter = [
         "status",
