@@ -43,7 +43,7 @@ type VolunteerCategoryType = {
     title: string;
     start_time: Date;
     end_time: Date;
-    number_of_slots: number;
+    number_of_positions: number;
 };
 
 const VolunteerCategoryDetails: React.FC<any> = () => {
@@ -132,7 +132,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                     >
                         <Typography variant="body1">
                             Number of volunteer slots available:{" "}
-                            {currentEvent.number_of_slots}
+                            {currentEvent.number_of_positions}
                         </Typography>
                     </Grid>
                 </Grid>

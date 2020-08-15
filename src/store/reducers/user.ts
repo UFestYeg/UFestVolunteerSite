@@ -4,9 +4,13 @@ import { updateObject } from "../utils";
 
 export interface IUserProfileState {
     profile: IUserProfile;
+    error: any | null;
+    loading: boolean;
 }
 
 const initialState: IUserProfileState = {
+    error: null,
+    loading: false,
     profile: DefaultUser,
 };
 
@@ -33,7 +37,7 @@ const updateProfileSuccess = (state: IUserProfileState, action: any) => {
 const updateProfileFail = (state: IUserProfileState, action: any) => {
     return updateObject(state, {
         error: action.error,
-        loading: true,
+        loading: false,
     });
 };
 

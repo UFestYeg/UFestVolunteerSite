@@ -1,9 +1,12 @@
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { EventsCalendar } from "../components/Calendar";
+import { CategorySelectPage } from "../components/CategorySelectPage";
 import { HomePage } from "../components/HomePage";
 import { NotFoundPage } from "../components/NotFoundPage";
+import { PositionRequestPage } from "../components/PositionRequestPage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { RoleSelectPage } from "../components/RoleSelectPage";
 import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails";
 import { VolunteerCategoryList } from "../components/VolunteerCategoryList";
 import ProfileRoutes from "./ProfileRoutes";
@@ -28,6 +31,20 @@ const PrivateRoutes: React.FC = () => {
                 <ProtectedRoute
                     path={`${path}/positions/:positionID`}
                     component={VolunteerCategoryDetails}
+                />
+                <ProtectedRoute
+                    exact
+                    path={`${path}/categories`}
+                    component={CategorySelectPage}
+                />
+                <ProtectedRoute
+                    exact
+                    path={`${path}/categories/:categoryTypeID`}
+                    component={RoleSelectPage}
+                />
+                <ProtectedRoute
+                    path={`${path}/categories/:categoryTypeID/roles/:roleID`}
+                    component={PositionRequestPage}
                 />
                 <ProtectedRoute
                     path={`${path}/profile`}
