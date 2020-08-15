@@ -78,19 +78,19 @@ class UserSerializer(UserDetailsSerializer):
                 profile.age = age
             if previous_volunteer is not None:
                 profile.previous_volunteer = previous_volunteer
-            if dietary_restrictions:
+            if dietary_restrictions is not None:
                 profile.dietary_restrictions = dietary_restrictions
-            if medical_restrictions:
+            if medical_restrictions is not None:
                 profile.medical_restrictions = medical_restrictions
-            if special_interests:
+            if special_interests is not None:
                 profile.special_interests = special_interests
             if student_volunteer_hours is not None:
                 profile.student_volunteer_hours = student_volunteer_hours
-            if emergency_contact:
+            if emergency_contact is not None:
                 profile.emergency_contact = emergency_contact
             if t_shirt_size:
                 profile.t_shirt_size = t_shirt_size
-            if comments:
+            if comments is not None:
                 profile.comments = comments
             profile.save()
         return instance
