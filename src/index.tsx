@@ -1,9 +1,14 @@
+// tslint:disable: no-submodule-imports
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
+import { persistReducer, persistStore } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
+import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import thunk from "redux-thunk";
 import App from "./App";
+import { Loading } from "./components/Loading";
 import * as serviceWorker from "./serviceWorker";
 import { authReducer, userReducer, volunteerReducer } from "./store/reducers";
 
@@ -22,15 +27,27 @@ const rootReducer = combineReducers({
     volunteer: volunteerReducer,
 });
 
+const persistConfig = {
+    key: "root",
+    storage,
+    whitelist: ["auth"],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 const store = createStore(
-    rootReducer,
+    persistedReducer,
     composeEnhancers(applyMiddleware(thunk))
 );
+
+const persistor = persistStore(store);
 
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <App />
+            <PersistGate loading={Loading} persistor={persistor}>
+                <App />
+            </PersistGate>
         </Provider>
     </React.StrictMode>,
     document.getElementById("root")

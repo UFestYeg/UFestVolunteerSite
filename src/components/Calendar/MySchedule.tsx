@@ -1,33 +1,17 @@
-import {
-    Button,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    TextField,
-    Typography,
-} from "@material-ui/core";
+import { Container } from "@material-ui/core";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import {
-    Calendar,
-    momentLocalizer,
-    ToolbarProps,
-    Views,
-} from "react-big-calendar";
+import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
+// tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useDispatch } from "react-redux";
-import { UserUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
-import { CustomForm } from "../Form";
-import CalendarToolbar from "./CalendarToolbar";
-import UFestWeek from "./UFestWeek";
 import { IUserRequest } from "../../store/types";
-import { RequestEvent, customRequestStyle } from "./RequestEvent";
+import CalendarToolbar from "./CalendarToolbar";
+import { customRequestStyle, RequestEvent } from "./RequestEvent";
+import UFestWeek from "./UFestWeek";
 
 type UserRequestType = {
     id: number;
@@ -72,7 +56,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
             });
             setList(mappedRequests);
         }
-    }, [token]);
+    }, [token, dispatch, requests]);
 
     const localizer = momentLocalizer(moment);
 
@@ -88,6 +72,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                 defaultDate={new Date(2021, 4, 22)}
                 views={{ day: true, week: UFestWeek }}
                 components={{
+                    event: RequestEvent,
                     toolbar: (props: ToolbarProps) => (
                         <CalendarToolbar
                             {...props}
@@ -96,7 +81,6 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                             addButton={false}
                         />
                     ),
-                    event: RequestEvent,
                 }}
                 selectable
                 popup={true}

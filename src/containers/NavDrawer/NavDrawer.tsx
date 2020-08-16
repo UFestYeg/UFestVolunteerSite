@@ -12,6 +12,7 @@ import {
     CalendarToday as CalendarTodayIcon,
     Event as EventIcon,
     ExitToApp as ExitToAppIcon,
+    PermContactCalendar,
     Settings as SettingsIcon,
 } from "@material-ui/icons";
 import React from "react";
@@ -104,6 +105,13 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     onClose={onCloseFunc}
                 />
                 <NavListItem
+                    to={`${match.url}/profile/schedule`}
+                    icon={<PermContactCalendar />}
+                    text="My Schedule"
+                    activeClassName={classes.active}
+                    onClose={onCloseFunc}
+                />
+                <NavListItem
                     to={`${match.url}/categories`}
                     icon={<AccessibilityNewIcon />}
                     text="Volunteer"
@@ -111,7 +119,7 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     onClose={onCloseFunc}
                 />
                 <NavListItem
-                    to={`${match.url}/profile`}
+                    to={`${match.url}/profile/info`}
                     icon={<AccountCircleIcon />}
                     text="Profile"
                     activeClassName={classes.active}

@@ -3,8 +3,9 @@ import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { NotFoundPage } from "../components/NotFoundPage";
 import { PasswordChange } from "../components/PasswordChange";
 import { ProfileEditPage } from "../components/ProfileEditPage";
-import { ProfilePage } from "../components/ProfilePage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { ProfileBase } from "../containers/ProfileBase";
+import PersonalInfoRoutes from "./PersonalInfoRoutes";
 
 const ProfileRoutes: React.FC = () => {
     const { path } = useRouteMatch();
@@ -13,11 +14,6 @@ const ProfileRoutes: React.FC = () => {
         <React.Fragment>
             <Switch>
                 <ProtectedRoute
-                    exact
-                    path={`${path}`}
-                    component={ProfilePage}
-                />
-                <ProtectedRoute
                     path={`${path}/change_password`}
                     component={PasswordChange}
                 />
@@ -25,6 +21,12 @@ const ProfileRoutes: React.FC = () => {
                     path={`${path}/edit`}
                     component={ProfileEditPage}
                 />
+                <ProfileBase>
+                    <ProtectedRoute
+                        path={`${path}`}
+                        component={PersonalInfoRoutes}
+                    />
+                </ProfileBase>
                 <Route component={NotFoundPage} />
             </Switch>
         </React.Fragment>
