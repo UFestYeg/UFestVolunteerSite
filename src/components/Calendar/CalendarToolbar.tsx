@@ -97,19 +97,6 @@ const CustomToolbar: React.FC<
         }
     };
 
-    const handleChangeMultiple = (event: any) => {
-        const { options } = event.target;
-        const value = [];
-        for (let i = 0, l = options.length; i < l; i += 1) {
-            if (options[i].selected) {
-                value.push(options[i].value);
-            }
-        }
-        if (props.handleChange !== undefined) {
-            props.handleChange(event.target.value);
-        }
-    };
-
     return (
         <Grid
             container
