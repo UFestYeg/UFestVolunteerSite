@@ -280,7 +280,12 @@ const PositionRequestPage: React.FC = () => {
                 components={{
                     event: Event,
                     toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar {...props} openModal={() => null} />
+                        <CalendarToolbar
+                            {...props}
+                            addButton={false}
+                            categoryView={false}
+                            filter={false}
+                        />
                     ),
                 }}
                 resizable

@@ -89,7 +89,12 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                 views={{ day: true, week: UFestWeek }}
                 components={{
                     toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar {...props} openModal={() => {}} />
+                        <CalendarToolbar
+                            {...props}
+                            categoryView={false}
+                            filter={false}
+                            addButton={false}
+                        />
                     ),
                     event: RequestEvent,
                 }}

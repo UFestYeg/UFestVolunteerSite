@@ -30,7 +30,6 @@ import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 import CalendarToolbar from "./CalendarToolbar";
 import UFestWeek from "./UFestWeek";
-import { customRequestStyle } from "./RequestEvent";
 
 type VolunteerCategoryType = {
     id: number;
@@ -60,6 +59,9 @@ type DragStartArgs = {
 const EventsCalendar: React.FC = () => {
     const dispatch = useDispatch();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
+    const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
+        []
+    );
     const [
         draggedEvent,
         setDraggedEvent,
@@ -68,6 +70,7 @@ const EventsCalendar: React.FC = () => {
         true
     );
     const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [categoryView, setCategoryView] = useState<boolean>(true);
 
     const token = StateHooks.useToken();
 
@@ -85,9 +88,11 @@ const EventsCalendar: React.FC = () => {
                     d.start_time = new Date(d.start_time);
                     d.end_time = new Date(d.end_time);
                     d.category = d.category_type.tag;
+                    d.resourceId = d.category_type.id;
                     return d;
                 });
                 setList(mappedData);
+                setOriginalList(mappedData);
                 console.log("events", mappedData);
             });
         }
@@ -97,13 +102,24 @@ const EventsCalendar: React.FC = () => {
         return categoryType.tag;
     });
     const colours = chroma
-        .scale(["#ffcc00", "#0099cc"])
+        .scale(["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"])
         .colors(volunteerCategoryTypes.length);
     const colourMap = new Map<string, any>();
     volunteerCategoryTypes.map((c: string, i: number) => {
         colourMap.set(c, { backgroundColor: colours[i] });
     });
-    console.log("colours", colourMap);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    useEffect(() => {
+        setSelectedCategories(volunteerCategoryTypes);
+    }, [volunteerCategories]);
+    useEffect(() => {
+        const newList = originalList.filter((v) => {
+            if (v.category !== undefined) {
+                return selectedCategories.indexOf(v.category) > -1;
+            }
+        });
+        setList(newList);
+    }, [selectedCategories]);
     const updateEvent = (
         event: VolunteerCategoryType,
         start: string | Date,
@@ -196,7 +212,6 @@ const EventsCalendar: React.FC = () => {
 
     const localizer = momentLocalizer(moment);
     const DnDCalendar = withDragAndDrop(Calendar);
-
     return (
         <Container maxWidth="lg">
             <DnDCalendar
@@ -213,6 +228,14 @@ const EventsCalendar: React.FC = () => {
                         <CalendarToolbar
                             {...props}
                             openModal={() => setModalOpen(true)}
+                            showCategoryView={categoryView}
+                            switchChange={() => setCategoryView(!categoryView)}
+                            categoryView={true}
+                            addButton={true}
+                            filter={true}
+                            options={volunteerCategoryTypes}
+                            selectedOptions={selectedCategories}
+                            handleChange={setSelectedCategories}
                         />
                     ),
                 }}
@@ -228,6 +251,16 @@ const EventsCalendar: React.FC = () => {
                 onDragStart={handleDragStart}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
                 eventPropGetter={customEventStyle}
+                resources={
+                    categoryView
+                        ? volunteerCategories.filter(
+                              (c) => selectedCategories.indexOf(c.tag) > -1
+                          )
+                        : null
+                }
+                resourceIdAccessor="id"
+                resourceTitleAccessor="tag"
+                min={moment("07:00:00 am", "hh:mm:ss a").toDate()}
             />
             <Dialog
                 open={modalOpen}
