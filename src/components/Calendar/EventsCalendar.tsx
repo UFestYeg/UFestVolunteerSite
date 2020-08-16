@@ -27,6 +27,7 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 import CalendarToolbar from "./CalendarToolbar";
+import CategoryEvent from "./CategoryEvent";
 import UFestWeek from "./UFestWeek";
 
 type ScheduleEventType = {
@@ -36,8 +37,9 @@ type ScheduleEventType = {
     end_time: string | Date;
     allDay?: boolean;
     resource?: any;
-    number_of_positions?: number;
     description?: string;
+    roles?: any;
+    number_of_positions: number | null;
 };
 
 type DragAndDropData = {
@@ -85,7 +87,7 @@ const EventsCalendar: React.FC = () => {
                 console.log(mappedData);
             });
         }
-    }, [token]);
+    }, [token, dispatch]);
 
     const updateEvent = (
         event: ScheduleEventType,
@@ -179,6 +181,7 @@ const EventsCalendar: React.FC = () => {
                 defaultDate={new Date(2021, 4, 22)}
                 views={{ day: true, week: UFestWeek }}
                 components={{
+                    // event: CategoryEvent,
                     toolbar: (props: ToolbarProps) => (
                         <CalendarToolbar
                             {...props}

@@ -102,11 +102,6 @@ const iconMap: IIconMap = {
     other: AccessibilityNew,
 };
 
-const nameToIconMapKey = (name: string) => {
-    const newName = name.toLowerCase().replace(/\s/g, "_");
-    return newName in iconMap ? newName : "other";
-};
-
 const RoleSelectPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);

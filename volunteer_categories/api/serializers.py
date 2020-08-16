@@ -59,13 +59,28 @@ class RequestSerializer(serializers.ModelSerializer):
     #     return instance
 
 
+class NumberOfPositionsField(serializers.ReadOnlyField):
+    def to_representation(self, value):
+        return f"{value}"
+
+
 class VolunteerCategorySerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
     category_type = CategoryTypeSerializer()
+    number_of_positions = NumberOfPositionsField()
 
     class Meta:
         model = VolunteerCategory
-        fields = "__all__"
+        fields = (
+            "id",
+            "title",
+            "description",
+            "start_time",
+            "end_time",
+            "category_type",
+            "roles",
+            "number_of_positions",
+        )
 
     def create(self, validated_data):
         category_type_validated_data = validated_data.pop("category_type")
