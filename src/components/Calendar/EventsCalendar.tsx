@@ -229,7 +229,7 @@ const EventsCalendar: React.FC = () => {
                             {...props}
                             openModal={() => setModalOpen(true)}
                             showCategoryView={categoryView}
-                            switchChange={() => setCategoryView(!categoryView)}
+                            switchChange={() => setCategoryView(oldCategoryView => !oldCategoryView)}
                             categoryView={true}
                             addButton={true}
                             filter={true}
