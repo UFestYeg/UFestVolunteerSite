@@ -184,9 +184,13 @@ const RequestEvent = ({ event }: { event: any }) => {
                         />
                         {requestError &&
                         requestError.response &&
-                        requestError.response.data
-                            ? requestError.response.data
-                            : ""}
+                        requestError.response.data ? (
+                            <Typography color="error">
+                                {requestError.response.data}
+                            </Typography>
+                        ) : (
+                            ""
+                        )}
                         <Typography>
                             You are only able to delete requests through the
                             site up until a week before the event. After this

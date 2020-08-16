@@ -10,6 +10,9 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -24,6 +27,32 @@ class RequestViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `detail`, `create`, `update` and `delete` actions.
     """
+
+    def perform_destroy(self, instance):
+        from django.db.models import Q
+        from django.contrib.auth.models import User
+
+        print("perform destroy")
+
+        deleting_user = User.objects.get(pk=instance.user.pk)
+        category_type = CategoryType.types.get(
+            pk=instance.role.category.category_type.id
+        )
+
+        subject = f"Deleted request #{instance.id}"
+        message = (
+            f"Volunteer {deleting_user.first_name} {deleting_user.last_name} deleted a request on role "
+            f"{category_type.tag}:{instance.role.title} at {instance.role.start_time} - {instance.role.end_time}"
+        )
+        email_from = settings.EMAIL_HOST_USER
+
+        admins = User.objects.filter(Q(is_staff=True))
+        recipient_list = list(
+            i for i in admins.values_list("email", flat=True) if bool(i)
+        )
+        send_mail(subject, message, email_from, recipient_list)
+
+        instance.delete()
 
     queryset = Request.requests.all()
     serializer_class = RequestSerializer
