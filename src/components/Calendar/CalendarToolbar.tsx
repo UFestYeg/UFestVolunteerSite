@@ -11,9 +11,12 @@ import {
     Grid,
     Typography,
     IconButton,
+    FormControlLabel,
+    Switch,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import CategoryFilter from "./CategoryFilter";
 
 const useStyles = makeStyles((theme) => ({
     grid: {
@@ -22,13 +25,45 @@ const useStyles = makeStyles((theme) => ({
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 100,
+        maxWidth: 200,
+    },
+    noPadding: {
+        paddingTop: 0,
+        paddingBottom: 0,
+    },
 }));
 
 type AddPositionProps = {
-    openModal: () => void;
+    openModal?: () => void;
 };
 
-const CustomToolbar: React.FC<ToolbarProps & AddPositionProps> = (props) => {
+type CategoryViewProps = {
+    showCategoryView?: boolean;
+    switchChange?: () => void;
+};
+
+type FilterProps = {
+    selectedOptions?: string[];
+    handleChange?: (value: string[]) => void;
+    options?: string[];
+};
+
+type ConfigProps = {
+    addButton: boolean;
+    filter: boolean;
+    categoryView: boolean;
+};
+
+const CustomToolbar: React.FC<
+    ToolbarProps &
+        AddPositionProps &
+        CategoryViewProps &
+        FilterProps &
+        ConfigProps
+> = (props) => {
     const classes = useStyles();
 
     function navigate(action: NavigateAction) {
@@ -56,6 +91,12 @@ const CustomToolbar: React.FC<ToolbarProps & AddPositionProps> = (props) => {
         }
     }
 
+    const handleChange = (event: any) => {
+        if (props.handleChange !== undefined) {
+            props.handleChange(event.target.value);
+        }
+    };
+
     return (
         <Grid
             container
@@ -76,6 +117,36 @@ const CustomToolbar: React.FC<ToolbarProps & AddPositionProps> = (props) => {
 
             <Typography variant="subtitle1">{props.label}</Typography>
             <Grid item direction="row" justify="flex-end" alignItems="center">
+                {props.filter ? (
+                    <CategoryFilter
+                        options={
+                            props.options !== undefined ? props.options : []
+                        }
+                        selectedOptions={
+                            props.selectedOptions !== undefined
+                                ? props.selectedOptions
+                                : []
+                        }
+                        handleChange={handleChange}
+                    />
+                ) : null}
+                {props.categoryView ? (
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                size="small"
+                                color="primary"
+                                checked={props.showCategoryView}
+                                onChange={props.switchChange}
+                            />
+                        }
+                        label={
+                            <Typography variant="overline">
+                                Category View
+                            </Typography>
+                        }
+                    />
+                ) : null}
                 <ButtonGroup
                     variant="contained"
                     color="primary"
@@ -84,13 +155,15 @@ const CustomToolbar: React.FC<ToolbarProps & AddPositionProps> = (props) => {
                 >
                     {viewNamesGroup(props.localizer.messages)}
                 </ButtonGroup>
-                <IconButton
-                    aria-label="add-event"
-                    color="primary"
-                    onClick={props.openModal}
-                >
-                    <AddCircleIcon fontSize="large" />
-                </IconButton>
+                {props.addButton ? (
+                    <IconButton
+                        aria-label="add-event"
+                        color="primary"
+                        onClick={props.openModal}
+                    >
+                        <AddCircleIcon fontSize="large" />
+                    </IconButton>
+                ) : null}
             </Grid>
         </Grid>
     );

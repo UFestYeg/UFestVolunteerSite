@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) =>
     })
 );
 
-const CategoryEvent = ({ event }: { event: any }) => {
+const EventCategory = ({ event }: { event: any }) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const history = useHistory();
@@ -171,4 +171,4 @@ const CategoryEvent = ({ event }: { event: any }) => {
     );
 };
 
-export default CategoryEvent;
+export default EventCategory;

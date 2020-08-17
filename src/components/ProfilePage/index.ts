@@ -1,2 +1,3 @@
-import ProfilePage from "./ProfilePage";
-export { ProfilePage };
+import ProfileCalendar from "./ProfileCalendar";
+import ProfileInfo from "./ProfileInfo";
+export { ProfileInfo, ProfileCalendar };

@@ -1,3 +1,6 @@
+// tslint:disable: jsx-no-lambda
+// tslint:disable: react-this-binding-issue
+// tslint:disable: use-simple-attributes
 import {
     Button,
     Container,
@@ -7,13 +10,14 @@ import {
     DialogTitle,
 } from "@material-ui/core";
 import axios from "axios";
+import * as chroma from "chroma-js";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
     Calendar,
+    EventPropGetter,
     momentLocalizer,
     ToolbarProps,
-    Views,
 } from "react-big-calendar";
 // tslint:disable-next-line: no-submodule-imports
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -27,10 +31,11 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 import CalendarToolbar from "./CalendarToolbar";
-import CategoryEvent from "./CategoryEvent";
+import EventDetail from "./EventDetail";
+import EventCategory from "./EventCategory";
 import UFestWeek from "./UFestWeek";
 
-type ScheduleEventType = {
+export type VolunteerCategoryType = {
     id: number;
     title: string;
     start_time: string | Date;
@@ -40,33 +45,49 @@ type ScheduleEventType = {
     description?: string;
     roles?: any;
     number_of_positions: number | null;
+    category: string;
 };
 
 type DragAndDropData = {
-    event: ScheduleEventType;
+    event: VolunteerCategoryType;
     start: string | Date;
     end: string | Date;
     allDay: boolean;
 };
 
 type DragStartArgs = {
-    event: ScheduleEventType;
+    event: VolunteerCategoryType;
     action: "resize" | "move";
     direction: "UP" | "DOWN" | "LEFT" | "RIGHT";
 };
 
 const EventsCalendar: React.FC = () => {
     const dispatch = useDispatch();
-    const [currentList, setList] = useState<ScheduleEventType[]>([]);
-    const [draggedEvent, setDraggedEvent] = useState<ScheduleEventType | null>(
-        null
+    const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
+    const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
+        []
     );
-    const [displayDragItemInCell, setDisplayDragItemInCell] = useState<boolean>(
-        true
-    );
+    const [
+        draggedEvent,
+        setDraggedEvent,
+    ] = useState<VolunteerCategoryType | null>(null);
+
     const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [categoryView, setCategoryView] = useState<boolean>(true);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
     const token = StateHooks.useToken();
+    const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
+    const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
+        return categoryType.tag;
+    });
+    const colours = chroma
+        .scale(["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"])
+        .colors(volunteerCategoryTypes.length);
+    const colourMap = new Map<string, any>();
+    volunteerCategoryTypes.map((c: string, i: number) => {
+        colourMap.set(c, { backgroundColor: colours[i] });
+    });
 
     useEffect(() => {
         if (token) {
@@ -81,16 +102,32 @@ const EventsCalendar: React.FC = () => {
                 const mappedData = data.map((d: any) => {
                     d.start_time = new Date(d.start_time);
                     d.end_time = new Date(d.end_time);
+                    d.category = d.category_type.tag;
+                    d.resourceId = d.category_type.id;
                     return d;
                 });
                 setList(mappedData);
-                console.log(mappedData);
+                setOriginalList(mappedData);
+                console.log("events", mappedData);
             });
         }
     }, [token, dispatch]);
 
+    useEffect(() => {
+        setSelectedCategories(volunteerCategoryTypes);
+    }, [volunteerCategories, volunteerCategoryTypes]);
+
+    useEffect(() => {
+        const newList = originalList.filter((v) => {
+            if (v.category !== undefined) {
+                return selectedCategories.indexOf(v.category) > -1;
+            }
+        });
+        setList(newList);
+    }, [originalList, selectedCategories]);
+
     const updateEvent = (
-        event: ScheduleEventType,
+        event: VolunteerCategoryType,
         start: string | Date,
         end: string | Date
     ) => {
@@ -127,26 +164,6 @@ const EventsCalendar: React.FC = () => {
         setDraggedEvent(event);
     };
 
-    // const dragFromOutsideItem = () => {
-    //     return draggedEvent;
-    // };
-
-    // const onDropFromOutside = (data: DragAndDropData) => {
-    //     const { start, end, allDay } = data;
-    //     if (draggedEvent) {
-    //         const event: ScheduleEventType = {
-    //             id: draggedEvent.id,
-    //             title: draggedEvent.title,
-    //             start_time: start,
-    //             end_time: end,
-    //             allDay,
-    //         };
-
-    //         setDraggedEvent(null);
-    //         moveEvent({ event, start, end, allDay });
-    //     }
-    // };
-
     const moveEvent = (data: DragAndDropData) => {
         const { event, start, end, allDay: droppedOnAllDaySlot } = data;
         let allDay = event.allDay;
@@ -166,9 +183,31 @@ const EventsCalendar: React.FC = () => {
         setList(nextEvents);
     };
 
+    const customEventStyle: EventPropGetter<VolunteerCategoryType> = (
+        event: VolunteerCategoryType,
+        start: string | Date,
+        end: string | Date,
+        isSelected: boolean
+    ) => {
+        if (event.category !== undefined) {
+            return { style: colourMap.get(event.category) };
+        } else {
+            return { className: "rbc-event" };
+        }
+    };
+
+    const WrappedEventDetail = ({ event }: { event: any }) => {
+        return (
+            <EventDetail
+                event={event}
+                setCategoryView={setCategoryView}
+                setSelectedCategories={setSelectedCategories}
+            />
+        );
+    };
+
     const localizer = momentLocalizer(moment);
     const DnDCalendar = withDragAndDrop(Calendar);
-
     return (
         <Container maxWidth="lg">
             <DnDCalendar
@@ -181,11 +220,23 @@ const EventsCalendar: React.FC = () => {
                 defaultDate={new Date(2021, 4, 22)}
                 views={{ day: true, week: UFestWeek }}
                 components={{
-                    // event: CategoryEvent,
+                    // event: WrappedEventDetail,
                     toolbar: (props: ToolbarProps) => (
                         <CalendarToolbar
                             {...props}
                             openModal={() => setModalOpen(true)}
+                            showCategoryView={categoryView}
+                            switchChange={() =>
+                                setCategoryView(
+                                    (oldCategoryView) => !oldCategoryView
+                                )
+                            }
+                            categoryView={true}
+                            addButton={true}
+                            filter={true}
+                            options={volunteerCategoryTypes}
+                            selectedOptions={selectedCategories}
+                            handleChange={setSelectedCategories}
                         />
                     ),
                 }}
@@ -194,12 +245,19 @@ const EventsCalendar: React.FC = () => {
                 resizable
                 selectable
                 popup={true}
-                // dragFromOutsideItem={
-                //     displayDragItemInCell ? dragFromOutsideItem : null
-                // }
-                // onDropFromOutside={onDropFromOutside}
                 onDragStart={handleDragStart}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
+                eventPropGetter={customEventStyle}
+                resources={
+                    categoryView
+                        ? volunteerCategories.filter(
+                              (c) => selectedCategories.indexOf(c.tag) > -1
+                          )
+                        : null
+                }
+                resourceIdAccessor="id"
+                resourceTitleAccessor="tag"
+                min={moment("07:00:00 am", "hh:mm:ss a").toDate()}
             />
             <Dialog
                 open={modalOpen}
