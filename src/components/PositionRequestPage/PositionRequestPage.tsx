@@ -5,7 +5,6 @@ import {
     CardContent,
     CardHeader,
     Container,
-    Grid,
     IconButton,
     List,
     ListItem,
@@ -17,15 +16,7 @@ import { Cancel } from "@material-ui/icons";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import {
-    Calendar,
-    momentLocalizer,
-    ToolbarProps,
-    Views,
-} from "react-big-calendar";
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -264,11 +255,10 @@ const PositionRequestPage: React.FC = () => {
     };
 
     const localizer = momentLocalizer(moment);
-    const DnDCalendar = withDragAndDrop(Calendar);
 
     return (
         <Container maxWidth="lg">
-            <DnDCalendar
+            <Calendar
                 localizer={localizer}
                 events={currentList}
                 startAccessor="start_time"
@@ -288,7 +278,6 @@ const PositionRequestPage: React.FC = () => {
                         />
                     ),
                 }}
-                resizable
                 selectable
                 popup={true}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}

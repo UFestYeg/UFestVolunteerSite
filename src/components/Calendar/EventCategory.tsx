@@ -1,32 +1,61 @@
 import {
-    Button,
     Card,
-    CardActions,
     CardContent,
     CardHeader,
     Container,
-    Grid,
     IconButton,
-    List,
     ListItem,
+    ListItemIcon,
     ListItemText,
     Popover,
     Typography,
-    ListItemIcon,
-    ListItemSecondaryAction,
-    Switch,
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
-import { Cancel, Check, FiberManualRecord } from "@material-ui/icons";
-import axios from "axios";
+import {
+    Cancel,
+    CancelPresentation,
+    CheckBox,
+    FiberManualRecord,
+} from "@material-ui/icons";
 import React, { useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import AutoSizer from "react-virtualized-auto-sizer";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
-import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { Loading } from "../Loading";
 
+export type EventCategoryType = {
+    resourceId: number;
+    title: string;
+    start_time: string | Date;
+    end_time: string | Date;
+    allDay?: boolean;
+    resource?: any;
+    description?: string;
+    roles?: any;
+    number_of_positions: number | null;
+    category: string;
+    requests?: any[];
+    roleID: number;
+    eventID: number;
+};
+
+export const defaultEventCategory = {
+    resourceId: -1,
+    title: "",
+    start_time: "",
+    end_time: "",
+    allDay: false,
+    resource: "",
+    description: "",
+    roles: [],
+    number_of_positions: -1,
+    category: "",
+    requests: [],
+    roleID: -1,
+    eventID: -1,
+};
 interface AutosizerProps {
     height: number;
     width: number;
@@ -34,17 +63,11 @@ interface AutosizerProps {
 
 const useStyles = makeStyles((theme) =>
     createStyles({
-        root: {
-            width: "100%",
-            height: 400,
-            maxWidth: 300,
-            backgroundColor: theme.palette.background.paper,
-        },
         card: {
             transition: "0.3s",
             boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
             margin: 8,
@@ -53,17 +76,23 @@ const useStyles = makeStyles((theme) =>
         },
         cardContent: {
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             alignItems: "center",
             textAlign: "center",
             width: "100%",
         },
         cardHeader: {
-            width: "inherit",
+            width: "-webkit-fill-available",
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.text.secondary,
         },
         eventRoot: {
             height: "inherit",
         },
+        accept: {
+            color: "green",
+        },
+        deny: { color: "red" },
         typography: {
             padding: theme.spacing(2),
         },
@@ -73,10 +102,10 @@ const useStyles = makeStyles((theme) =>
 const EventCategory = ({ event }: { event: any }) => {
     const theme = useTheme();
     const classes = useStyles(theme);
-    const history = useHistory();
-    const [requestError, setRequestError] = useState<any>();
+    const dispatch = useDispatch();
+    const [_categories, loading, error] = StateHooks.useVolunteerInfo();
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
-    const { roles } = event;
+    const { requests } = event;
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget);
@@ -86,27 +115,61 @@ const EventCategory = ({ event }: { event: any }) => {
         setAnchorEl(null);
     };
 
+    const handleAcceptClick = (request: any) => {
+        // debugger;
+        console.log("event", request);
+        dispatch(volunteerActions.acceptRequest(request));
+        handleClose();
+    };
+
+    const handleDenyClick = (request: any) => {
+        console.log("event", request);
+        dispatch(volunteerActions.denyRequest(request));
+        handleClose();
+    };
+
     const renderRow = (props: ListChildComponentProps) => {
-        const { index, style } = props;
-        const requests = props.data[props.index];
+        const { data, index, style } = props;
+        const request = data[index];
+        const useDivider = index !== data.length - 1;
+        console.log("request", request);
 
         return (
-            <ListItem button style={style} key={index}>
-                <ListItemIcon>
-                    <FiberManualRecord />
-                </ListItemIcon>
-                <ListItemText
-                    primary={`${requests.user.first_name} ${requests.user.last_name}`}
-                />
-                <ListItemSecondaryAction>
-                    <IconButton aria-label="accept" onClick={handleClose}>
-                        <Check />
-                    </IconButton>
-                    <IconButton aria-label="deny" onClick={handleClose}>
-                        <Cancel />
-                    </IconButton>
-                </ListItemSecondaryAction>
-            </ListItem>
+            <>
+                {request && request.user_profile ? (
+                    <ListItem
+                        style={style}
+                        key={index}
+                        divider={useDivider}
+                        button
+                    >
+                        <ListItemIcon>
+                            <FiberManualRecord />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary={`${request.user_profile.first_name} ${request.user_profile.last_name}`}
+                            secondary={`Status: ${request.status}`}
+                            secondaryTypographyProps={{ color: "textPrimary" }}
+                        />
+                        <IconButton
+                            edge="end"
+                            className={classes.accept}
+                            aria-label="accept"
+                            onMouseDown={() => handleAcceptClick(request)}
+                        >
+                            <CheckBox />
+                        </IconButton>
+                        <IconButton
+                            edge="end"
+                            className={classes.deny}
+                            aria-label="deny"
+                            onMouseDown={() => handleDenyClick(request)}
+                        >
+                            <CancelPresentation />
+                        </IconButton>
+                    </ListItem>
+                ) : null}
+            </>
         );
     };
 
@@ -128,7 +191,7 @@ const EventCategory = ({ event }: { event: any }) => {
                 onClose={handleClose}
                 anchorOrigin={{
                     vertical: "top",
-                    horizontal: "right",
+                    horizontal: "center",
                 }}
                 transformOrigin={{
                     vertical: "bottom",
@@ -136,35 +199,45 @@ const EventCategory = ({ event }: { event: any }) => {
                 }}
             >
                 <Card className={classes.card}>
-                    <CardContent className={classes.cardContent}>
-                        <CardHeader
-                            className={classes.cardHeader}
-                            action={
-                                <IconButton
-                                    aria-label="close"
-                                    onClick={handleClose}
-                                >
-                                    <Cancel />
-                                </IconButton>
-                            }
-                            title="Requests"
-                        />
-                        <AutoSizer>
-                            {({ height, width }: AutosizerProps) => (
-                                <FixedSizeList
-                                    itemData={roles}
-                                    itemSize={150}
-                                    itemCount={roles.length}
-                                    height={height}
-                                    width={width}
-                                >
-                                    {(renderProps: ListChildComponentProps) =>
-                                        renderRow(renderProps)
-                                    }
-                                </FixedSizeList>
-                            )}
-                        </AutoSizer>
-                    </CardContent>
+                    {loading ? (
+                        <Loading />
+                    ) : (
+                        <>
+                            <CardHeader
+                                className={classes.cardHeader}
+                                action={
+                                    <IconButton
+                                        aria-label="close"
+                                        onClick={handleClose}
+                                    >
+                                        <Cancel />
+                                    </IconButton>
+                                }
+                                title="Requests"
+                                subheader={`${event.category}: ${event.title}`}
+                            />
+                            <CardContent className={classes.cardContent}>
+                                <Typography color="error">
+                                    {error && error.reponse
+                                        ? error.reponse.data
+                                        : null}
+                                </Typography>
+                                {requests && requests.length > 0 ? (
+                                    <FixedSizeList
+                                        itemData={requests}
+                                        itemSize={60}
+                                        itemCount={requests.length}
+                                        height={150}
+                                        width={400}
+                                    >
+                                        {renderRow}
+                                    </FixedSizeList>
+                                ) : (
+                                    <Typography>No Requests</Typography>
+                                )}
+                            </CardContent>
+                        </>
+                    )}
                 </Card>
             </Popover>
         </>

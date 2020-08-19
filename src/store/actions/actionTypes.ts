@@ -42,7 +42,35 @@ export type UpdateProfileFailType = typeof UPDATE_PROFILE_FAIL;
 
 // Volunteer
 export const GET_VOLUNTEER_CATEGORY_TYPES = "GET_VOLUNTEER_CATEGORY_TYPES";
+export const GET_VOLUNTEER_CATEGORIES_START = "GET_VOLUNTEER_CATEGORIES_START";
+export const GET_VOLUNTEER_CATEGORIES_SUCCESS =
+    "GET_VOLUNTEER_CATEGORIES_SUCCESS";
+export const GET_VOLUNTEER_CATEGORIES_FAIL = "GET_VOLUNTEER_CATEGORIES_FAIL";
+export const GET_MAPPED_VOLUNTEER_ROLES_START =
+    "GET_MAPPED_VOLUNTEER_ROLES_START";
+export const GET_MAPPED_VOLUNTEER_ROLES_SUCCESS =
+    "GET_MAPPED_VOLUNTEER_ROLES_SUCCESS";
+export const GET_MAPPED_VOLUNTEER_ROLES_FAIL =
+    "GET_MAPPED_VOLUNTEER_ROLES_FAIL";
+export const ACCEPT_REQUEST_START = "ACCEPT_REQUEST_START";
+export const ACCEPT_REQUEST_SUCCESS = "ACCEPT_REQUEST_SUCCESS";
+export const ACCEPT_REQUEST_FAIL = "ACCEPT_REQUEST_FAIL";
+export const DENY_REQUEST_START = "DENY_REQUEST_START";
+export const DENY_REQUEST_SUCCESS = "DENY_REQUEST_SUCCESS";
+export const DENY_REQUEST_FAIL = "DENY_REQUEST_FAIL";
 export const GET_VOLUNTEER_CATEGORY_OF_TYPE = "GET_VOLUNTEER_CATEGORY_OF_TYPE";
 
 export type GetVolunteerCategoriesTypesType = typeof GET_VOLUNTEER_CATEGORY_TYPES;
+export type GetVolunteerCategoriesStartType = typeof GET_VOLUNTEER_CATEGORIES_START;
+export type GetVolunteerCategoriesSuccessType = typeof GET_VOLUNTEER_CATEGORIES_SUCCESS;
+export type GetVolunteerCategoriesFailType = typeof GET_VOLUNTEER_CATEGORIES_FAIL;
+export type GetMappedVolunteerRolesStartType = typeof GET_MAPPED_VOLUNTEER_ROLES_START;
+export type GetMappedVolunteerRolesSuccessType = typeof GET_MAPPED_VOLUNTEER_ROLES_SUCCESS;
+export type GetMappedVolunteerRolesFailType = typeof GET_MAPPED_VOLUNTEER_ROLES_FAIL;
+export type AcceptRequestStartType = typeof ACCEPT_REQUEST_START;
+export type AcceptRequestSuccessType = typeof ACCEPT_REQUEST_SUCCESS;
+export type AcceptRequestFailType = typeof ACCEPT_REQUEST_FAIL;
+export type DenyRequestStartType = typeof DENY_REQUEST_START;
+export type DenyRequestSuccessType = typeof DENY_REQUEST_SUCCESS;
+export type DenyRequestFailType = typeof DENY_REQUEST_FAIL;
 export type GetVolunteerCategoriesOfTypeType = typeof GET_VOLUNTEER_CATEGORY_OF_TYPE;

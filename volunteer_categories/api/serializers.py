@@ -45,18 +45,28 @@ class RequestSerializer(serializers.ModelSerializer):
         except:
             print("unexpected error")
 
-    # def update(self, instance, validated_data):
-    #     category_type_validated_data = validated_data.pop("role")
+    def update(self, instance, validated_data):
+        role_validated_data = validated_data.pop("role")
 
-    #     instance.status = validated_data.get("status", instance.status)
+        old_status = instance.status
+        instance.status = validated_data.get("status", instance.status)
+        print(role_validated_data)
+        role = Role.roles.get(
+            title=role_validated_data.get("title"),
+            description=role_validated_data.get("description"),
+            number_of_positions=role_validated_data.get("number_of_positions"),
+        )
+        instance.role = role
 
-    #     role = Role.roles.get(pk=role_validated_data.get("id"))
+        if old_status != Request.ACCEPTED and instance.status == Request.ACCEPTED:
+            requests = instance.user.requests.all().exclude(pk=instance.id)
+            for req in requests:
+                req.status = Request.UNAVAILABLE
+                req.save()
 
-    #     instance.role = role
+        instance.save()
 
-    #     instance.save()
-
-    #     return instance
+        return instance
 
 
 class NumberOfPositionsField(serializers.ReadOnlyField):

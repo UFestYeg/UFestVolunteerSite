@@ -25,7 +25,7 @@ import { Form, Formik } from "formik";
 import React from "react";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
-import { UserUrls } from "../../constants";
+import { VolunteerUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
 
 interface IFormValues {
@@ -107,7 +107,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
             switch (requestType) {
                 case "POST":
                     axios
-                        .post(UserUrls.POSITION_LIST, {
+                        .post(VolunteerUrls.CATEGORY_LIST, {
                             title,
                             category_type: category,
                             description,
@@ -123,7 +123,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                 case "PUT":
                     if (positionID) {
                         axios
-                            .put(UserUrls.POSITION_DETAILS(positionID), {
+                            .put(VolunteerUrls.CATEGORY_DETAILS(positionID), {
                                 title,
                                 category_type: category,
                                 description,

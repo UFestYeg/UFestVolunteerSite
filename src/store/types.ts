@@ -1,3 +1,4 @@
+import { EventCategoryType } from "../components/Calendar/EventCategory";
 import { TShirtSizeType } from "../types";
 import { actionTypes } from "./actions";
 import { AuthStateType, UserStateType, VolunteerStateType } from "./reducers";
@@ -28,6 +29,48 @@ export type VolunteerActionType =
     | {
           type: actionTypes.GetVolunteerCategoriesTypesType;
           payload: IVolunteerCategoryType[];
+      }
+    | {
+          type: actionTypes.GetVolunteerCategoriesStartType;
+      }
+    | {
+          type: actionTypes.GetVolunteerCategoriesSuccessType;
+          payload: IVolunteerCategory[];
+      }
+    | {
+          type: actionTypes.GetVolunteerCategoriesFailType;
+          error: string;
+      }
+    | {
+          type: actionTypes.GetMappedVolunteerRolesStartType;
+      }
+    | {
+          type: actionTypes.GetMappedVolunteerRolesSuccessType;
+          payload: EventCategoryType[];
+      }
+    | {
+          type: actionTypes.GetMappedVolunteerRolesFailType;
+          error: string;
+      }
+    | {
+          type: actionTypes.AcceptRequestStartType;
+      }
+    | {
+          type: actionTypes.AcceptRequestSuccessType;
+      }
+    | {
+          type: actionTypes.AcceptRequestFailType;
+          error: string;
+      }
+    | {
+          type: actionTypes.DenyRequestStartType;
+      }
+    | {
+          type: actionTypes.DenyRequestSuccessType;
+      }
+    | {
+          type: actionTypes.DenyRequestFailType;
+          error: string;
       }
     | {
           type: actionTypes.GetVolunteerCategoriesOfTypeType;

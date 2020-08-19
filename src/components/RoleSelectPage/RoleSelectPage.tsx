@@ -6,7 +6,6 @@ import {
     ListItem,
     ListItemText,
     Typography,
-    useMediaQuery,
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import {
@@ -22,7 +21,6 @@ import {
     Traffic,
     Widgets,
 } from "@material-ui/icons";
-import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
@@ -108,7 +106,7 @@ const RoleSelectPage: React.FC = () => {
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
     const { categoryTypeID } = useParams();
-    const volunteerCategories = StateHooks.useVolunteerCategoriesOfType();
+    const volunteerCategories = StateHooks.useVolunteerCategories();
     const roles = volunteerCategories.map((category, idx, _arr) => {
         return category.roles;
     });
