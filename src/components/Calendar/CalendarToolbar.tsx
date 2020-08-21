@@ -12,7 +12,7 @@ import {
     Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
+import { AddCircle as AddCircleIcon } from "@material-ui/icons";
 import React from "react";
 import {
     Messages,
@@ -23,20 +23,20 @@ import {
 import CategoryFilter from "./CategoryFilter";
 
 const useStyles = makeStyles((theme) => ({
-    grid: {
-        margin: theme.spacing(2),
-    },
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 100,
         maxWidth: 200,
+        minWidth: 100,
+    },
+    grid: {
+        margin: theme.spacing(2),
     },
     noPadding: {
-        paddingTop: 0,
         paddingBottom: 0,
+        paddingTop: 0,
     },
 }));
 
@@ -107,7 +107,6 @@ const CustomToolbar: React.FC<
             props.handleChange(resetList);
         }
     };
-
     return (
         <Grid
             container

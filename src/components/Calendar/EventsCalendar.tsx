@@ -26,12 +26,14 @@ const EventsCalendar: React.FC = () => {
     const [categoryView, setCategoryView] = useState<boolean>(false);
 
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
-    const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
-        return categoryType.tag;
-    });
+    const volunteerCategoryTypeTags = volunteerCategories.map(
+        (categoryType) => {
+            return categoryType.tag;
+        }
+    );
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>(
-        volunteerCategoryTypes
+        volunteerCategoryTypeTags
     );
 
     return (

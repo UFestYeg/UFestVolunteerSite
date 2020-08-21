@@ -10,8 +10,10 @@ import {
     DialogContent,
     DialogTitle,
 } from "@material-ui/core";
+import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import axios from "axios";
-import * as chroma from "chroma-js";
+import chroma from "chroma-js";
+import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
@@ -48,7 +50,15 @@ interface IEventsCategoryView {
     setDefaultDate: React.Dispatch<React.SetStateAction<Date>>;
 }
 
+const useStyles = makeStyles((theme) =>
+    createStyles({
+        myEvent: { "&:hover": { zIndex: 1000 } },
+    })
+);
+
 const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [currentList, setList] = useState<EventCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<EventCategoryType[]>([]);
@@ -149,9 +159,12 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
         isSelected: boolean
     ) => {
         if (event.category !== undefined) {
-            return { style: colourMap.get(event.category) };
+            return {
+                className: classes.myEvent,
+                style: colourMap.get(event.category),
+            };
         } else {
-            return { className: "rbc-event" };
+            return { className: clsx("rbc-event", classes.myEvent) };
         }
     };
 
