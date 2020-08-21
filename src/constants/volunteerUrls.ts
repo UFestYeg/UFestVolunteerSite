@@ -14,7 +14,6 @@ const VolunteerUrls = {
     REQUESTS: `${ROOT_URL}api/requests/`,
     REQUESTS_DETAILS: (requestID: number) =>
         `${ROOT_URL}api/requests/${requestID}/`,
-    USER_PROFILE_LIST: `${ROOT_URL}api/users/user_profiles/`,
 };
 
 export default VolunteerUrls;

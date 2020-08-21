@@ -30,6 +30,7 @@ import {
 import moment from "moment";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { Loading } from "../Loading";
@@ -186,7 +187,7 @@ const RoleSelect: React.FC<IRoleSelectProps> = ({
                         MenuProps={MenuProps}
                     >
                         <MenuItem disabled value="">
-                            <em>Roles</em>
+                            <em>Available Roles</em>
                         </MenuItem>
                         {options.map((option: any) => (
                             <MenuItem
@@ -294,12 +295,19 @@ const EventCategory = ({ event }: { event: any }) => {
                                 <FiberManualRecord />
                             </ListItemIcon>
                             <ListItemText
-                                primary={`${request.user_profile.first_name} ${request.user_profile.last_name}`}
                                 secondary={`Status: ${request.status}`}
                                 secondaryTypographyProps={{
                                     color: "textPrimary",
                                 }}
-                            />
+                            >
+                                <Typography>
+                                    <Link
+                                        to={`/volunteer/users/${request.user_profile.pk}`}
+                                    >
+                                        {`${request.user_profile.first_name} ${request.user_profile.last_name}`}
+                                    </Link>
+                                </Typography>
+                            </ListItemText>
 
                             <IconButton
                                 edge="end"

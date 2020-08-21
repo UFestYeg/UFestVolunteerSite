@@ -3,13 +3,15 @@ import { Redirect, Route } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
 
 interface IProtectedRouteProps {
-    component: React.FC<{}>;
+    component: React.FC<any>;
     path: string;
     exact?: boolean;
+    canEdit?: boolean;
 }
 
 const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
     component: Component,
+    canEdit,
     ...rest
 }) => {
     const [_loading, isAuthenticated] = StateHooks.useAuthInfo();
@@ -28,7 +30,9 @@ const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
             />
         );
 
-    return <Route {...rest} render={render} />;
+    const renderRoute = () => render({ canEdit });
+
+    return <Route {...rest} render={renderRoute} />;
 };
 
 export default ProtectedRoute;

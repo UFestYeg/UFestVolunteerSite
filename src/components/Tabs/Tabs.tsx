@@ -16,7 +16,7 @@ import { NavLink, useLocation } from "react-router-dom";
 interface TabsProps {
     tabValues: TabProps[];
 }
-interface TabProps {
+export interface TabProps {
     label: string;
     target: string;
 }

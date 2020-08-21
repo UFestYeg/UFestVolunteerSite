@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AuthUrls } from "../../constants";
+import { AuthUrls, UserUrls } from "../../constants";
 import history from "../../history";
 import { IProfileEditFormValues } from "../../store/types";
 import {
@@ -57,17 +57,20 @@ export const updateProfileFail = (error: any): ActionType => {
     };
 };
 
-export const getUserProfile = () => {
+export const getUserProfile = (userID?: number) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getUserProfileStart());
+            const userProfileUrl = userID
+                ? UserUrls.USER_PROFILE_DETAILS(userID)
+                : AuthUrls.USER_PROFILE;
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
             };
             axios
-                .get(AuthUrls.USER_PROFILE)
+                .get(userProfileUrl)
                 .then((response) => {
                     console.log(response.data);
                     dispatch(getUserProfileSucces(response.data));

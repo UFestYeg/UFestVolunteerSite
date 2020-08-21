@@ -1,6 +1,6 @@
 import axios from "axios";
 import { EventCategoryType } from "../../components/Calendar/EventCategory";
-import { VolunteerUrls } from "../../constants";
+import { UserUrls, VolunteerUrls } from "../../constants";
 import history from "../../history";
 import {
     IVolunteerCategory,
@@ -229,7 +229,7 @@ function addRequests(events: EventCategoryType[]) {
 
 function addUsers(events: EventCategoryType[]) {
     return axios
-        .get(VolunteerUrls.USER_PROFILE_LIST)
+        .get(UserUrls.USER_PROFILE_LIST)
         .then((resp) => {
             const userProfiles = resp.data;
             events.forEach((e) => {
