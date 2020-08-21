@@ -1,3 +1,6 @@
+// tslint:disable: jsx-no-lambda
+// tslint:disable: react-this-binding-issue
+// tslint:disable: use-simple-attributes
 import {
     Button,
     Container,
@@ -62,13 +65,6 @@ const EventsCalendar: React.FC = () => {
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
         []
     );
-    const [
-        draggedEvent,
-        setDraggedEvent,
-    ] = useState<VolunteerCategoryType | null>(null);
-    const [displayDragItemInCell, setDisplayDragItemInCell] = useState<boolean>(
-        true
-    );
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [categoryView, setCategoryView] = useState<boolean>(true);
 
@@ -89,6 +85,11 @@ const EventsCalendar: React.FC = () => {
                     d.end_time = new Date(d.end_time);
                     d.category = d.category_type.tag;
                     d.resourceId = d.category_type.id;
+                    if (
+                        moment(d.end_time).diff(moment(d.start_time), "h") >= 6
+                    ) {
+                        d.allDay = true;
+                    }
                     return d;
                 });
                 setList(mappedData);
@@ -153,31 +154,6 @@ const EventsCalendar: React.FC = () => {
         setList(nextEvents);
     };
 
-    const handleDragStart = (data: DragStartArgs) => {
-        const { event } = data;
-        setDraggedEvent(event);
-    };
-
-    // const dragFromOutsideItem = () => {
-    //     return draggedEvent;
-    // };
-
-    // const onDropFromOutside = (data: DragAndDropData) => {
-    //     const { start, end, allDay } = data;
-    //     if (draggedEvent) {
-    //         const event: ScheduleEventType = {
-    //             id: draggedEvent.id,
-    //             title: draggedEvent.title,
-    //             start_time: start,
-    //             end_time: end,
-    //             allDay,
-    //         };
-
-    //         setDraggedEvent(null);
-    //         moveEvent({ event, start, end, allDay });
-    //     }
-    // };
-
     const moveEvent = (data: DragAndDropData) => {
         const { event, start, end, allDay: droppedOnAllDaySlot } = data;
         let allDay = event.allDay;
@@ -229,7 +205,11 @@ const EventsCalendar: React.FC = () => {
                             {...props}
                             openModal={() => setModalOpen(true)}
                             showCategoryView={categoryView}
-                            switchChange={() => setCategoryView(oldCategoryView => !oldCategoryView)}
+                            switchChange={() =>
+                                setCategoryView(
+                                    (oldCategoryView) => !oldCategoryView
+                                )
+                            }
                             categoryView={true}
                             addButton={true}
                             filter={true}
@@ -244,11 +224,6 @@ const EventsCalendar: React.FC = () => {
                 resizable
                 selectable
                 popup={true}
-                // dragFromOutsideItem={
-                //     displayDragItemInCell ? dragFromOutsideItem : null
-                // }
-                // onDropFromOutside={onDropFromOutside}
-                onDragStart={handleDragStart}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
                 eventPropGetter={customEventStyle}
                 resources={
