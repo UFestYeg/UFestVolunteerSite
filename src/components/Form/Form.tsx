@@ -91,14 +91,12 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         requestType: RequestType,
         positionID: number | undefined
     ) => {
-        console.log(values.title);
         const category = getVolunteerCategory(values.category);
         const title = values.title;
         const description = values.description;
         const startTime = values.startTime;
         const endTime = values.endTime;
 
-        console.log(title, category, description, startTime, endTime);
         axios.defaults.headers = {
             Authorization: token,
             "Content-Type": "application/json",

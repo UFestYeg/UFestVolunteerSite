@@ -1,6 +1,7 @@
 import axios from "axios";
 import { EventCategoryType } from "../../components/Calendar/EventCategory";
 import { VolunteerUrls } from "../../constants";
+import history from "../../history";
 import {
     IVolunteerCategory,
     IVolunteerCategoryType,
@@ -106,6 +107,25 @@ export const denyRequestFail = (error: any): ActionType => {
     return {
         error,
         type: ActionTypes.DENY_REQUEST_FAIL,
+    };
+};
+
+export const changeRequestRoleStart = (): ActionType => {
+    return {
+        type: ActionTypes.CHANGE_REQUEST_ROLE_START,
+    };
+};
+
+export const changeRequestRoleSuccess = (): ActionType => {
+    return {
+        type: ActionTypes.CHANGE_REQUEST_ROLE_SUCCESS,
+    };
+};
+
+export const changeRequestRoleFail = (error: any): ActionType => {
+    return {
+        error,
+        type: ActionTypes.CHANGE_REQUEST_ROLE_FAIL,
     };
 };
 
@@ -248,6 +268,7 @@ export const getMappedVolunteerRoles = () => {
                             mappedData.push({
                                 roleID: role.id,
                                 title: role.title,
+                                description: role.description,
                                 start_time: new Date(d.start_time),
                                 end_time: new Date(d.end_time),
                                 category: d.category_type.tag,
@@ -264,8 +285,6 @@ export const getMappedVolunteerRoles = () => {
                 .then((partialData) => addUsers(partialData))
                 .then((mappedEvents) => {
                     dispatch(getMappedVolunteerRolesSuccess(mappedEvents));
-                    console.log("events");
-                    console.log(mappedEvents);
                 })
                 .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
         } else {
@@ -291,6 +310,7 @@ export const acceptRequest = (request: any) => {
                 })
                 .then((res) => {
                     dispatch(acceptRequestSuccess());
+                    history.go(0);
                     console.log(res);
                 })
                 .catch((err) => {
@@ -317,10 +337,40 @@ export const denyRequest = (request: any) => {
                 })
                 .then((res) => {
                     dispatch(denyRequestSuccess());
+                    history.go(0);
                     console.log(res);
                 })
                 .catch((err) => {
                     dispatch(denyRequestFail(err));
+                    console.error(err);
+                });
+        }
+    };
+};
+
+export const changeRequestRole = (request: any, role: any) => {
+    const token = localStorage.getItem("token");
+    const payload = {
+        ...request,
+        role,
+    };
+
+    return (dispatch: DispatchType) => {
+        if (token) {
+            dispatch(changeRequestRoleStart());
+            axios.defaults.headers = {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+            };
+            axios
+                .put(VolunteerUrls.REQUESTS_DETAILS(request.id), payload)
+                .then((res) => {
+                    dispatch(changeRequestRoleSuccess());
+                    console.log(res);
+                    history.go(0);
+                })
+                .catch((err) => {
+                    dispatch(changeRequestRoleFail(err));
                     console.error(err);
                 });
         }

@@ -118,7 +118,6 @@ const PositionRequestPage: React.FC = () => {
                         return d;
                     });
                     setList(mappedData);
-                    console.log(mappedData);
                 })
                 .catch((err) => console.error(err));
         }
@@ -139,8 +138,6 @@ const PositionRequestPage: React.FC = () => {
         };
 
         const handleSubmit = (role: any) => {
-            console.log(role);
-            console.log("role");
             axios
                 .post(VolunteerUrls.REQUESTS, {
                     status: "PENDING",

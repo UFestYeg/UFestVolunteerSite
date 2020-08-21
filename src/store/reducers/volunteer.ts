@@ -122,6 +122,27 @@ const denyRequestFail = (state: IVolunteerState, action: any) => {
     });
 };
 
+const changeRequestRoleStart = (state: IVolunteerState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: true,
+    });
+};
+
+const changeRequestRoleSuccess = (state: IVolunteerState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: false,
+    });
+};
+
+const changeRequestRoleFail = (state: IVolunteerState, action: any) => {
+    return updateObject(state, {
+        error: action.error,
+        loading: false,
+    });
+};
+
 const getVolunteerCategoriesOfType = (state: IVolunteerState, action: any) => {
     return updateObject(state, {
         categories: action.payload,
@@ -156,6 +177,12 @@ export const reducer = (state = initialState, action: any) => {
             return denyRequestSuccess(state, action);
         case actionTypes.DENY_REQUEST_FAIL:
             return denyRequestFail(state, action);
+        case actionTypes.CHANGE_REQUEST_ROLE_START:
+            return changeRequestRoleStart(state, action);
+        case actionTypes.CHANGE_REQUEST_ROLE_SUCCESS:
+            return changeRequestRoleSuccess(state, action);
+        case actionTypes.CHANGE_REQUEST_ROLE_FAIL:
+            return changeRequestRoleFail(state, action);
         case actionTypes.GET_VOLUNTEER_CATEGORY_OF_TYPE:
             return getVolunteerCategoriesOfType(state, action);
         default:

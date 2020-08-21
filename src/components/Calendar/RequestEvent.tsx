@@ -109,9 +109,13 @@ const RequestEvent = ({ event }: { event: any }) => {
     const classes = useStyles(theme);
     const [requestError, setRequestError] = useState<any>();
     const history = useHistory();
-    const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+        null
+    );
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = (
+        _event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
         setAnchorEl(event.currentTarget);
     };
 
@@ -119,18 +123,14 @@ const RequestEvent = ({ event }: { event: any }) => {
         setAnchorEl(null);
     };
     const handleDelete = (role: any) => {
-        console.log(role);
-        console.log("role");
         axios
             .delete(VolunteerUrls.REQUESTS_DETAILS(role.id))
             .then((res) => {
                 console.log(res);
-                // history.push("/volunteer/profile");
                 history.go(0);
             })
             .catch((err) => {
                 setRequestError(err);
-                console.log(err.response);
                 console.error(err);
             });
     };
@@ -146,13 +146,23 @@ const RequestEvent = ({ event }: { event: any }) => {
     return (
         <>
             <Grid
-                direction="column"
-                alignItems="center"
+                container
+                direction="row-reverse"
+                alignItems="flex-start"
                 justify="space-between"
-                onClick={handleClick}
             >
-                <Typography variant="subtitle2">{event.title}</Typography>
-                <p>Request Status: {event.status}</p>
+                <Grid item>
+                    <IconButton
+                        aria-label="open delete popover"
+                        onClick={handleClick}
+                    >
+                        <Cancel />
+                    </IconButton>
+                </Grid>
+                <Grid item>
+                    <Typography variant="subtitle2">{event.title}</Typography>
+                    <p>Request Status: {event.status}</p>
+                </Grid>
             </Grid>
             <Popover
                 id={id}

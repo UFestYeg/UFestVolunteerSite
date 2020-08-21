@@ -79,8 +79,6 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     useEffect(() => {
         setList(mappedRoles);
         setOriginalList(mappedRoles);
-        console.log("mappedRoles");
-        console.log(mappedRoles);
     }, [mappedRoles]);
 
     useEffect(() => {
@@ -162,8 +160,6 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     const resources = volunteerCategories.filter(
         (c) => props.selectedCategories.indexOf(c.tag) > -1
     );
-    console.log("events", currentList);
-    console.log("resources", resources);
 
     return (
         <Container maxWidth="lg">

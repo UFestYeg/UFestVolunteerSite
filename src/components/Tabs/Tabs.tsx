@@ -86,6 +86,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                         key={index}
                         label={tab.label}
                         component={NavLink}
+                        activeClassName="active"
                         to={tab.target}
                         className={styles.tab}
                     />

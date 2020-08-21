@@ -23,6 +23,16 @@ class RequestSerializer(serializers.ModelSerializer):
         model = Request
         fields = ("id", "user", "status", "role")
 
+    def shouldBeMadeUnavailable(self, request1, request2):
+        event1 = request1.role.category
+        event2 = request2.role.category
+        return (
+            event2.start_time >= event1.start_time
+            and event2.start_time < event1.end_time
+        ) or (
+            event2.end_time > event1.start_time and event2.end_time <= event1.end_time
+        )
+
     def create(self, validated_data):
         try:
             role_validated_data = validated_data.pop("role")
@@ -33,10 +43,12 @@ class RequestSerializer(serializers.ModelSerializer):
             validated_data["role"] = role
             request = Request.requests.create(**validated_data)
 
-            # request.role = role
-
-            # request.save()
-
+            requests = request.user.requests.all().exclude(pk=request.id)
+            for req in requests:
+                if self.shouldBeMadeUnavailable(request, req):
+                    request.status = Request.UNAVAILABLE
+                    request.save()
+                    break
             return request
         except IntegrityError:
             raise serializers.ValidationError(
@@ -59,10 +71,16 @@ class RequestSerializer(serializers.ModelSerializer):
         instance.role = role
 
         if old_status != Request.ACCEPTED and instance.status == Request.ACCEPTED:
+            accepted_requests = instance.role.requests.filter(status=Request.ACCEPTED)
+            if instance.role.number_of_positions == len(accepted_requests):
+                raise serializers.ValidationError(
+                    {"detail": "Cannot accept any more requests."}
+                )
             requests = instance.user.requests.all().exclude(pk=instance.id)
             for req in requests:
-                req.status = Request.UNAVAILABLE
-                req.save()
+                if self.shouldBeMadeUnavailable(instance, req):
+                    req.status = Request.UNAVAILABLE
+                    req.save()
 
         instance.save()
 

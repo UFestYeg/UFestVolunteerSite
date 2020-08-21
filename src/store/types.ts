@@ -19,7 +19,9 @@ export type AuthActionType =
     | { type: actionTypes.ChangePasswordFailType; error: string };
 
 export type UserActionType =
-    | { type: actionTypes.GetUserProfileType; payload: IUserProfile }
+    | { type: actionTypes.GetUserProfileStartType }
+    | { type: actionTypes.GetUserProfileSuccessType; payload: IUserProfile }
+    | { type: actionTypes.GetUserProfileFailType; error: string }
     | { type: actionTypes.ClearUserProfileType }
     | { type: actionTypes.UpdateProfileStartType }
     | { type: actionTypes.UpdateProfileSuccessType }
@@ -70,6 +72,16 @@ export type VolunteerActionType =
       }
     | {
           type: actionTypes.DenyRequestFailType;
+          error: string;
+      }
+    | {
+          type: actionTypes.ChangeRequestRoleStartType;
+      }
+    | {
+          type: actionTypes.ChangeRequestRoleSuccessType;
+      }
+    | {
+          type: actionTypes.ChangeRequestRoleFailType;
           error: string;
       }
     | {

@@ -11,17 +11,30 @@ import * as ActionTypes from "./actionTypes";
 
 type DispatchType = (action: ActionType) => void;
 
-export const setUserProfile = (payload: IUserProfile): ActionType => {
+export const getUserProfileStart = (): ActionType => {
     return {
-        type: ActionTypes.USER_GET_PROFILE,
+        type: ActionTypes.USER_GET_PROFILE_START,
+    };
+};
+
+export const getUserProfileSucces = (payload: IUserProfile): ActionType => {
+    return {
         payload,
+        type: ActionTypes.USER_GET_PROFILE_SUCCESS,
+    };
+};
+
+export const getUserProfileFail = (error: any): ActionType => {
+    return {
+        error,
+        type: ActionTypes.USER_GET_PROFILE_FAIL,
     };
 };
 
 export const clearUserProfile = (payload: any): ActionType => {
     return {
-        type: ActionTypes.USER_GET_PROFILE,
         payload: DefaultUser,
+        type: ActionTypes.USER_GET_PROFILE_SUCCESS,
     };
 };
 
@@ -48,6 +61,7 @@ export const getUserProfile = () => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
+            dispatch(getUserProfileStart());
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
@@ -56,12 +70,13 @@ export const getUserProfile = () => {
                 .get(AuthUrls.USER_PROFILE)
                 .then((response) => {
                     console.log(response.data);
-                    dispatch(setUserProfile(response.data));
+                    dispatch(getUserProfileSucces(response.data));
                 })
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
                     console.error(error);
+                    dispatch(getUserProfileFail(error));
                     // TODO: send notification and redirect
                 });
         } else {

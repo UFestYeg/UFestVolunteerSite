@@ -28,13 +28,17 @@ export type ChangePasswordSuccessType = typeof CHANGE_PASSWORD_SUCCESS;
 export type ChangePasswordFailType = typeof CHANGE_PASSWORD_FAIL;
 
 // User
-export const USER_GET_PROFILE = "USER_GET_PROFILE";
+export const USER_GET_PROFILE_START = "USER_GET_PROFILE_START";
+export const USER_GET_PROFILE_SUCCESS = "USER_GET_PROFILE_SUCCESS";
+export const USER_GET_PROFILE_FAIL = "USER_GET_PROFILE_FAIL";
 export const USER_CLEAR_PROFILE = "USER_CLEAR_PROFILE";
 export const UPDATE_PROFILE_START = "UPDATE_PROFILE_START";
 export const UPDATE_PROFILE_SUCCESS = "UPDATE_PROFILE_SUCCESS";
 export const UPDATE_PROFILE_FAIL = "UPDATE_PROFILE_FAIL";
 
-export type GetUserProfileType = typeof USER_GET_PROFILE;
+export type GetUserProfileStartType = typeof USER_GET_PROFILE_START;
+export type GetUserProfileSuccessType = typeof USER_GET_PROFILE_SUCCESS;
+export type GetUserProfileFailType = typeof USER_GET_PROFILE_FAIL;
 export type ClearUserProfileType = typeof USER_CLEAR_PROFILE;
 export type UpdateProfileStartType = typeof UPDATE_PROFILE_START;
 export type UpdateProfileSuccessType = typeof UPDATE_PROFILE_SUCCESS;
@@ -58,6 +62,9 @@ export const ACCEPT_REQUEST_FAIL = "ACCEPT_REQUEST_FAIL";
 export const DENY_REQUEST_START = "DENY_REQUEST_START";
 export const DENY_REQUEST_SUCCESS = "DENY_REQUEST_SUCCESS";
 export const DENY_REQUEST_FAIL = "DENY_REQUEST_FAIL";
+export const CHANGE_REQUEST_ROLE_START = "CHANGE_REQUEST_ROLE_START";
+export const CHANGE_REQUEST_ROLE_SUCCESS = "CHANGE_REQUEST_ROLE_SUCCESS";
+export const CHANGE_REQUEST_ROLE_FAIL = "CHANGE_REQUEST_ROLE_FAIL";
 export const GET_VOLUNTEER_CATEGORY_OF_TYPE = "GET_VOLUNTEER_CATEGORY_OF_TYPE";
 
 export type GetVolunteerCategoriesTypesType = typeof GET_VOLUNTEER_CATEGORY_TYPES;
@@ -73,4 +80,7 @@ export type AcceptRequestFailType = typeof ACCEPT_REQUEST_FAIL;
 export type DenyRequestStartType = typeof DENY_REQUEST_START;
 export type DenyRequestSuccessType = typeof DENY_REQUEST_SUCCESS;
 export type DenyRequestFailType = typeof DENY_REQUEST_FAIL;
+export type ChangeRequestRoleStartType = typeof CHANGE_REQUEST_ROLE_START;
+export type ChangeRequestRoleSuccessType = typeof CHANGE_REQUEST_ROLE_SUCCESS;
+export type ChangeRequestRoleFailType = typeof CHANGE_REQUEST_ROLE_FAIL;
 export type GetVolunteerCategoriesOfTypeType = typeof GET_VOLUNTEER_CATEGORY_OF_TYPE;

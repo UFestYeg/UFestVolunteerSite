@@ -121,20 +121,15 @@ const RoleSelectPage: React.FC = () => {
             }
         }
     });
-    console.log("categoryTypeID");
-    console.log(categoryTypeID);
+
     useEffect(() => {
         dispatch(volunteerActions.getVolunteerCategoryOfType(categoryTypeID));
     }, [dispatch, categoryTypeID]);
 
     const ListItems = () => {
-        console.log(roles);
-        console.log(volunteerCategories);
         const flatRoles = Object.values(combinedRoles);
         return flatRoles !== undefined && flatRoles.length > 0
             ? flatRoles.map((role: any, idx: number, _arr: any[]) => {
-                  console.log(role);
-                  console.log("above");
                   if (role) {
                       return (
                           <Link
@@ -143,11 +138,32 @@ const RoleSelectPage: React.FC = () => {
                               className={classes.link}
                           >
                               <ListItem button className={classes.listContent}>
-                                  <ListItemText>
+                                  <ListItemText
+                                      primary={"Title"}
+                                      primaryTypographyProps={{
+                                          color: "textPrimary",
+                                      }}
+                                      secondary={role.title}
+                                      secondaryTypographyProps={{
+                                          color: "textPrimary",
+                                          variant: "subtitle2",
+                                      }}
+                                  >
                                       <Typography color="textPrimary">
                                           {role.title}
                                       </Typography>
                                   </ListItemText>
+                                  <ListItemText
+                                      primary={"Description"}
+                                      primaryTypographyProps={{
+                                          color: "textPrimary",
+                                      }}
+                                      secondary={role.description}
+                                      secondaryTypographyProps={{
+                                          color: "textPrimary",
+                                          variant: "subtitle2",
+                                      }}
+                                  />
                                   <ListItemText>
                                       <Typography color="textPrimary">
                                           positions available:{" "}

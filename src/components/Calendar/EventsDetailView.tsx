@@ -118,7 +118,6 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         });
         setList(mappedData);
         setOriginalList(mappedData);
-        console.log("events", mappedData);
     }, [volunteerCategories]);
 
     const updateEvent = (
