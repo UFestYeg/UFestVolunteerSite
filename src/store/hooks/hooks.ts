@@ -40,6 +40,15 @@ export const useVolunteerCategoryTypes = () => {
     return useSelector((state: State) => state.volunteer.categoryTypes);
 };
 
-export const useVolunteerCategoriesOfType = () => {
+export const useVolunteerCategories = () => {
     return useSelector((state: State) => state.volunteer.categories);
+};
+export const useMappedRoles = () => {
+    return useSelector((state: State) => state.volunteer.mappedRoles);
+};
+
+export const useVolunteerInfo = () => {
+    const loading = useSelector((state: State) => state.volunteer.loading);
+    const error = useSelector((state: State) => state.volunteer.error);
+    return [useVolunteerCategories(), loading, error];
 };

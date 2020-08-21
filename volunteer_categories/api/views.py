@@ -38,7 +38,7 @@ class CategoryTypeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CategoryTypeSerializer
 
 
-class RoleTypeViewSet(viewsets.ModelViewSet):
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list`, `detail`, `create`, `update` and `delete` actions.
     """
@@ -70,7 +70,6 @@ class CategoriesWithRolesViewSet(viewsets.ViewSet):
         url_name="categoriesWithRoles",
     )
     def get_with_roleid(self, request, pk=None, rid=None):
-        print(pk, rid)
         role = Role.roles.get(pk=rid)
         queryset = VolunteerCategory.categories.filter(roles__title__iexact=role.title)
         serializer = VolunteerCategorySerializer(queryset, many=True)

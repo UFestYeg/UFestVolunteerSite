@@ -9,7 +9,9 @@ import { ProtectedRoute } from "../components/ProtectedRoute";
 import { RoleSelectPage } from "../components/RoleSelectPage";
 import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails";
 import { VolunteerCategoryList } from "../components/VolunteerCategoryList";
+import { ProfileBase } from "../containers/ProfileBase";
 import ProfileRoutes from "./ProfileRoutes";
+import UserRoutes from "./UserRoutes";
 
 const PrivateRoutes: React.FC = () => {
     const { path } = useRouteMatch();
@@ -50,6 +52,12 @@ const PrivateRoutes: React.FC = () => {
                     path={`${path}/profile`}
                     component={ProfileRoutes}
                 />
+                <ProfileBase useTabs={false}>
+                    <ProtectedRoute
+                        path={`${path}/users`}
+                        component={UserRoutes}
+                    />
+                </ProfileBase>
                 <Route component={NotFoundPage} />
             </Switch>
         </React.Fragment>

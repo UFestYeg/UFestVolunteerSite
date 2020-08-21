@@ -186,4 +186,5 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 # change this in prod: https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
-DEFAULT_FROM_EMAIL = "ufest.ca"
+
+ATOMIC_REQUESTS = True

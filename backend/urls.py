@@ -25,5 +25,6 @@ urlpatterns = [
     path("rest-auth/", include("rest_auth.urls")),
     path("rest-auth/registration/", include("rest_auth.registration.urls")),
     path("api/", include("volunteer_categories.api.urls")),
+    path("api/users/", include("user_profile.urls")),
     # re_path(".*", TemplateView.as_view(template_name="index.html")),
 ]

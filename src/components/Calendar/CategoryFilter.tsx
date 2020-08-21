@@ -1,22 +1,18 @@
-import React from "react";
+// tslint:disable: jsx-no-lambda
+// tslint:disable: react-this-binding-issue
+// tslint:disable: use-simple-attributes
 import {
-    ButtonGroup,
-    Button,
-    Grid,
-    Typography,
-    IconButton,
-    FormControlLabel,
-    Switch,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Input,
     Checkbox,
-    ListItemText,
+    FormControl,
     InputBase,
+    ListItemText,
+    MenuItem,
+    Select,
+    Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import React from "react";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -36,38 +32,38 @@ const CustomInput = withStyles((theme) => ({
         },
     },
     input: {
-        margin: theme.spacing(1),
-        borderRadius: 4,
-        position: "relative",
         backgroundColor: theme.palette.background.paper,
         border: `1px solid ${theme.palette.primary.main}`,
-        paddingTop: 0,
+        borderRadius: 4,
+        margin: theme.spacing(1),
         paddingBottom: 0,
         paddingLeft: theme.spacing(1),
+        paddingTop: 0,
+        position: "relative",
         transition: theme.transitions.create(["border-color", "box-shadow"]),
         "&:focus": {
-            borderRadius: 4,
             borderColor: theme.palette.primary.main,
+            borderRadius: 4,
             boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)",
         },
     },
 }))(InputBase);
 
 const useStyles = makeStyles((theme) => ({
-    grid: {
-        margin: theme.spacing(2),
-    },
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 100,
         maxWidth: 200,
+        minWidth: 100,
+    },
+    grid: {
+        margin: theme.spacing(2),
     },
     noPadding: {
-        paddingTop: 0,
         paddingBottom: 0,
+        paddingTop: 0,
     },
 }));
 

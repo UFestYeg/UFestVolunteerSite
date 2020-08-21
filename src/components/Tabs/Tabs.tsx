@@ -16,7 +16,7 @@ import { NavLink, useLocation } from "react-router-dom";
 interface TabsProps {
     tabValues: TabProps[];
 }
-interface TabProps {
+export interface TabProps {
     label: string;
     target: string;
 }
@@ -48,6 +48,8 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
     const mobile = !useMediaQuery("(min-width:450px)");
     const location = useLocation();
     const styles = useStyles();
+    console.log("location", location.pathname);
+    console.log("location", tabValues);
     const initialValue = tabValues
         .map((t) => t.target)
         .indexOf(location.pathname);
@@ -86,6 +88,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                         key={index}
                         label={tab.label}
                         component={NavLink}
+                        activeClassName="active"
                         to={tab.target}
                         className={styles.tab}
                     />

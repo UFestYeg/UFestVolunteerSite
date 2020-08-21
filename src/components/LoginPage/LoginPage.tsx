@@ -245,7 +245,12 @@ const SignIn: React.FC = () => {
                                     >
                                         Sign In
                                     </Button>
-                                    <Grid container direction="column">
+                                    <Grid
+                                        container
+                                        direction="column"
+                                        justify="center"
+                                        alignItems="center"
+                                    >
                                         <Grid item xs={12}>
                                             <Link
                                                 href="/reset_password"

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_auth.serializers import UserDetailsSerializer
-from volunteer_categories.api.serializers import RequestSerializer
 from .models import UserProfile
+from volunteer_categories.api.serializers import RequestSerializer
 
 
 class UserSerializer(UserDetailsSerializer):

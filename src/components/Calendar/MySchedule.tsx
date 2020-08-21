@@ -1,5 +1,4 @@
 import { Container } from "@material-ui/core";
-import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
@@ -39,10 +38,6 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     useEffect(() => {
         if (token) {
             dispatch(volunteerActions.getVolunteerCategoryTypes());
-            axios.defaults.headers = {
-                Authorization: token,
-                "Content-Type": "application/json",
-            };
 
             const mappedRequests = requests.map((r) => {
                 return {
