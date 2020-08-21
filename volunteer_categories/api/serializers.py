@@ -45,7 +45,9 @@ class RequestSerializer(serializers.ModelSerializer):
 
             requests = request.user.requests.all().exclude(pk=request.id)
             for req in requests:
-                if self.shouldBeMadeUnavailable(request, req):
+                if req.status == Request.ACCEPTED and self.shouldBeMadeUnavailable(
+                    request, req
+                ):
                     request.status = Request.UNAVAILABLE
                     request.save()
                     break

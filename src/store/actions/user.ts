@@ -110,7 +110,7 @@ export const updateUserProfile = (formValues: IProfileEditFormValues) => {
                 //     })
                 // );
                 dispatch(updateProfileSuccess());
-                history.push("/volunteer/profile");
+                history.push("/volunteer/profile/info");
             })
             .catch((error) => {
                 // If request is bad...

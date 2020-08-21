@@ -48,6 +48,8 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
     const mobile = !useMediaQuery("(min-width:450px)");
     const location = useLocation();
     const styles = useStyles();
+    console.log("location", location.pathname);
+    console.log("location", tabValues);
     const initialValue = tabValues
         .map((t) => t.target)
         .indexOf(location.pathname);
