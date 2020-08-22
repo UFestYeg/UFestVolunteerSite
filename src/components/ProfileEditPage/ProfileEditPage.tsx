@@ -17,6 +17,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     CheckBox as CheckBoxIcon,
@@ -32,31 +33,32 @@ import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { IProfileEditFormValues } from "../../store/types";
 import { tShirtSizes } from "../../types";
+import { buildErrorMessage } from "../../store/utils";
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: theme.spacing(4),
-    },
     avatar: {
-        margin: theme.spacing(1),
         backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-        width: "100%", // Fix IE 11 issue.
-        marginTop: theme.spacing(3),
-    },
-    textField: {
-        "& label": {
-            color: "grey",
-        },
+        margin: theme.spacing(1),
     },
     checkbox: {
         "& input": {
             color: theme.palette.primary.main,
+        },
+    },
+    form: {
+        marginsTop: theme.spacing(3),
+        width: "100%", // Fix IE 11 issue.
+    },
+    paper: {
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        marginTop: theme.spacing(8),
+        padding: theme.spacing(4),
+    },
+    textField: {
+        "& label": {
+            color: "grey",
         },
     },
     submit: {
@@ -79,17 +81,7 @@ const ProfileEditPage: React.FC = () => {
         dispatch(userActions.updateUserProfile(values));
     };
 
-    const errorMessage: any[] = [];
-    if (error) {
-        Object.entries(error.response.data).forEach((e) => {
-            const errorMarkup = (
-                <Typography variant="body1" color="error">
-                    {`${e[0]}: ${e[1]}`}
-                </Typography>
-            );
-            errorMessage.push(errorMarkup);
-        });
-    }
+    const errorMessage: any[] = buildErrorMessage(error);
 
     useEffect(() => {
         dispatch(userActions.getUserProfile());

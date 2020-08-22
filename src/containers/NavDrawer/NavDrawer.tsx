@@ -5,6 +5,7 @@ import {
     ListItemIcon,
     ListItemText,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     AccessibilityNew as AccessibilityNewIcon,
@@ -19,6 +20,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { NavLink, useRouteMatch } from "react-router-dom";
 import { auth as actions } from "../../store/actions";
+import { StateHooks } from "../../store/hooks";
 
 const useStyles = makeStyles((theme) => ({
     active: {
@@ -82,6 +84,8 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const match = useRouteMatch();
+    const userProfile = StateHooks.useUserProfile();
+    const { is_staff } = userProfile;
     const handleLogout = () => {
         onCloseFunc(false);
         // logout({ returnTo: window.location.origin });
@@ -90,20 +94,24 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
     return (
         <Drawer open={open} onClose={() => onCloseFunc(false)}>
             <List className={classes.inactive}>
-                <NavListItem
-                    to={`${match.url}/positions`}
-                    icon={<EventIcon />}
-                    text="Schedule"
-                    activeClassName={classes.active}
-                    onClose={onCloseFunc}
-                />
-                <NavListItem
-                    to={`${match.url}/calendar`}
-                    icon={<CalendarTodayIcon />}
-                    text="Calendar"
-                    activeClassName={classes.active}
-                    onClose={onCloseFunc}
-                />
+                {is_staff ? (
+                    <>
+                        <NavListItem
+                            to={`${match.url}/positions`}
+                            icon={<EventIcon />}
+                            text="Schedule"
+                            activeClassName={classes.active}
+                            onClose={onCloseFunc}
+                        />
+                        <NavListItem
+                            to={`${match.url}/calendar`}
+                            icon={<CalendarTodayIcon />}
+                            text="Calendar"
+                            activeClassName={classes.active}
+                            onClose={onCloseFunc}
+                        />
+                    </>
+                ) : null}
                 <NavListItem
                     to={`${match.url}/profile/schedule`}
                     icon={<PermContactCalendar />}
@@ -125,13 +133,15 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     activeClassName={classes.active}
                     onClose={onCloseFunc}
                 />
-                <NavListItem
-                    to={`${match.url}/settings`}
-                    icon={<SettingsIcon />}
-                    text="Settings"
-                    activeClassName={classes.active}
-                    onClose={onCloseFunc}
-                />
+                {is_staff ? (
+                    <NavListItem
+                        to={`${match.url}/settings`}
+                        icon={<SettingsIcon />}
+                        text="Settings"
+                        activeClassName={classes.active}
+                        onClose={onCloseFunc}
+                    />
+                ) : null}
                 <NavListItem
                     to=""
                     icon={<ExitToAppIcon />}

@@ -15,6 +15,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     LockOutlined as LockOutlinedIcon,
@@ -28,6 +29,7 @@ import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
 import { auth as actions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { buildErrorMessage } from "../../store/utils";
 import Copyright from "../Copyright";
 
 interface ISignupFormValues {
@@ -40,13 +42,6 @@ interface ISignupFormValues {
 }
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: theme.spacing(4),
-    },
     avatar: {
         margin: theme.spacing(1),
         backgroundColor: theme.palette.secondary.main,
@@ -55,14 +50,21 @@ const useStyles = makeStyles((theme) => ({
         width: "100%", // Fix IE 11 issue.
         marginTop: theme.spacing(3),
     },
-    textField: {
-        "& label": {
-            color: "grey",
-        },
-    },
     checkbox: {
         "& input": {
             color: theme.palette.primary.main,
+        },
+    },
+    paper: {
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        marginTop: theme.spacing(8),
+        padding: theme.spacing(4),
+    },
+    textField: {
+        "& label": {
+            color: "grey",
         },
     },
     submit: {
@@ -113,17 +115,7 @@ const SignUp: React.FC = () => {
 
     const location = useLocation();
 
-    const errorMessage: any[] = [];
-    if (error) {
-        Object.entries(error.response.data).forEach((e) => {
-            const errorMarkup = (
-                <Typography variant="body1" color="error">
-                    {`${e[0]}: ${e[1]}`}
-                </Typography>
-            );
-            errorMessage.push(errorMarkup);
-        });
-    }
+    const errorMessage: any[] = buildErrorMessage(error);
 
     return (
         <Container component="main" maxWidth="xs">

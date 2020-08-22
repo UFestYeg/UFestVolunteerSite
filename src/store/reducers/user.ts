@@ -3,7 +3,8 @@ import { DefaultUser, IUserProfile } from "../types";
 import { updateObject } from "../utils";
 
 export interface IUserProfileState {
-    profile: IUserProfile;
+    currentProfile: IUserProfile;
+    viewedProfile: IUserProfile;
     error: any | null;
     loading: boolean;
 }
@@ -11,7 +12,8 @@ export interface IUserProfileState {
 const initialState: IUserProfileState = {
     error: null,
     loading: false,
-    profile: DefaultUser,
+    currentProfile: DefaultUser,
+    viewedProfile: DefaultUser,
 };
 
 const userGetProfileStart = (state: IUserProfileState, action: any) => {
@@ -25,7 +27,14 @@ const userGetProfileSuccess = (state: IUserProfileState, action: any) => {
     return updateObject(state, {
         error: null,
         loading: false,
-        profile: action.payload,
+        currentProfile: action.payload,
+    });
+};
+const userGetViewedProfileSuccess = (state: IUserProfileState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: false,
+        viewedProfile: action.payload,
     });
 };
 
@@ -63,6 +72,8 @@ export const reducer = (state = initialState, action: any) => {
             return userGetProfileStart(state, action);
         case actionTypes.USER_GET_PROFILE_SUCCESS:
             return userGetProfileSuccess(state, action);
+        case actionTypes.USER_GET_VIEWED_PROFILE_SUCCESS:
+            return userGetViewedProfileSuccess(state, action);
         case actionTypes.USER_GET_PROFILE_FAIL:
             return userGetProfileFail(state, action);
         case actionTypes.UPDATE_PROFILE_START:
