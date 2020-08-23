@@ -9,8 +9,11 @@ import {
     DialogTitle,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
+import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import axios from "axios";
 import * as chroma from "chroma-js";
+import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
@@ -55,6 +58,12 @@ type DragAndDropData = {
     allDay: boolean;
 };
 
+const useStyles = makeStyles((theme) =>
+    createStyles({
+        myEvent: { "&:hover": { zIndex: 1000, minWidth: "fit-content" } },
+    })
+);
+
 interface IEventsDetailView {
     setCategoryView: React.Dispatch<React.SetStateAction<boolean>>;
     selectedCategories: string[];
@@ -64,6 +73,8 @@ interface IEventsDetailView {
 }
 
 const EventDetailView: React.FC<IEventsDetailView> = (props) => {
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
@@ -179,9 +190,12 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         isSelected: boolean
     ) => {
         if (event.category !== undefined) {
-            return { style: colourMap.get(event.category) };
+            return {
+                style: colourMap.get(event.category),
+                className: classes.myEvent,
+            };
         } else {
-            return { className: "rbc-event" };
+            return { className: clsx("rbc-event", classes.myEvent) };
         }
     };
 

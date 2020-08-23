@@ -19,6 +19,7 @@ import {
     Select,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     Cancel,
@@ -45,6 +46,7 @@ export type EventCategoryType = {
     description?: string;
     roles?: any;
     number_of_positions: number | null;
+    number_of_open_positions: number | null;
     category: string;
     requests?: any[];
     roleID: number;
@@ -61,15 +63,12 @@ export const defaultEventCategory = {
     description: "",
     roles: [],
     number_of_positions: -1,
+    number_of_open_positions: -1,
     category: "",
     requests: [],
     roleID: -1,
     eventID: -1,
 };
-interface AutosizerProps {
-    height: number;
-    width: number;
-}
 
 interface IRoleSelectProps {
     options: any[];
@@ -80,6 +79,7 @@ interface IRoleSelectProps {
 interface IRenderRowProps {
     data: any[];
     index: number;
+    request: any;
 }
 
 const useStyles = makeStyles((theme) =>
@@ -221,8 +221,13 @@ const EventCategory = ({ event }: { event: any }) => {
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [roleID, setRoleId] = useState<number | string>("");
+    const [submitRequest, setSubmitRequest] = useState<any>();
     const mappedRoles = StateHooks.useMappedRoles();
     const { requests } = event;
+
+    const isPositionFull = () => {
+        return event.number_of_open_positions === 0;
+    };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget);
@@ -243,11 +248,11 @@ const EventCategory = ({ event }: { event: any }) => {
     };
 
     const renderRow = (props: IRenderRowProps) => {
-        const { data, index } = props;
-        const request = data[index];
+        const { request, data, index } = props;
         const useDivider = index !== data.length - 1;
 
         const handleClickOpen = () => {
+            setSubmitRequest(request);
             setDialogOpen(true);
         };
 
@@ -268,6 +273,9 @@ const EventCategory = ({ event }: { event: any }) => {
 
         const handleOkClick = (submitRoleID: number | string) => {
             if (submitRoleID) {
+                console.log("request", submitRequest);
+                console.log("data", data);
+                console.log("index", index);
                 const submitMappedRole = mappedRoles.find((role: any) => {
                     return role.roleID === submitRoleID;
                 });
@@ -279,11 +287,18 @@ const EventCategory = ({ event }: { event: any }) => {
                             submitMappedRole.number_of_positions,
                     };
                     dispatch(
-                        volunteerActions.changeRequestRole(request, submitRole)
+                        volunteerActions.changeRequestRole(
+                            submitRequest,
+                            submitRole
+                        )
                     );
                 }
             }
             handleCloseDialog();
+        };
+
+        const handleSubmit = (_event: React.FormEvent<HTMLFormElement>) => {
+            handleOkClick(roleID);
         };
 
         return (
@@ -323,6 +338,7 @@ const EventCategory = ({ event }: { event: any }) => {
                                     className={classes.accept}
                                     aria-label="accept"
                                     onMouseDown={handleAcceptClick}
+                                    disabled={isPositionFull()}
                                 >
                                     <CheckBox />
                                 </IconButton>
@@ -344,7 +360,7 @@ const EventCategory = ({ event }: { event: any }) => {
                                 <form
                                     id="change-request-role"
                                     className={classes.container}
-                                    onSubmit={() => handleOkClick(roleID)}
+                                    onSubmit={handleSubmit}
                                 >
                                     <RoleSelect
                                         roleID={roleID}
@@ -383,8 +399,11 @@ const EventCategory = ({ event }: { event: any }) => {
             <Container onClick={handleClick} className={classes.eventRoot}>
                 <strong>{event.title}</strong>
                 <br />
-                {event.number_of_positions &&
-                    "Available Positions:  " + event.number_of_positions}
+                Available Positions:{" "}
+                {event.number_of_positions !== null &&
+                event.number_of_open_positions !== null
+                    ? `${event.number_of_open_positions}/${event.number_of_positions}`
+                    : "N/A"}
             </Container>
             <Popover
                 id={id}
@@ -428,10 +447,15 @@ const EventCategory = ({ event }: { event: any }) => {
                                     <List className={classes.list}>
                                         {requests.map(
                                             (
-                                                _r: any,
+                                                r: any,
                                                 index: number,
                                                 arr: any[]
-                                            ) => renderRow({ data: arr, index })
+                                            ) =>
+                                                renderRow({
+                                                    request: r,
+                                                    data: arr,
+                                                    index,
+                                                })
                                         )}
                                     </List>
                                 ) : (

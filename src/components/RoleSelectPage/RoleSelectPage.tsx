@@ -7,20 +7,8 @@ import {
     ListItemText,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
-import {
-    AccessibilityNew,
-    AttachMoney,
-    Build,
-    HeadsetMic,
-    LocalBar,
-    LocalCafe,
-    People,
-    PhotoCamera,
-    Storefront,
-    Traffic,
-    Widgets,
-} from "@material-ui/icons";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
@@ -82,24 +70,6 @@ const useStyles = makeStyles((theme) =>
     })
 );
 
-interface IIconMap {
-    [key: string]: any;
-}
-
-const iconMap: IIconMap = {
-    beer_gardens: LocalBar,
-    cafe: LocalCafe,
-    marketing: PhotoCamera,
-    kids: Widgets,
-    volunteers: People,
-    site_and_traffic: Traffic,
-    entertainment: HeadsetMic,
-    finance: AttachMoney,
-    workshops: Build,
-    vendors: Storefront,
-    other: AccessibilityNew,
-};
-
 const RoleSelectPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
@@ -110,14 +80,18 @@ const RoleSelectPage: React.FC = () => {
     const roles = volunteerCategories.map((category, idx, _arr) => {
         return category.roles;
     });
+
     const combinedRoles: any = {};
     roles.flat().forEach((role) => {
         if (role) {
             if (role.title in combinedRoles) {
                 combinedRoles[role.title].number_of_positions +=
                     role.number_of_positions;
+                combinedRoles[role.title].number_of_open_positions +=
+                    role.number_of_open_positions;
             } else {
-                combinedRoles[role.title] = role;
+                // Deep copy of role object
+                combinedRoles[role.title] = JSON.parse(JSON.stringify(role));
             }
         }
     });
@@ -166,8 +140,7 @@ const RoleSelectPage: React.FC = () => {
                                   />
                                   <ListItemText>
                                       <Typography color="textPrimary">
-                                          positions available:{" "}
-                                          {role.number_of_positions}
+                                          {`positions available: ${role.number_of_open_positions}/${role.number_of_positions}`}
                                       </Typography>
                                   </ListItemText>
                               </ListItem>

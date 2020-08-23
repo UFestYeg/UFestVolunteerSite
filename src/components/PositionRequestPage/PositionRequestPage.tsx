@@ -96,7 +96,7 @@ const PositionRequestPage: React.FC = () => {
         if (token) {
             dispatch(volunteerActions.getVolunteerCategoryTypes());
             axios.defaults.headers = {
-                Authorization: token,
+                Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
             };
 
@@ -155,6 +155,8 @@ const PositionRequestPage: React.FC = () => {
                 });
         };
 
+        const handleSubmitClick = () => handleSubmit(selectedRole);
+
         const errorMessage =
             requestError &&
             requestError.response.data &&
@@ -174,9 +176,11 @@ const PositionRequestPage: React.FC = () => {
                 <Container onClick={handleClick} className={classes.eventRoot}>
                     <strong>{event.title}</strong> : {currentCategory}
                     <br />
-                    {selectedRole.number_of_positions &&
-                        "Available Positions:  " +
-                            selectedRole.number_of_positions}
+                    Available Positions:{" "}
+                    {selectedRole.number_of_positions !== null &&
+                    selectedRole.number_of_open_positions !== null
+                        ? `${selectedRole.number_of_open_positions}/${selectedRole.number_of_positions}`
+                        : "N/A"}
                 </Container>
                 <Popover
                     id={id}
@@ -184,12 +188,12 @@ const PositionRequestPage: React.FC = () => {
                     anchorEl={anchorEl}
                     onClose={handleClose}
                     anchorOrigin={{
-                        vertical: "top",
                         horizontal: "right",
+                        vertical: "top",
                     }}
                     transformOrigin={{
-                        vertical: "bottom",
                         horizontal: "center",
+                        vertical: "bottom",
                     }}
                 >
                     <Card className={classes.card}>
@@ -233,7 +237,7 @@ const PositionRequestPage: React.FC = () => {
                             <CardActions disableSpacing>
                                 <Button
                                     aria-label="add to favorites"
-                                    onClick={() => handleSubmit(selectedRole)}
+                                    onClick={handleSubmitClick}
                                 >
                                     Submit
                                 </Button>

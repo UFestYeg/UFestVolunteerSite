@@ -34,10 +34,13 @@ const EventDetail = ({
     };
     return (
         <Container onClick={handleClick} className={classes.eventRoot}>
-            <strong>{event.title}</strong> : {event.category}
+            <strong>{event.title}</strong>
             <br />
-            {event.number_of_positions &&
-                "Available Positions:  " + event.number_of_positions}
+            Available Positions:{" "}
+            {event.number_of_positions !== null &&
+            event.number_of_open_positions !== null
+                ? `${event.number_of_open_positions}/${event.number_of_positions}`
+                : "N/A"}
         </Container>
     );
 };

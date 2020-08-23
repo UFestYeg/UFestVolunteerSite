@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Count
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -50,6 +50,21 @@ class VolunteerCategory(models.Model):
         aggregate = self.roles.aggregate(number_of_positions=Sum("number_of_positions"))
         return aggregate["number_of_positions"]
 
+    @property
+    def number_of_open_positions(self):
+        aggregate = self.roles.filter(requests__status=Request.ACCEPTED).aggregate(
+            filled_positions=Count("requests")
+        )
+
+        if (
+            self.number_of_positions is not None
+            and aggregate["filled_positions"] is not None
+        ):
+            res = self.number_of_positions - aggregate["filled_positions"]
+        else:
+            res = None
+        return res
+
 
 class Role(models.Model):
     title = models.CharField(max_length=120)
@@ -64,6 +79,13 @@ class Role(models.Model):
 
     def __str__(self):
         return f"Role {self.title}: {self.number_of_positions}"
+
+    @property
+    def number_of_open_positions(self):
+        return (
+            self.number_of_positions
+            - self.requests.filter(status=Request.ACCEPTED).count()
+        )
 
 
 class Request(models.Model):
