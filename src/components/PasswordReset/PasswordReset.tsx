@@ -10,6 +10,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { LockOpen as LockOpenIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
@@ -18,26 +19,32 @@ import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { auth } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { buildErrorMessage } from "../../store/utils";
 
 interface IResetPasswordFormValues {
     email: string;
 }
 
 const useStyles = makeStyles((theme) => ({
+    avatar: {
+        backgroundColor: theme.palette.secondary.main,
+        margin: theme.spacing(1),
+    },
+    checkbox: {
+        "& input": {
+            color: theme.palette.primary.main,
+        },
+    },
     paper: {
-        marginTop: theme.spacing(8),
+        alignItems: "center",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        marginTop: theme.spacing(8),
         padding: theme.spacing(4),
     },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
     form: {
-        width: "100%", // Fix IE 11 issue.
         marginTop: theme.spacing(1),
+        width: "100%", // Fix IE 11 issue.
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
@@ -45,11 +52,6 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         "& label": {
             color: "grey",
-        },
-    },
-    checkbox: {
-        "& input": {
-            color: theme.palette.primary.main,
         },
     },
 }));
@@ -60,17 +62,7 @@ const PasswordReset: React.FC = () => {
     const dispatch = useDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
-    const errorMessage: any[] = [];
-    if (error) {
-        Object.entries(error.response.data).forEach((e) => {
-            const errorMarkup = (
-                <Typography variant="body1" color="error">
-                    {`${e[0]}: ${e[1]}`}
-                </Typography>
-            );
-            errorMessage.push(errorMarkup);
-        });
-    }
+    const errorMessage: any[] = buildErrorMessage(error);
 
     const handleFormSubmit = (values: IResetPasswordFormValues) => {
         const email = values.email;

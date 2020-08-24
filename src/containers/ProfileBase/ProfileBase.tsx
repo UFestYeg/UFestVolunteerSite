@@ -2,11 +2,16 @@ import { Avatar, Grid, Paper, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useRouteMatch } from "react-router-dom";
 import { Tabs } from "../../components/Tabs";
+import { TabProps } from "../../components/Tabs/Tabs";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
+
+interface IProfileBase {
+    useTabs: boolean;
+    tabs?: TabProps[];
+}
 
 const useStyles = makeStyles((theme) => ({
     large: {
@@ -66,17 +71,19 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ProfilePage: React.FC = (props) => {
+const ProfilePage: React.FC<IProfileBase> = (props) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const { url } = useRouteMatch();
+    const { useTabs, tabs } = props;
 
     useEffect(() => {
         dispatch(userActions.getUserProfile());
     }, [dispatch]);
 
-    const userProfile = StateHooks.useUserProfile();
+    const userProfile = useTabs
+        ? StateHooks.useUserProfile()
+        : StateHooks.useViewedUserProfile();
 
     return (
         <Grid
@@ -87,17 +94,11 @@ const ProfilePage: React.FC = (props) => {
             justify="center"
             alignItems="center"
         >
-            <Paper className={classes.paper}>
-                <Tabs
-                    tabValues={[
-                        { target: `${url}/info`, label: "My Profile" },
-                        {
-                            target: `${url}/schedule`,
-                            label: "My Schedule",
-                        },
-                    ]}
-                />
-            </Paper>
+            {useTabs && tabs ? (
+                <Paper className={classes.paper}>
+                    <Tabs tabValues={tabs} />
+                </Paper>
+            ) : null}
 
             <Grid
                 className={classes.grid}

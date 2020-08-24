@@ -15,7 +15,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { UserUrls } from "../../constants";
+import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
@@ -62,16 +62,18 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                 Authorization: token,
                 "Content-Type": "application/json",
             };
-            axios.get(UserUrls.POSITION_DETAILS(positionID)).then((res) => {
-                setEvent(res.data);
-                console.log(res.data);
-            });
+            axios
+                .get(VolunteerUrls.CATEGORY_DETAILS(positionID))
+                .then((res) => {
+                    setEvent(res.data);
+                    console.log(res.data);
+                });
         }
     }, [positionID, token]);
 
     const handleDelete = () => {
         if (token && positionID) {
-            axios.delete(UserUrls.POSITION_DETAILS(positionID));
+            axios.delete(VolunteerUrls.CATEGORY_DETAILS(positionID));
             history.push("/positions");
         }
     };

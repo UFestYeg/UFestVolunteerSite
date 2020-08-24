@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Count
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -29,6 +29,9 @@ class VolunteerCategory(models.Model):
     class Meta:
         verbose_name_plural = "volunteer categories"
 
+    def __str__(self):
+        return f"{self.title} {self.start_time}-{self.end_time}"
+
     title = models.CharField(max_length=120)
     description = models.TextField()
     start_time = models.DateTimeField()
@@ -40,11 +43,27 @@ class VolunteerCategory(models.Model):
         blank=True,
         related_name="category_types",
     )
-
     categories = models.Manager()
 
-    def __str__(self):
-        return f"{self.title} {self.start_time}-{self.end_time}"
+    @property
+    def number_of_positions(self):
+        aggregate = self.roles.aggregate(number_of_positions=Sum("number_of_positions"))
+        return aggregate["number_of_positions"]
+
+    @property
+    def number_of_open_positions(self):
+        aggregate = self.roles.filter(requests__status=Request.ACCEPTED).aggregate(
+            filled_positions=Count("requests")
+        )
+
+        if (
+            self.number_of_positions is not None
+            and aggregate["filled_positions"] is not None
+        ):
+            res = self.number_of_positions - aggregate["filled_positions"]
+        else:
+            res = None
+        return res
 
 
 class Role(models.Model):
@@ -60,6 +79,13 @@ class Role(models.Model):
 
     def __str__(self):
         return f"Role {self.title}: {self.number_of_positions}"
+
+    @property
+    def number_of_open_positions(self):
+        return (
+            self.number_of_positions
+            - self.requests.filter(status=Request.ACCEPTED).count()
+        )
 
 
 class Request(models.Model):

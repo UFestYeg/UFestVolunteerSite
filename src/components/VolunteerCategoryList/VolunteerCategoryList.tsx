@@ -1,10 +1,4 @@
-import {
-    List,
-    ListItem,
-    ListItemProps,
-    ListItemText,
-    Typography,
-} from "@material-ui/core";
+import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
 import {
     createStyles,
     makeStyles,
@@ -15,7 +9,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { UserUrls } from "../../constants";
+import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
@@ -54,7 +48,7 @@ const VolunteerCategoryList: React.FC = () => {
                 "Content-Type": "application/json",
             };
 
-            axios.get(UserUrls.POSITION_LIST).then((res) => {
+            axios.get(VolunteerUrls.CATEGORY_LIST).then((res) => {
                 setList(res.data);
                 console.log(res.data);
             });

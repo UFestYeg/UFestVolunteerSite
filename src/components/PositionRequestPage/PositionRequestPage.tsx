@@ -5,7 +5,6 @@ import {
     CardContent,
     CardHeader,
     Container,
-    Grid,
     IconButton,
     List,
     ListItem,
@@ -17,15 +16,7 @@ import { Cancel } from "@material-ui/icons";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import {
-    Calendar,
-    momentLocalizer,
-    ToolbarProps,
-    Views,
-} from "react-big-calendar";
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -105,7 +96,7 @@ const PositionRequestPage: React.FC = () => {
         if (token) {
             dispatch(volunteerActions.getVolunteerCategoryTypes());
             axios.defaults.headers = {
-                Authorization: token,
+                Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
             };
 
@@ -127,7 +118,6 @@ const PositionRequestPage: React.FC = () => {
                         return d;
                     });
                     setList(mappedData);
-                    console.log(mappedData);
                 })
                 .catch((err) => console.error(err));
         }
@@ -148,8 +138,6 @@ const PositionRequestPage: React.FC = () => {
         };
 
         const handleSubmit = (role: any) => {
-            console.log(role);
-            console.log("role");
             axios
                 .post(VolunteerUrls.REQUESTS, {
                     status: "PENDING",
@@ -166,6 +154,8 @@ const PositionRequestPage: React.FC = () => {
                     console.error(err);
                 });
         };
+
+        const handleSubmitClick = () => handleSubmit(selectedRole);
 
         const errorMessage =
             requestError &&
@@ -186,9 +176,11 @@ const PositionRequestPage: React.FC = () => {
                 <Container onClick={handleClick} className={classes.eventRoot}>
                     <strong>{event.title}</strong> : {currentCategory}
                     <br />
-                    {selectedRole.number_of_positions &&
-                        "Available Positions:  " +
-                            selectedRole.number_of_positions}
+                    Available Positions:{" "}
+                    {selectedRole.number_of_positions !== null &&
+                    selectedRole.number_of_open_positions !== null
+                        ? `${selectedRole.number_of_open_positions}/${selectedRole.number_of_positions}`
+                        : "N/A"}
                 </Container>
                 <Popover
                     id={id}
@@ -196,12 +188,12 @@ const PositionRequestPage: React.FC = () => {
                     anchorEl={anchorEl}
                     onClose={handleClose}
                     anchorOrigin={{
-                        vertical: "top",
                         horizontal: "right",
+                        vertical: "top",
                     }}
                     transformOrigin={{
-                        vertical: "bottom",
                         horizontal: "center",
+                        vertical: "bottom",
                     }}
                 >
                     <Card className={classes.card}>
@@ -245,7 +237,7 @@ const PositionRequestPage: React.FC = () => {
                             <CardActions disableSpacing>
                                 <Button
                                     aria-label="add to favorites"
-                                    onClick={() => handleSubmit(selectedRole)}
+                                    onClick={handleSubmitClick}
                                 >
                                     Submit
                                 </Button>
@@ -264,11 +256,10 @@ const PositionRequestPage: React.FC = () => {
     };
 
     const localizer = momentLocalizer(moment);
-    const DnDCalendar = withDragAndDrop(Calendar);
 
     return (
         <Container maxWidth="lg">
-            <DnDCalendar
+            <Calendar
                 localizer={localizer}
                 events={currentList}
                 startAccessor="start_time"
@@ -280,10 +271,14 @@ const PositionRequestPage: React.FC = () => {
                 components={{
                     event: Event,
                     toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar {...props} openModal={() => null} />
+                        <CalendarToolbar
+                            {...props}
+                            addButton={false}
+                            categoryView={false}
+                            filter={false}
+                        />
                     ),
                 }}
-                resizable
                 selectable
                 popup={true}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}

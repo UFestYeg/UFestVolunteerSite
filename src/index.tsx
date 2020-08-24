@@ -30,7 +30,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: "root",
     storage,
-    whitelist: ["auth"],
+    whitelist: ["auth", "user"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -45,7 +45,7 @@ const persistor = persistStore(store);
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <PersistGate loading={Loading} persistor={persistor}>
+            <PersistGate loading={<Loading />} persistor={persistor}>
                 <App />
             </PersistGate>
         </Provider>

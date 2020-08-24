@@ -9,14 +9,15 @@ import {
     Typography,
     useMediaQuery,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 interface TabsProps {
     tabValues: TabProps[];
 }
-interface TabProps {
+export interface TabProps {
     label: string;
     target: string;
 }
@@ -48,14 +49,20 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
     const mobile = !useMediaQuery("(min-width:450px)");
     const location = useLocation();
     const styles = useStyles();
+
     const initialValue = tabValues
         .map((t) => t.target)
         .indexOf(location.pathname);
-    const [value, setValue] = React.useState(initialValue);
+    console.log(initialValue);
+    const [value, setValue] = useState(initialValue);
     const handleChange = (_event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
     };
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue]);
 
     const handleClickListItem = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -86,6 +93,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                         key={index}
                         label={tab.label}
                         component={NavLink}
+                        activeClassName="active"
                         to={tab.target}
                         className={styles.tab}
                     />

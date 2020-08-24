@@ -9,12 +9,12 @@ import {
     Popover,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Cancel } from "@material-ui/icons";
 import axios from "axios";
 import moment from "moment";
 import React, { useState } from "react";
-import { EventPropGetter } from "react-big-calendar";
 import { useHistory } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 
@@ -31,44 +31,23 @@ type UserRequestType = {
     category: number;
 };
 
-const styles = {
-    accepted: {
-        backgroundColor: "#69bb3c",
-        border: "2px solid #33691E",
-    },
-    pending: {
-        backgroundColor: "#ffcc00",
-        color: "black",
-        border: "2px solid #FBC02D",
-    },
-    unavailable: {
-        backgroundColor: "#BDBDBD",
-        color: "black",
-        border: "2px solid #616161",
-    },
-    denied: {
-        backgroundColor: "#F44336",
-        border: "2px solid #D32F2F",
-    },
-};
-
 const useStyles = makeStyles((theme) =>
     createStyles({
         card: {
-            transition: "0.3s",
+            alignItems: "center",
             boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
+            color: theme.palette.primary.dark,
             display: "flex",
             flexDirection: "row",
-            alignItems: "center",
-            textAlign: "center",
             margin: 8,
-            color: theme.palette.primary.dark,
             justifyContent: "center",
+            transition: "0.3s",
+            textAlign: "center",
         },
         cardContent: {
+            alignItems: "center",
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
             textAlign: "center",
             width: "100%",
         },
@@ -84,56 +63,38 @@ const useStyles = makeStyles((theme) =>
     })
 );
 
-const customRequestStyle: EventPropGetter<UserRequestType> = (
-    event: UserRequestType,
-    start: string | Date,
-    end: string | Date,
-    isSelected: boolean
-) => {
-    switch (event.status) {
-        case "PENDING":
-            return { style: styles.pending };
-        case "ACCEPTED":
-            return { style: styles.accepted };
-        case "UNAVAILABLE":
-            return { style: styles.unavailable };
-        case "DENIED":
-            return { style: styles.denied };
-        default:
-            return { className: "rbc-event" };
-    }
-};
-
 const RequestEvent = ({ event }: { event: any }) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const [requestError, setRequestError] = useState<any>();
     const history = useHistory();
-    const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+        null
+    );
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (
+        clickEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
+        setAnchorEl(clickEvent.currentTarget);
     };
 
     const handleClose = () => {
         setAnchorEl(null);
     };
     const handleDelete = (role: any) => {
-        console.log(role);
-        console.log("role");
         axios
             .delete(VolunteerUrls.REQUESTS_DETAILS(role.id))
             .then((res) => {
                 console.log(res);
-                // history.push("/volunteer/profile");
                 history.go(0);
             })
             .catch((err) => {
                 setRequestError(err);
-                console.log(err.response);
                 console.error(err);
             });
     };
+
+    const handleDeleteClick = () => handleDelete(event);
 
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
@@ -146,13 +107,23 @@ const RequestEvent = ({ event }: { event: any }) => {
     return (
         <>
             <Grid
-                direction="column"
-                alignItems="center"
+                container
+                direction="row-reverse"
+                alignItems="flex-start"
                 justify="space-between"
-                onClick={handleClick}
             >
-                <Typography variant="subtitle2">{event.title}</Typography>
-                <p>Request Status: {event.status}</p>
+                <Grid item>
+                    <IconButton
+                        aria-label="open delete popover"
+                        onClick={handleClick}
+                    >
+                        <Cancel />
+                    </IconButton>
+                </Grid>
+                <Grid item>
+                    <Typography variant="subtitle2">{event.title}</Typography>
+                    <p>Request Status: {event.status}</p>
+                </Grid>
             </Grid>
             <Popover
                 id={id}
@@ -160,12 +131,12 @@ const RequestEvent = ({ event }: { event: any }) => {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: "top",
                     horizontal: "right",
+                    vertical: "top",
                 }}
                 transformOrigin={{
-                    vertical: "bottom",
                     horizontal: "center",
+                    vertical: "bottom",
                 }}
             >
                 <Card className={classes.card}>
@@ -202,7 +173,7 @@ const RequestEvent = ({ event }: { event: any }) => {
                         <CardActions disableSpacing>
                             <Button
                                 aria-label="delete request"
-                                onClick={() => handleDelete(event)}
+                                onClick={handleDeleteClick}
                                 disabled={tooLateToDelete()}
                             >
                                 Delete
@@ -218,4 +189,4 @@ const RequestEvent = ({ event }: { event: any }) => {
     );
 };
 
-export { customRequestStyle, RequestEvent };
+export { RequestEvent };

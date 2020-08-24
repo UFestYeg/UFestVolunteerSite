@@ -10,9 +10,13 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+
+interface IProfileInfo {
+    canEdit: boolean;
+}
 
 const useStyles = makeStyles((theme) => ({
     large: {
@@ -72,17 +76,19 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ProfileInfo: React.FC = () => {
+const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const { url } = useRouteMatch();
+    const { profileID } = useParams();
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile());
-    }, [dispatch]);
+        dispatch(userActions.getUserProfile(profileID));
+    }, [dispatch, profileID]);
 
-    const userProfile = StateHooks.useUserProfile();
+    const userProfile = profileID
+        ? StateHooks.useViewedUserProfile()
+        : StateHooks.useUserProfile();
 
     return (
         <Paper elevation={3} className={classes.fullWidth}>
@@ -95,39 +101,43 @@ const ProfileInfo: React.FC = () => {
                 alignItems="center"
             >
                 <Typography variant="h3">Other Info</Typography>
-                <Divider orientation="vertical" flexItem />
-                <Grid
-                    item
-                    container
-                    direction="column"
-                    alignItems="stretch"
-                    justify="flex-start"
-                    xs={3}
-                >
-                    <Button
-                        size="small"
-                        className={clsx(classes.change, classes.button)}
-                        component={Link}
-                        to={"/volunteer/profile/change_password"}
-                        color="secondary"
-                        variant="contained"
-                        disableElevation
-                    >
-                        Change Password
-                    </Button>
+                {canEdit ? (
+                    <>
+                        <Divider orientation="vertical" flexItem />
+                        <Grid
+                            item
+                            container
+                            direction="column"
+                            alignItems="stretch"
+                            justify="flex-start"
+                            xs={3}
+                        >
+                            <Button
+                                size="small"
+                                className={clsx(classes.change, classes.button)}
+                                component={Link}
+                                to={"/volunteer/profile/change_password"}
+                                color="secondary"
+                                variant="contained"
+                                disableElevation
+                            >
+                                Change Password
+                            </Button>
 
-                    <Button
-                        size="small"
-                        className={clsx(classes.change, classes.button)}
-                        component={Link}
-                        to={"/volunteer/profile/edit"}
-                        color="secondary"
-                        variant="contained"
-                        disableElevation
-                    >
-                        Edit Profile
-                    </Button>
-                </Grid>
+                            <Button
+                                size="small"
+                                className={clsx(classes.change, classes.button)}
+                                component={Link}
+                                to={"/volunteer/profile/edit"}
+                                color="secondary"
+                                variant="contained"
+                                disableElevation
+                            >
+                                Edit Profile
+                            </Button>
+                        </Grid>
+                    </>
+                ) : null}
             </Grid>
             <Grid
                 className={classes.grid}

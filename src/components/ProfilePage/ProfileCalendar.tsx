@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { MySchedule } from "../Calendar";
+import { Loading } from "../Loading";
 
 const ProfileCalendar: React.FC = () => {
     const dispatch = useDispatch();
@@ -11,8 +12,16 @@ const ProfileCalendar: React.FC = () => {
         dispatch(userActions.getUserProfile());
     }, [dispatch]);
 
-    const userProfile = StateHooks.useUserProfile();
-    return <MySchedule requests={userProfile.requests} />;
+    const [userProfile, loading, _error] = StateHooks.useUserInfo();
+    return (
+        <>
+            {loading ? (
+                <Loading />
+            ) : (
+                <MySchedule requests={userProfile.requests} />
+            )}
+        </>
+    );
 };
 
 export default ProfileCalendar;

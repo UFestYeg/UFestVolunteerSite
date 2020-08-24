@@ -3,19 +3,31 @@ import { Redirect, Route } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
 
 interface IProtectedRouteProps {
-    component: React.FC<{}>;
+    component: React.FC<any>;
     path: string;
     exact?: boolean;
+    canEdit?: boolean;
+    staffOnly?: boolean;
 }
 
 const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
     component: Component,
+    canEdit,
+    staffOnly,
     ...rest
 }) => {
     const [_loading, isAuthenticated] = StateHooks.useAuthInfo();
+    const userProfile = StateHooks.useUserProfile();
+
+    const shouldRender = () => {
+        return (
+            isAuthenticated === true &&
+            (staffOnly ? userProfile.is_staff : true)
+        );
+    };
 
     const render = (props: any) =>
-        isAuthenticated === true ? (
+        shouldRender() ? (
             <Component {...props} />
         ) : (
             <Redirect
@@ -28,7 +40,9 @@ const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
             />
         );
 
-    return <Route {...rest} render={render} />;
+    const renderRoute = () => render({ canEdit });
+
+    return <Route {...rest} render={renderRoute} />;
 };
 
 export default ProtectedRoute;

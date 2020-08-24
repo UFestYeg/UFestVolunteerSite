@@ -25,7 +25,7 @@ import { Form, Formik } from "formik";
 import React from "react";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
-import { UserUrls } from "../../constants";
+import { VolunteerUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
 
 interface IFormValues {
@@ -91,14 +91,12 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         requestType: RequestType,
         positionID: number | undefined
     ) => {
-        console.log(values.title);
         const category = getVolunteerCategory(values.category);
         const title = values.title;
         const description = values.description;
         const startTime = values.startTime;
         const endTime = values.endTime;
 
-        console.log(title, category, description, startTime, endTime);
         axios.defaults.headers = {
             Authorization: token,
             "Content-Type": "application/json",
@@ -107,7 +105,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
             switch (requestType) {
                 case "POST":
                     axios
-                        .post(UserUrls.POSITION_LIST, {
+                        .post(VolunteerUrls.CATEGORY_LIST, {
                             title,
                             category_type: category,
                             description,
@@ -123,7 +121,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                 case "PUT":
                     if (positionID) {
                         axios
-                            .put(UserUrls.POSITION_DETAILS(positionID), {
+                            .put(VolunteerUrls.CATEGORY_DETAILS(positionID), {
                                 title,
                                 category_type: category,
                                 description,

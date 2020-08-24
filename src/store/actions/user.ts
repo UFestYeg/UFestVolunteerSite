@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AuthUrls } from "../../constants";
+import { AuthUrls, UserUrls } from "../../constants";
 import history from "../../history";
 import { IProfileEditFormValues } from "../../store/types";
 import {
@@ -11,17 +11,39 @@ import * as ActionTypes from "./actionTypes";
 
 type DispatchType = (action: ActionType) => void;
 
-export const setUserProfile = (payload: IUserProfile): ActionType => {
+export const getUserProfileStart = (): ActionType => {
     return {
-        type: ActionTypes.USER_GET_PROFILE,
+        type: ActionTypes.USER_GET_PROFILE_START,
+    };
+};
+
+export const getUserProfileSucces = (payload: IUserProfile): ActionType => {
+    return {
         payload,
+        type: ActionTypes.USER_GET_PROFILE_SUCCESS,
+    };
+};
+
+export const getViewedUserProfileSucces = (
+    payload: IUserProfile
+): ActionType => {
+    return {
+        payload,
+        type: ActionTypes.USER_GET_VIEWED_PROFILE_SUCCESS,
+    };
+};
+
+export const getUserProfileFail = (error: any): ActionType => {
+    return {
+        error,
+        type: ActionTypes.USER_GET_PROFILE_FAIL,
     };
 };
 
 export const clearUserProfile = (payload: any): ActionType => {
     return {
-        type: ActionTypes.USER_GET_PROFILE,
         payload: DefaultUser,
+        type: ActionTypes.USER_GET_PROFILE_SUCCESS,
     };
 };
 
@@ -44,24 +66,31 @@ export const updateProfileFail = (error: any): ActionType => {
     };
 };
 
-export const getUserProfile = () => {
+export const getUserProfile = (userID?: number) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
+            dispatch(getUserProfileStart());
+            const userProfileUrl = userID
+                ? UserUrls.USER_PROFILE_DETAILS(userID)
+                : AuthUrls.USER_PROFILE;
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
             };
             axios
-                .get(AuthUrls.USER_PROFILE)
+                .get(userProfileUrl)
                 .then((response) => {
                     console.log(response.data);
-                    dispatch(setUserProfile(response.data));
+                    userID
+                        ? dispatch(getViewedUserProfileSucces(response.data))
+                        : dispatch(getUserProfileSucces(response.data));
                 })
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
                     console.error(error);
+                    dispatch(getUserProfileFail(error));
                     // TODO: send notification and redirect
                 });
         } else {
@@ -92,7 +121,7 @@ export const updateUserProfile = (formValues: IProfileEditFormValues) => {
                 //     })
                 // );
                 dispatch(updateProfileSuccess());
-                history.push("/volunteer/profile");
+                history.push("/volunteer/profile/info");
             })
             .catch((error) => {
                 // If request is bad...

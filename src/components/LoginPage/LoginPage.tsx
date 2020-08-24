@@ -15,6 +15,7 @@ import {
     TextField,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     LockOutlined as LockOutlinedIcon,
@@ -28,6 +29,7 @@ import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
 import { auth as actions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { buildErrorMessage } from "../../store/utils";
 import Copyright from "../Copyright";
 
 interface ILoginFormValues {
@@ -36,20 +38,25 @@ interface ILoginFormValues {
 }
 
 const useStyles = makeStyles((theme) => ({
+    avatar: {
+        backgroundColor: theme.palette.secondary.main,
+        margin: theme.spacing(1),
+    },
+    checkbox: {
+        "& input": {
+            color: theme.palette.primary.main,
+        },
+    },
     paper: {
-        marginTop: theme.spacing(8),
-        display: "flex",
-        flexDirection: "column",
         alignItems: "center",
+        display: "flex",
+        marginTop: theme.spacing(8),
+        flexDirection: "column",
         padding: theme.spacing(4),
     },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
     form: {
-        width: "100%", // Fix IE 11 issue.
         marginTop: theme.spacing(1),
+        width: "100%", // Fix IE 11 issue.
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
@@ -60,11 +67,6 @@ const useStyles = makeStyles((theme) => ({
     textField: {
         "& label": {
             color: "grey",
-        },
-    },
-    checkbox: {
-        "& input": {
-            color: theme.palette.primary.main,
         },
     },
 }));
@@ -94,17 +96,7 @@ const SignIn: React.FC = () => {
         dispatch(actions.authLogin(username, password));
     };
 
-    const errorMessage: any[] = [];
-    if (error) {
-        Object.entries(error.response.data).forEach((e) => {
-            const errorMarkup = (
-                <Typography variant="body1" color="error">
-                    {`${e[0]}: ${e[1]}`}
-                </Typography>
-            );
-            errorMessage.push(errorMarkup);
-        });
-    }
+    const errorMessage: any[] = buildErrorMessage(error);
 
     return (
         <Container component="main" maxWidth="xs">
@@ -245,7 +237,12 @@ const SignIn: React.FC = () => {
                                     >
                                         Sign In
                                     </Button>
-                                    <Grid container direction="column">
+                                    <Grid
+                                        container
+                                        direction="column"
+                                        justify="center"
+                                        alignItems="center"
+                                    >
                                         <Grid item xs={12}>
                                             <Link
                                                 href="/reset_password"

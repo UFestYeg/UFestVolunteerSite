@@ -1,8 +1,11 @@
 import { Container } from "@material-ui/core";
-import axios from "axios";
+// tslint:disable-next-line: no-submodule-imports
+import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
+import { EventPropGetter } from "react-big-calendar";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useDispatch } from "react-redux";
@@ -10,7 +13,7 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { IUserRequest } from "../../store/types";
 import CalendarToolbar from "./CalendarToolbar";
-import { customRequestStyle, RequestEvent } from "./RequestEvent";
+import { RequestEvent } from "./RequestEvent";
 import UFestWeek from "./UFestWeek";
 
 type UserRequestType = {
@@ -30,19 +33,67 @@ type ScheduleProps = {
     requests: IUserRequest[];
 };
 
+const styles = {
+    accepted: {
+        backgroundColor: "#69bb3c",
+        border: "2px solid #33691E",
+    },
+    denied: {
+        backgroundColor: "#F44336",
+        border: "2px solid #D32F2F",
+    },
+    pending: {
+        backgroundColor: "#ffcc00",
+        border: "2px solid #FBC02D",
+        color: "black",
+    },
+    unavailable: {
+        backgroundColor: "#BDBDBD",
+        border: "2px solid #616161",
+        color: "black",
+    },
+};
+
+const useStyles = makeStyles((theme) =>
+    createStyles({
+        myEvent: { "&:hover": { zIndex: 1000, minWidth: "fit-content" } },
+    })
+);
+
 const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
+    const theme = useTheme();
+    const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [currentList, setList] = useState<UserRequestType[]>([]);
 
     const token = StateHooks.useToken();
 
+    const customRequestStyle: EventPropGetter<UserRequestType> = (
+        event: UserRequestType,
+        start: string | Date,
+        end: string | Date,
+        isSelected: boolean
+    ) => {
+        switch (event.status) {
+            case "PENDING":
+                return { style: styles.pending, className: classes.myEvent };
+            case "ACCEPTED":
+                return { style: styles.accepted, className: classes.myEvent };
+            case "UNAVAILABLE":
+                return {
+                    style: styles.unavailable,
+                    className: classes.myEvent,
+                };
+            case "DENIED":
+                return { style: styles.denied, className: classes.myEvent };
+            default:
+                return { className: clsx("rbc-event", classes.myEvent) };
+        }
+    };
+
     useEffect(() => {
         if (token) {
             dispatch(volunteerActions.getVolunteerCategoryTypes());
-            axios.defaults.headers = {
-                Authorization: token,
-                "Content-Type": "application/json",
-            };
 
             const mappedRequests = requests.map((r) => {
                 return {
@@ -74,7 +125,12 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                 components={{
                     event: RequestEvent,
                     toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar {...props} openModal={() => {}} />
+                        <CalendarToolbar
+                            {...props}
+                            categoryView={false}
+                            filter={false}
+                            addButton={false}
+                        />
                     ),
                 }}
                 selectable

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_auth.serializers import UserDetailsSerializer
-from volunteer_categories.api.serializers import RequestSerializer
 from .models import UserProfile
+from volunteer_categories.api.serializers import RequestSerializer
 
 
 class UserSerializer(UserDetailsSerializer):
@@ -39,6 +39,8 @@ class UserSerializer(UserDetailsSerializer):
         choices=UserProfile.T_SHIRT_SIZES_CHOICES, source="userprofile.t_shirt_size"
     )
 
+    is_staff = serializers.BooleanField(read_only=True)
+
     class Meta(UserDetailsSerializer.Meta):
         fields = UserDetailsSerializer.Meta.fields + (
             "over_eighteen",
@@ -52,6 +54,7 @@ class UserSerializer(UserDetailsSerializer):
             "comments",
             "t_shirt_size",
             "requests",
+            "is_staff",
         )
 
     def update(self, instance, validated_data):
