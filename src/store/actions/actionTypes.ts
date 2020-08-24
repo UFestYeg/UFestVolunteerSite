@@ -30,6 +30,8 @@ export type ChangePasswordFailType = typeof CHANGE_PASSWORD_FAIL;
 // User
 export const USER_GET_PROFILE_START = "USER_GET_PROFILE_START";
 export const USER_GET_PROFILE_SUCCESS = "USER_GET_PROFILE_SUCCESS";
+export const USER_GET_VIEWED_PROFILE_SUCCESS =
+    "USER_GET_VIEWED_PROFILE_SUCCESS";
 export const USER_GET_PROFILE_FAIL = "USER_GET_PROFILE_FAIL";
 export const USER_CLEAR_PROFILE = "USER_CLEAR_PROFILE";
 export const UPDATE_PROFILE_START = "UPDATE_PROFILE_START";
@@ -38,6 +40,7 @@ export const UPDATE_PROFILE_FAIL = "UPDATE_PROFILE_FAIL";
 
 export type GetUserProfileStartType = typeof USER_GET_PROFILE_START;
 export type GetUserProfileSuccessType = typeof USER_GET_PROFILE_SUCCESS;
+export type GetViewedUserProfileSuccessType = typeof USER_GET_VIEWED_PROFILE_SUCCESS;
 export type GetUserProfileFailType = typeof USER_GET_PROFILE_FAIL;
 export type ClearUserProfileType = typeof USER_CLEAR_PROFILE;
 export type UpdateProfileStartType = typeof UPDATE_PROFILE_START;

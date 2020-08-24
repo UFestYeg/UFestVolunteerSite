@@ -10,9 +10,18 @@ class CategoryTypeSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    number_of_open_positions = serializers.ReadOnlyField()
+
     class Meta:
         model = Role
-        fields = ("id", "title", "description", "number_of_positions", "category")
+        fields = (
+            "id",
+            "title",
+            "description",
+            "number_of_positions",
+            "number_of_open_positions",
+            "category",
+        )
         depth = 1
 
 
@@ -64,7 +73,7 @@ class RequestSerializer(serializers.ModelSerializer):
 
         old_status = instance.status
         instance.status = validated_data.get("status", instance.status)
-        print(role_validated_data)
+
         role = Role.roles.get(
             title=role_validated_data.get("title"),
             description=role_validated_data.get("description"),
@@ -89,15 +98,11 @@ class RequestSerializer(serializers.ModelSerializer):
         return instance
 
 
-class NumberOfPositionsField(serializers.ReadOnlyField):
-    def to_representation(self, value):
-        return f"{value}"
-
-
 class VolunteerCategorySerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
     category_type = CategoryTypeSerializer()
-    number_of_positions = NumberOfPositionsField()
+    number_of_positions = serializers.ReadOnlyField()
+    number_of_open_positions = serializers.ReadOnlyField()
 
     class Meta:
         model = VolunteerCategory
@@ -110,6 +115,7 @@ class VolunteerCategorySerializer(serializers.ModelSerializer):
             "category_type",
             "roles",
             "number_of_positions",
+            "number_of_open_positions",
         )
 
     def create(self, validated_data):

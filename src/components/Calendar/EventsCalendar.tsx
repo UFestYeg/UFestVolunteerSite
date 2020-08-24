@@ -34,6 +34,7 @@ export type VolunteerCategoryType = {
     description?: string;
     roles?: any;
     number_of_positions: number | null;
+    number_of_open_positions: number | null;
     category: string;
 };
 

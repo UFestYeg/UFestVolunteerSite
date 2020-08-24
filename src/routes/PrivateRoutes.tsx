@@ -22,15 +22,18 @@ const PrivateRoutes: React.FC = () => {
                 <ProtectedRoute exact path={`${path}`} component={HomePage} />
                 <ProtectedRoute
                     exact
+                    staffOnly
                     path={`${path}/calendar`}
                     component={EventsCalendar}
                 />
                 <ProtectedRoute
                     exact
+                    staffOnly
                     path={`${path}/positions`}
                     component={VolunteerCategoryList}
                 />
                 <ProtectedRoute
+                    staffOnly
                     path={`${path}/positions/:positionID`}
                     component={VolunteerCategoryDetails}
                 />
@@ -54,6 +57,7 @@ const PrivateRoutes: React.FC = () => {
                 />
                 <ProfileBase useTabs={false}>
                     <ProtectedRoute
+                        staffOnly
                         path={`${path}/users`}
                         component={UserRoutes}
                     />

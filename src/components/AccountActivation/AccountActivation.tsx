@@ -17,22 +17,23 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { auth } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { buildErrorMessage } from "../../store/utils";
 
 const useStyles = makeStyles((theme) => ({
+    avatar: {
+        backgroundColor: theme.palette.secondary.main,
+        margin: theme.spacing(1),
+    },
     paper: {
-        marginTop: theme.spacing(8),
+        alignItems: "center",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        marginTop: theme.spacing(8),
         padding: theme.spacing(4),
     },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
     form: {
-        width: "100%", // Fix IE 11 issue.
         marginTop: theme.spacing(1),
+        width: "100%", // Fix IE 11 issue.
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
@@ -56,17 +57,7 @@ const AccountActivation: React.FC = () => {
     const { key } = useParams();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
-    const errorMessage: any[] = [];
-    if (error) {
-        Object.entries(error.response.data).forEach((e) => {
-            const errorMarkup = (
-                <Typography variant="body1" color="error">
-                    {`${e[0]}: ${e[1]}`}
-                </Typography>
-            );
-            errorMessage.push(errorMarkup);
-        });
-    }
+    const errorMessage: any[] = buildErrorMessage(error);
 
     const handleFormSubmit = () => {
         dispatch(auth.activateUserAccount(key));

@@ -27,7 +27,11 @@ export const useError = () => {
 };
 
 export const useUserProfile = () => {
-    return useSelector((state: State) => state.user.profile);
+    return useSelector((state: State) => state.user.currentProfile);
+};
+
+export const useViewedUserProfile = () => {
+    return useSelector((state: State) => state.user.viewedProfile);
 };
 
 export const useUserInfo = () => {

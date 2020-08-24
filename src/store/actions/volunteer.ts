@@ -273,6 +273,8 @@ export const getMappedVolunteerRoles = () => {
                                 end_time: new Date(d.end_time),
                                 category: d.category_type.tag,
                                 number_of_positions: role.number_of_positions,
+                                number_of_open_positions:
+                                    role.number_of_open_positions,
                                 resourceId: d.category_type.id, // attribute_id
                                 eventID: d.id,
                             });
