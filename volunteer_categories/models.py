@@ -30,7 +30,7 @@ class VolunteerCategory(models.Model):
         verbose_name_plural = "volunteer categories"
 
     def __str__(self):
-        return f"{self.title} {self.start_time}-{self.end_time}"
+        return f"{self.title} {self.start_time} - {self.end_time}"
 
     title = models.CharField(max_length=120)
     description = models.TextField()
