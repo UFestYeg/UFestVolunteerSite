@@ -207,6 +207,7 @@ CRONJOBS = [
         "volunteer_categories.cron.send_mail_job",
         " >> send_mail.log 2>&1",
     ),
+    ("0 0 1 * *", "volunteer_categories.cron.delete_mail_job"),
 ]
 
 POST_OFFICE = {"MAX_RETRIES": 4, "RETRY_INTERVAL": datetime.timedelta(minutes=15)}
