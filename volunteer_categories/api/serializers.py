@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from volunteer_categories.models import VolunteerCategory, Request, Role, CategoryType
 from django.db.utils import IntegrityError
+from django.contrib.auth.models import User
+from backend import settings
+from post_office import mail
 
 
 class CategoryTypeSerializer(serializers.ModelSerializer):
@@ -43,6 +46,39 @@ class RequestSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        def send_create_mail(instance):
+            from django.db.models import Q
+
+            updated_user = User.objects.get(pk=instance.user.pk)
+            category_type = CategoryType.types.get(
+                pk=instance.role.category.category_type.id
+            )
+
+            email_from = settings.EMAIL_HOST_USER
+
+            admins = User.objects.filter(Q(is_staff=True))
+            recipient_list = list(
+                i for i in admins.values_list("email", flat=True) if bool(i)
+            )
+
+            email_context = {
+                "id": instance.id,
+                "first_name": updated_user.first_name,
+                "last_name": updated_user.last_name,
+                "category_type": category_type.tag,
+                "title": instance.role.title,
+                "start_time": instance.role.category.start_time,
+                "status": instance.status,
+                "end_time": instance.role.category.end_time,
+            }
+
+            mail.send(
+                updated_user.email,
+                email_from,
+                template="request_create_email",
+                context=email_context,
+            )
+
         try:
             role_validated_data = validated_data.pop("role")
             role = Role.roles.get(
@@ -60,6 +96,7 @@ class RequestSerializer(serializers.ModelSerializer):
                     request.status = Request.UNAVAILABLE
                     request.save()
                     break
+            send_create_mail(request)
             return request
         except IntegrityError:
             raise serializers.ValidationError(
@@ -69,6 +106,39 @@ class RequestSerializer(serializers.ModelSerializer):
             print("unexpected error")
 
     def update(self, instance, validated_data):
+        def send_update_mail(instance):
+            from django.db.models import Q
+
+            updated_user = User.objects.get(pk=instance.user.pk)
+            category_type = CategoryType.types.get(
+                pk=instance.role.category.category_type.id
+            )
+
+            email_from = settings.EMAIL_HOST_USER
+
+            admins = User.objects.filter(Q(is_staff=True))
+            recipient_list = list(
+                i for i in admins.values_list("email", flat=True) if bool(i)
+            )
+
+            email_context = {
+                "id": instance.id,
+                "first_name": updated_user.first_name,
+                "last_name": updated_user.last_name,
+                "category_type": category_type.tag,
+                "title": instance.role.title,
+                "start_time": instance.role.category.start_time,
+                "status": instance.status,
+                "end_time": instance.role.category.end_time,
+            }
+
+            mail.send(
+                updated_user.email,
+                email_from,
+                template="request_update_email",
+                context=email_context,
+            )
+
         role_validated_data = validated_data.pop("role")
 
         old_status = instance.status
@@ -94,6 +164,8 @@ class RequestSerializer(serializers.ModelSerializer):
                     req.save()
 
         instance.save()
+
+        send_update_mail(instance)
 
         return instance
 

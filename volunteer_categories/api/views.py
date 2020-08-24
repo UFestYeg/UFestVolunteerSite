@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from backend import settings
-from django.core.mail import send_mail
+from post_office import mail
 
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
@@ -42,18 +42,29 @@ class RequestViewSet(viewsets.ModelViewSet):
             pk=instance.role.category.category_type.id
         )
 
-        subject = f"Deleted request #{instance.id}"
-        message = (
-            f"Volunteer {deleting_user.first_name} {deleting_user.last_name} deleted a request on role "
-            f"{category_type.tag}:{instance.role.title} at {instance.role.start_time} - {instance.role.end_time}"
-        )
         email_from = settings.EMAIL_HOST_USER
 
         admins = User.objects.filter(Q(is_staff=True))
         recipient_list = list(
             i for i in admins.values_list("email", flat=True) if bool(i)
         )
-        send_mail(subject, message, email_from, recipient_list)
+        email_context = {
+            "id": instance.id,
+            "first_name": deleting_user.first_name,
+            "last_name": deleting_user.last_name,
+            "category_type": category_type.tag,
+            "title": instance.role.title,
+            "start_time": instance.role.category.start_time,
+            "end_time": instance.role.category.end_time,
+        }
+
+        mail.send(
+            deleting_user.email,
+            email_from,
+            template="request_delete_email",
+            context=email_context,
+            bcc=recipient_list,
+        )
 
         instance.delete()
 
