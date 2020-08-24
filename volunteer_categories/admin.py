@@ -9,7 +9,13 @@ class CategoryTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ["title", "description", "number_of_positions", "category"]
+    list_display = [
+        "title",
+        "description",
+        "number_of_open_positions",
+        "number_of_positions",
+        "category",
+    ]
 
 
 @admin.register(Request)
@@ -27,7 +33,15 @@ class RoleInline(admin.TabularInline):
 
 @admin.register(VolunteerCategory)
 class VolunteerCategoryAdmin(admin.ModelAdmin):
-    list_display = ("title", "description", "start_time", "end_time", "category_type")
+    list_display = (
+        "title",
+        "description",
+        "start_time",
+        "end_time",
+        "category_type",
+        "number_of_open_positions",
+        "number_of_positions",
+    )
 
     list_filter = ["start_time", "category_type"]
 

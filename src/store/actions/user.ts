@@ -24,6 +24,15 @@ export const getUserProfileSucces = (payload: IUserProfile): ActionType => {
     };
 };
 
+export const getViewedUserProfileSucces = (
+    payload: IUserProfile
+): ActionType => {
+    return {
+        payload,
+        type: ActionTypes.USER_GET_VIEWED_PROFILE_SUCCESS,
+    };
+};
+
 export const getUserProfileFail = (error: any): ActionType => {
     return {
         error,
@@ -73,7 +82,9 @@ export const getUserProfile = (userID?: number) => {
                 .get(userProfileUrl)
                 .then((response) => {
                     console.log(response.data);
-                    dispatch(getUserProfileSucces(response.data));
+                    userID
+                        ? dispatch(getViewedUserProfileSucces(response.data))
+                        : dispatch(getUserProfileSucces(response.data));
                 })
                 .catch((error) => {
                     // If request is bad...

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from allauth.account.models import EmailAddress
 
 # Create your models here.
 
@@ -46,6 +47,10 @@ class UserProfile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.profiles.create(user=instance)
+        if instance.is_superuser:
+            EmailAddress.objects.create(
+                user=instance, email=instance.email, primary=True, verified=True
+            )
 
 
 @receiver(post_save, sender=User, dispatch_uid="update_user_profile")

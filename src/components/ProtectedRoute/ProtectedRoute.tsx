@@ -7,17 +7,27 @@ interface IProtectedRouteProps {
     path: string;
     exact?: boolean;
     canEdit?: boolean;
+    staffOnly?: boolean;
 }
 
 const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
     component: Component,
     canEdit,
+    staffOnly,
     ...rest
 }) => {
     const [_loading, isAuthenticated] = StateHooks.useAuthInfo();
+    const userProfile = StateHooks.useUserProfile();
+
+    const shouldRender = () => {
+        return (
+            isAuthenticated === true &&
+            (staffOnly ? userProfile.is_staff : true)
+        );
+    };
 
     const render = (props: any) =>
-        isAuthenticated === true ? (
+        shouldRender() ? (
             <Component {...props} />
         ) : (
             <Redirect

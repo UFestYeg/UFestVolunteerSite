@@ -15,7 +15,6 @@ import { Cancel } from "@material-ui/icons";
 import axios from "axios";
 import moment from "moment";
 import React, { useState } from "react";
-import { EventPropGetter } from "react-big-calendar";
 import { useHistory } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 
@@ -30,27 +29,6 @@ type UserRequestType = {
     description?: string;
     status: string;
     category: number;
-};
-
-const styles = {
-    accepted: {
-        backgroundColor: "#69bb3c",
-        border: "2px solid #33691E",
-    },
-    denied: {
-        backgroundColor: "#F44336",
-        border: "2px solid #D32F2F",
-    },
-    pending: {
-        backgroundColor: "#ffcc00",
-        border: "2px solid #FBC02D",
-        color: "black",
-    },
-    unavailable: {
-        backgroundColor: "#BDBDBD",
-        border: "2px solid #616161",
-        color: "black",
-    },
 };
 
 const useStyles = makeStyles((theme) =>
@@ -84,26 +62,6 @@ const useStyles = makeStyles((theme) =>
         },
     })
 );
-
-const customRequestStyle: EventPropGetter<UserRequestType> = (
-    event: UserRequestType,
-    start: string | Date,
-    end: string | Date,
-    isSelected: boolean
-) => {
-    switch (event.status) {
-        case "PENDING":
-            return { style: styles.pending };
-        case "ACCEPTED":
-            return { style: styles.accepted };
-        case "UNAVAILABLE":
-            return { style: styles.unavailable };
-        case "DENIED":
-            return { style: styles.denied };
-        default:
-            return { className: "rbc-event" };
-    }
-};
 
 const RequestEvent = ({ event }: { event: any }) => {
     const theme = useTheme();
@@ -227,4 +185,4 @@ const RequestEvent = ({ event }: { event: any }) => {
     );
 };
 
-export { customRequestStyle, RequestEvent };
+export { RequestEvent };

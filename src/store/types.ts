@@ -21,6 +21,10 @@ export type AuthActionType =
 export type UserActionType =
     | { type: actionTypes.GetUserProfileStartType }
     | { type: actionTypes.GetUserProfileSuccessType; payload: IUserProfile }
+    | {
+          type: actionTypes.GetViewedUserProfileSuccessType;
+          payload: IUserProfile;
+      }
     | { type: actionTypes.GetUserProfileFailType; error: string }
     | { type: actionTypes.ClearUserProfileType }
     | { type: actionTypes.UpdateProfileStartType }
@@ -112,6 +116,7 @@ export interface IUserProfile {
     student_volunteer_hours: boolean;
     t_shirt_size: TShirtSizeType;
     requests: IUserRequest[];
+    is_staff: boolean;
 }
 
 export const DefaultUser: IUserProfile = {
@@ -131,6 +136,7 @@ export const DefaultUser: IUserProfile = {
     student_volunteer_hours: false,
     t_shirt_size: "M",
     requests: [],
+    is_staff: false,
 };
 
 export interface IProfileEditFormValues {

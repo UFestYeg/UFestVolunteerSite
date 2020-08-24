@@ -81,7 +81,9 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
         dispatch(userActions.getUserProfile());
     }, [dispatch]);
 
-    const userProfile = StateHooks.useUserProfile();
+    const userProfile = useTabs
+        ? StateHooks.useUserProfile()
+        : StateHooks.useViewedUserProfile();
 
     return (
         <Grid

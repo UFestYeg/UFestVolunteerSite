@@ -86,7 +86,9 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
         dispatch(userActions.getUserProfile(profileID));
     }, [dispatch, profileID]);
 
-    const userProfile = StateHooks.useUserProfile();
+    const userProfile = profileID
+        ? StateHooks.useViewedUserProfile()
+        : StateHooks.useUserProfile();
 
     return (
         <Paper elevation={3} className={classes.fullWidth}>

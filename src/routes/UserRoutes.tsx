@@ -12,6 +12,7 @@ const ProfileRoutes: React.FC = () => {
             <Switch>
                 <ProtectedRoute
                     exact
+                    staffOnly
                     canEdit={false}
                     path={`${path}/:profileID`}
                     component={ProfileInfo}
