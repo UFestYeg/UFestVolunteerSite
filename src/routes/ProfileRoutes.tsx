@@ -8,7 +8,15 @@ import { ProfileBase } from "../containers/ProfileBase";
 import PersonalInfoRoutes from "./PersonalInfoRoutes";
 
 const ProfileRoutes: React.FC = () => {
-    const { path } = useRouteMatch();
+    const { path, url } = useRouteMatch();
+
+    const tabs = [
+        { target: `${url}/info`, label: "My Profile" },
+        {
+            label: "My Schedule",
+            target: `${url}/schedule`,
+        },
+    ];
 
     return (
         <React.Fragment>
@@ -21,7 +29,7 @@ const ProfileRoutes: React.FC = () => {
                     path={`${path}/edit`}
                     component={ProfileEditPage}
                 />
-                <ProfileBase>
+                <ProfileBase useTabs tabs={tabs}>
                     <ProtectedRoute
                         path={`${path}`}
                         component={PersonalInfoRoutes}

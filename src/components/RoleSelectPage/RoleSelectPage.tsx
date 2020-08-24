@@ -6,7 +6,6 @@ import {
     ListItem,
     ListItemText,
     Typography,
-    useMediaQuery,
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import {
@@ -22,7 +21,6 @@ import {
     Traffic,
     Widgets,
 } from "@material-ui/icons";
-import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
@@ -102,18 +100,13 @@ const iconMap: IIconMap = {
     other: AccessibilityNew,
 };
 
-const nameToIconMapKey = (name: string) => {
-    const newName = name.toLowerCase().replace(/\s/g, "_");
-    return newName in iconMap ? newName : "other";
-};
-
 const RoleSelectPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
     const { categoryTypeID } = useParams();
-    const volunteerCategories = StateHooks.useVolunteerCategoriesOfType();
+    const volunteerCategories = StateHooks.useVolunteerCategories();
     const roles = volunteerCategories.map((category, idx, _arr) => {
         return category.roles;
     });
@@ -128,20 +121,15 @@ const RoleSelectPage: React.FC = () => {
             }
         }
     });
-    console.log("categoryTypeID");
-    console.log(categoryTypeID);
+
     useEffect(() => {
         dispatch(volunteerActions.getVolunteerCategoryOfType(categoryTypeID));
     }, [dispatch, categoryTypeID]);
 
     const ListItems = () => {
-        console.log(roles);
-        console.log(volunteerCategories);
         const flatRoles = Object.values(combinedRoles);
         return flatRoles !== undefined && flatRoles.length > 0
             ? flatRoles.map((role: any, idx: number, _arr: any[]) => {
-                  console.log(role);
-                  console.log("above");
                   if (role) {
                       return (
                           <Link
@@ -150,11 +138,32 @@ const RoleSelectPage: React.FC = () => {
                               className={classes.link}
                           >
                               <ListItem button className={classes.listContent}>
-                                  <ListItemText>
+                                  <ListItemText
+                                      primary={"Title"}
+                                      primaryTypographyProps={{
+                                          color: "textPrimary",
+                                      }}
+                                      secondary={role.title}
+                                      secondaryTypographyProps={{
+                                          color: "textPrimary",
+                                          variant: "subtitle2",
+                                      }}
+                                  >
                                       <Typography color="textPrimary">
                                           {role.title}
                                       </Typography>
                                   </ListItemText>
+                                  <ListItemText
+                                      primary={"Description"}
+                                      primaryTypographyProps={{
+                                          color: "textPrimary",
+                                      }}
+                                      secondary={role.description}
+                                      secondaryTypographyProps={{
+                                          color: "textPrimary",
+                                          variant: "subtitle2",
+                                      }}
+                                  />
                                   <ListItemText>
                                       <Typography color="textPrimary">
                                           positions available:{" "}

@@ -1,38 +1,42 @@
+// tslint:disable: jsx-no-lambda
+// tslint:disable: react-this-binding-issue
+// tslint:disable: use-simple-attributes
+
+import {
+    Button,
+    ButtonGroup,
+    FormControlLabel,
+    Grid,
+    IconButton,
+    Switch,
+    Typography,
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { AddCircle as AddCircleIcon } from "@material-ui/icons";
 import React from "react";
 import {
-    ToolbarProps,
-    NavigateAction,
-    View,
     Messages,
+    NavigateAction,
+    ToolbarProps,
+    View,
 } from "react-big-calendar";
-import {
-    ButtonGroup,
-    Button,
-    Grid,
-    Typography,
-    IconButton,
-    FormControlLabel,
-    Switch,
-} from "@material-ui/core";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CategoryFilter from "./CategoryFilter";
 
 const useStyles = makeStyles((theme) => ({
-    grid: {
-        margin: theme.spacing(2),
-    },
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 100,
         maxWidth: 200,
+        minWidth: 100,
+    },
+    grid: {
+        margin: theme.spacing(2),
     },
     noPadding: {
-        paddingTop: 0,
         paddingBottom: 0,
+        paddingTop: 0,
     },
 }));
 
@@ -97,6 +101,12 @@ const CustomToolbar: React.FC<
         }
     };
 
+    const handleResetFilter = () => {
+        if (props.handleChange !== undefined) {
+            const resetList = props.options !== undefined ? props.options : [];
+            props.handleChange(resetList);
+        }
+    };
     return (
         <Grid
             container
@@ -118,17 +128,26 @@ const CustomToolbar: React.FC<
             <Typography variant="subtitle1">{props.label}</Typography>
             <Grid item direction="row" justify="flex-end" alignItems="center">
                 {props.filter ? (
-                    <CategoryFilter
-                        options={
-                            props.options !== undefined ? props.options : []
-                        }
-                        selectedOptions={
-                            props.selectedOptions !== undefined
-                                ? props.selectedOptions
-                                : []
-                        }
-                        handleChange={handleChange}
-                    />
+                    <>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={handleResetFilter}
+                        >
+                            Reset Filter
+                        </Button>
+                        <CategoryFilter
+                            options={
+                                props.options !== undefined ? props.options : []
+                            }
+                            selectedOptions={
+                                props.selectedOptions !== undefined
+                                    ? props.selectedOptions
+                                    : []
+                            }
+                            handleChange={handleChange}
+                        />
+                    </>
                 ) : null}
                 {props.categoryView ? (
                     <FormControlLabel

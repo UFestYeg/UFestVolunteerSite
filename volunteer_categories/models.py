@@ -29,6 +29,9 @@ class VolunteerCategory(models.Model):
     class Meta:
         verbose_name_plural = "volunteer categories"
 
+    def __str__(self):
+        return f"{self.title} {self.start_time}-{self.end_time}"
+
     title = models.CharField(max_length=120)
     description = models.TextField()
     start_time = models.DateTimeField()
@@ -40,11 +43,12 @@ class VolunteerCategory(models.Model):
         blank=True,
         related_name="category_types",
     )
-
     categories = models.Manager()
 
-    def __str__(self):
-        return f"{self.title} {self.start_time}-{self.end_time}"
+    @property
+    def number_of_positions(self):
+        aggregate = self.roles.aggregate(number_of_positions=Sum("number_of_positions"))
+        return aggregate["number_of_positions"]
 
 
 class Role(models.Model):

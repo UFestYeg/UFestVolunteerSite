@@ -5,10 +5,11 @@ import csv
 from django.http import HttpResponse
 
 from user_profile.models import UserProfile
+from volunteer_categories.models import Request
 
 # Register your models here.
 
-# Define an inline admin descriptor for Employee model
+# Define an inline admin descriptor for UserProfile model
 # which acts a bit like a singleton
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
@@ -16,9 +17,12 @@ class UserProfileInline(admin.StackedInline):
     verbose_name_plural = "user profiles"
 
 
+class RequestInline(admin.StackedInline):
+    model = Request
+
+
 # Define a new User admin
 class UserAdmin(BaseUserAdmin):
-    inlines = (UserProfileInline,)
     actions = ["export_emails_as_csv"]
 
     def export_emails_as_csv(self, request, queryset):
@@ -40,6 +44,10 @@ class UserAdmin(BaseUserAdmin):
         return response
 
     export_emails_as_csv.short_description = "Export Selected"
+    inlines = (
+        UserProfileInline,
+        RequestInline,
+    )
 
 
 # Re-register UserAdmin

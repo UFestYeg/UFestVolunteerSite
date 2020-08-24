@@ -4,12 +4,12 @@ from .models import VolunteerCategory, Request, CategoryType, Role
 # Register your models here.
 @admin.register(CategoryType)
 class CategoryTypeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["tag"]
 
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["title", "description", "number_of_positions", "category"]
 
 
 @admin.register(Request)

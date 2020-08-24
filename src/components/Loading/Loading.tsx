@@ -1,12 +1,12 @@
 import { Grid, useMediaQuery } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
+import logo from "./Loading.gif";
 
 const useStyles = makeStyles({
     loading: {
-        backgroundColor: "#28352E",
-        height: "100vh",
-        width: "100vw",
+        height: "100%",
+        width: "100%",
     },
 });
 
@@ -36,12 +36,7 @@ const Loading = () => {
             justify="center"
             className={classes.loading}
         >
-            <img
-                src={"./Loading.gif"}
-                alt="Loading"
-                width={width}
-                height={width}
-            />
+            <img src={logo} alt="Loading" width={width} height={width} />
         </Grid>
     );
 };

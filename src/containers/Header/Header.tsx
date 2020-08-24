@@ -171,7 +171,7 @@ const Header: React.FC<HeaderProps> = (props) => {
                                 className={classes.menuList}
                             >
                                 <Link
-                                    to={"/volunteer/profile"}
+                                    to={"/volunteer/profile/info"}
                                     style={{ textDecoration: "none" }}
                                 >
                                     <MenuItem
