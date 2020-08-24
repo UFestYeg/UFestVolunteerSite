@@ -9,6 +9,8 @@ import csv
 from backend.settings import TIME_ZONE
 from pytz import timezone
 import time
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
 
 DATE_CHOICES = [
     (datetime.date(2021, 5, 19), "Wednesday"),
@@ -75,6 +77,7 @@ class RequestAdmin(admin.ModelAdmin):
                         "first_name",
                         "start_time",
                         "end_time",
+                        "category",
                         "role",
                         "signature",
                     ]
@@ -98,10 +101,22 @@ class RequestAdmin(admin.ModelAdmin):
                                 role.start_time.astimezone(timezone(TIME_ZONE)).time(),
                                 role.end_time.astimezone(timezone(TIME_ZONE)).time(),
                                 role.title,
+                                r.role.title,
                                 "   ",
                             ]
                         )
-
+                    LogEntry.objects.log_action(
+                        user_id=request.user.pk,
+                        content_type_id=ContentType.objects.get_for_model(Request).pk,
+                        object_id=request.user.pk,
+                        object_repr="Daily Checkin for {} exported".format(
+                            selected_date
+                        ),
+                        action_flag=CHANGE,
+                        change_message="Daily Checkin for {} exported".format(
+                            selected_date
+                        ),
+                    )
                     return response
                 else:
                     messages.error(request, "No shifts for selected date")
