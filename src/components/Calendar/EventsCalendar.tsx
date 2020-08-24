@@ -2,7 +2,24 @@
 // tslint:disable: react-this-binding-issue
 // tslint:disable: use-simple-attributes
 import { Container, Zoom } from "@material-ui/core";
-import React, { useState } from "react";
+import axios from "axios";
+import * as chroma from "chroma-js";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import {
+    Calendar,
+    EventPropGetter,
+    momentLocalizer,
+    ToolbarProps,
+    Views,
+} from "react-big-calendar";
+// tslint:disable-next-line: no-submodule-imports
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+// tslint:disable-next-line: no-submodule-imports
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useDispatch } from "react-redux";
+import { UserUrls } from "../../constants";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import EventsCategoryView from "./EventsCategoryView";
 import EventsDetailView from "./EventsDetailView";
@@ -22,9 +39,16 @@ export type VolunteerCategoryType = {
 };
 
 const EventsCalendar: React.FC = () => {
-    const [defaultDate, setDefaultDate] = useState<Date>(new Date(2021, 4, 22));
-
+    const dispatch = useDispatch();
+    const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
+    const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
+        []
+    );
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [categoryView, setCategoryView] = useState<boolean>(false);
+
+    const token = StateHooks.useToken();
+    const [defaultDate, setDefaultDate] = useState<Date>(new Date(2021, 4, 22));
 
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeTags = volunteerCategories.map(
