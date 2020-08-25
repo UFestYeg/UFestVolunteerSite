@@ -1,4 +1,4 @@
-import { Grid, useMediaQuery } from "@material-ui/core";
+import { Grid, Typography, useMediaQuery } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import logo from "./Loading.gif";
@@ -36,6 +36,9 @@ const Loading = () => {
             justify="center"
             className={classes.loading}
         >
+            <Grid item>
+                <Typography variant="h1">Loading...</Typography>
+            </Grid>
             <img src={logo} alt="Loading" width={width} height={width} />
         </Grid>
     );
