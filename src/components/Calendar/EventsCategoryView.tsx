@@ -52,7 +52,13 @@ interface IEventsCategoryView {
 
 const useStyles = makeStyles((theme) =>
     createStyles({
-        myEvent: { "&:hover": { zIndex: 1000 } },
+        myEvent: {
+            "&:hover": {
+                minHeight: "20%",
+                minWidth: "fit-content",
+                zIndex: 1000,
+            },
+        },
     })
 );
 

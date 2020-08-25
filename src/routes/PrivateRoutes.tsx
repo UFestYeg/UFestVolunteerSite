@@ -9,7 +9,6 @@ import { ProtectedRoute } from "../components/ProtectedRoute";
 import { RoleSelectPage } from "../components/RoleSelectPage";
 import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails";
 import { VolunteerCategoryList } from "../components/VolunteerCategoryList";
-import { ProfileBase } from "../containers/ProfileBase";
 import ProfileRoutes from "./ProfileRoutes";
 import UserRoutes from "./UserRoutes";
 
@@ -34,7 +33,7 @@ const PrivateRoutes: React.FC = () => {
                 />
                 <ProtectedRoute
                     staffOnly
-                    path={`${path}/positions/:positionID`}
+                    path={`${path}/positions/:positionID(\\d+)`}
                     component={VolunteerCategoryDetails}
                 />
                 <ProtectedRoute
@@ -44,24 +43,22 @@ const PrivateRoutes: React.FC = () => {
                 />
                 <ProtectedRoute
                     exact
-                    path={`${path}/categories/:categoryTypeID`}
+                    path={`${path}/categories/:categoryTypeID(\\d+)`}
                     component={RoleSelectPage}
                 />
                 <ProtectedRoute
-                    path={`${path}/categories/:categoryTypeID/roles/:roleID`}
+                    path={`${path}/categories/:categoryTypeID(\\d+)/roles/:roleID(\\d+)`}
                     component={PositionRequestPage}
                 />
                 <ProtectedRoute
                     path={`${path}/profile`}
                     component={ProfileRoutes}
                 />
-                <ProfileBase useTabs={false}>
-                    <ProtectedRoute
-                        staffOnly
-                        path={`${path}/users`}
-                        component={UserRoutes}
-                    />
-                </ProfileBase>
+                <ProtectedRoute
+                    staffOnly
+                    path={`${path}/users`}
+                    component={UserRoutes}
+                />
                 <Route component={NotFoundPage} />
             </Switch>
         </React.Fragment>
