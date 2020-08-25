@@ -1,0 +1,47 @@
+[
+    {
+        "model": "post_office.emailtemplate",
+        "pk": 1,
+        "fields": {
+            "name": "request_delete_email",
+            "description": "Email that gets sent when a request is deleted .",
+            "created": "2020-08-24T21:10:25.655Z",
+            "last_updated": "2020-08-24T21:10:25.655Z",
+            "subject": "Deleted request #{{id}}",
+            "content": "Confirmation that {{first_name}} {{last_name}} deleted a request on role {{category_type}}:{{title}} at {{start_time}} - {{end_time}}",
+            "html_content": "",
+            "language": "",
+            "default_template": null
+        }
+    },
+    {
+        "model": "post_office.emailtemplate",
+        "pk": 2,
+        "fields": {
+            "name": "request_update_email",
+            "description": "Email for informing volunteers of request updates.",
+            "created": "2020-08-24T21:23:29.728Z",
+            "last_updated": "2020-08-24T21:23:29.728Z",
+            "subject": "Updated request for {{title}}",
+            "content": "Hi {{first_name}} {{last_name}}!\r\n\r\nYour volunteer request for {{title}} at {{start_time}} - {{end_time}} has been updated.\r\n\r\nSTATUS: {{status}}\r\n\r\nGo check out your user profile to see more!\r\n\r\nThanks,\r\n\r\nUFest Edmonton",
+            "html_content": "",
+            "language": "",
+            "default_template": null
+        }
+    },
+    {
+        "model": "post_office.emailtemplate",
+        "pk": 3,
+        "fields": {
+            "name": "request_create_email",
+            "description": "Email sent when volunteers create a volunteer request",
+            "created": "2020-08-24T21:32:24.256Z",
+            "last_updated": "2020-08-24T21:32:24.256Z",
+            "subject": "Confirmation of Volunteer Request on {{title}}",
+            "content": "Hi {{first_name}} {{last_name}}!\r\n\r\nYour volunteer request for {{title}} at {{start_time}} - {{end_time}} has been created.\r\n\r\nSTATUS: {{status}}\r\n\r\nGo check out your user profile to see more!\r\n\r\nThanks,\r\n\r\nUFest Edmonton",
+            "html_content": "",
+            "language": "",
+            "default_template": null
+        }
+    }
+]

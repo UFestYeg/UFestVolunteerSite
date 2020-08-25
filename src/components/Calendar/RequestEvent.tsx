@@ -151,7 +151,7 @@ const RequestEvent = ({ event }: { event: any }) => {
                                     <Cancel />
                                 </IconButton>
                             }
-                            title="Submit Request"
+                            title="Delete Request"
                         />
                         {requestError &&
                         requestError.response &&
