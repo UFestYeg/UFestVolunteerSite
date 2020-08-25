@@ -213,7 +213,7 @@ export const changePassword = (
                     // );
                     // redirect to the route '/profile'
                     dispatch(changePasswordSuccess());
-                    history.push("/volunteer/profile/info");
+                    dispatch(logout());
                 })
                 .catch((error) => {
                     // If request is bad...

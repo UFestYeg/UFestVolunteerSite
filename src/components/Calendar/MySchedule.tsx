@@ -4,8 +4,12 @@ import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
-import { EventPropGetter } from "react-big-calendar";
+import {
+    Calendar,
+    EventPropGetter,
+    momentLocalizer,
+    ToolbarProps,
+} from "react-big-calendar";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useDispatch } from "react-redux";

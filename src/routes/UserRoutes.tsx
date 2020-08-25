@@ -3,8 +3,9 @@ import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { NotFoundPage } from "../components/NotFoundPage";
 import { ProfileInfo } from "../components/ProfilePage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { ProfileBase } from "../containers/ProfileBase";
 
-const ProfileRoutes: React.FC = () => {
+const UserRoutes: React.FC = () => {
     const { path } = useRouteMatch();
 
     return (
@@ -13,14 +14,20 @@ const ProfileRoutes: React.FC = () => {
                 <ProtectedRoute
                     exact
                     staffOnly
-                    canEdit={false}
-                    path={`${path}/:profileID`}
-                    component={ProfileInfo}
+                    path={`${path}/:profileID(\\d+)`}
+                    component={WrappedUserRoutes}
                 />
                 <Route component={NotFoundPage} />
             </Switch>
         </React.Fragment>
     );
 };
+const WrappedUserRoutes: React.FC = () => {
+    return (
+        <ProfileBase useTabs={false}>
+            <ProfileInfo canEdit={false} />
+        </ProfileBase>
+    );
+};
 
-export default ProfileRoutes;
+export default UserRoutes;

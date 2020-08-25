@@ -13,7 +13,7 @@ import React from "react";
 const useStyles = makeStyles((theme) =>
     createStyles({
         home: {
-            minHeight: "90vh",
+            minHeight: "60vh",
             width: "100%",
             overflow: "hidden",
             display: "flex",
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) =>
                 position: "absolute",
                 left: "0px",
                 "z-index": "-1",
-                height: "80vh",
+                height: "50vh",
                 width: "100%",
                 // Create the parallax scrolling effect
                 backgroundAttachment: "fixed",
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) =>
             },
         },
         about: {
-            minHeight: "90vh",
+            minHeight: "60vh",
             width: "100%",
             overflow: "hidden",
             padding: theme.spacing(6),
@@ -145,7 +145,7 @@ const HomePage: React.FC = () => {
                     <Grid item xs={12}>
                         <Typography variant="body1">
                             To get started check out your profile and make sure
-                            the information is up to date. You can acces your
+                            the information is up to date. You can access your
                             profile by clicking on the side menu in the top left
                             corner or your profile logo in the top right and
                             selecting Profile
@@ -170,7 +170,7 @@ const HomePage: React.FC = () => {
                     <Grid item xs={12}>
                         <Typography variant="body1">
                             See what you have on your plate for the week of the
-                            fesitval. Check out the event calendar from the side
+                            festival. Check out the event calendar from the side
                             menu.
                         </Typography>
                     </Grid>
