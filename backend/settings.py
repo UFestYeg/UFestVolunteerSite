@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from dotenv import load_dotenv
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,6 +53,8 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "volunteer_categories",
     "user_profile",
+    "post_office",
+    "django_crontab",
 ]
 
 SITE_ID = 1
@@ -185,7 +188,26 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 # emails
 
 # change this in prod: https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+EMAIL_BACKEND = "post_office.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "ufestmarketing@gmail.com"
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 ATOMIC_REQUESTS = True
+
+
+# Cron job
+CRONJOBS = [
+    (
+        "*/2 * * * *",
+        "volunteer_categories.cron.send_mail_job",
+        " >> send_mail.log 2>&1",
+    ),
+    ("0 0 1 * *", "volunteer_categories.cron.delete_mail_job"),
+]
+
+POST_OFFICE = {"MAX_RETRIES": 4, "RETRY_INTERVAL": datetime.timedelta(minutes=15)}

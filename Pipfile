@@ -29,6 +29,10 @@ six = "==1.15.0"
 sqlparse = "==0.3.1"
 urllib3 = "==1.25.10"
 Django = "==3.0.8"
+django-post-office = "*"
+jsonfield = "*"
+bleach = "*"
+django-crontab = "*"
 
 [requires]
 python_version = "3.8"
