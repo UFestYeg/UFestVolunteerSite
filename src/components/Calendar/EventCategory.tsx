@@ -31,7 +31,7 @@ import {
 import moment from "moment";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { Loading } from "../Loading";
@@ -80,6 +80,12 @@ interface IRenderRowProps {
     data: any[];
     index: number;
     request: any;
+}
+
+interface IEventCategory {
+    event: any;
+    selectedCategories: string[];
+    defaultDate: Date;
 }
 
 const useStyles = makeStyles((theme) =>
@@ -215,7 +221,13 @@ const RoleSelect: React.FC<IRoleSelectProps> = ({
     );
 };
 
-const EventCategory = ({ event }: { event: any }) => {
+const EventCategory = ({
+    event,
+    selectedCategories,
+    defaultDate,
+}: IEventCategory) => {
+    const history = useHistory();
+    const { url } = useRouteMatch();
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
@@ -226,6 +238,12 @@ const EventCategory = ({ event }: { event: any }) => {
     const [submitRequest, setSubmitRequest] = useState<any>();
     const mappedRoles = StateHooks.useMappedRoles();
     const { requests } = event;
+
+    const browserState = {
+        oldCategoryView: true,
+        oldDefaultDate: defaultDate,
+        oldSelectedCategories: selectedCategories,
+    };
 
     const isPositionFull = () => {
         return event.number_of_open_positions === 0;
@@ -240,12 +258,12 @@ const EventCategory = ({ event }: { event: any }) => {
     };
 
     const handleAccept = (request: any) => {
-        dispatch(volunteerActions.acceptRequest(request));
+        dispatch(volunteerActions.acceptRequest(request, url, browserState));
         handleClosePopover();
     };
 
     const handleDeny = (request: any) => {
-        dispatch(volunteerActions.denyRequest(request));
+        dispatch(volunteerActions.denyRequest(request, url, browserState));
         handleClosePopover();
     };
 
@@ -291,7 +309,9 @@ const EventCategory = ({ event }: { event: any }) => {
                     dispatch(
                         volunteerActions.changeRequestRole(
                             submitRequest,
-                            submitRole
+                            submitRole,
+                            url,
+                            browserState
                         )
                     );
                 }
@@ -301,6 +321,11 @@ const EventCategory = ({ event }: { event: any }) => {
 
         const handleSubmit = (_event: React.FormEvent<HTMLFormElement>) => {
             handleOkClick(roleID);
+        };
+
+        const handleProfileClick = () => {
+            history.replace(url, browserState);
+            history.push(`/volunteer/users/${request.user_profile.pk}`);
         };
 
         return (
@@ -318,11 +343,13 @@ const EventCategory = ({ event }: { event: any }) => {
                                 }}
                             >
                                 <Typography>
-                                    <Link
-                                        to={`/volunteer/users/${request.user_profile.pk}`}
+                                    <Button
+                                        onClick={handleProfileClick}
+                                        size="medium"
+                                        color="primary"
                                     >
                                         {`${request.user_profile.first_name} ${request.user_profile.last_name}`}
-                                    </Link>
+                                    </Button>
                                 </Typography>
                             </ListItemText>
 

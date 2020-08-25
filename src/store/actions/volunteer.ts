@@ -295,7 +295,11 @@ export const getMappedVolunteerRoles = () => {
     };
 };
 
-export const acceptRequest = (request: any) => {
+export const acceptRequest = (
+    request: any,
+    redirectUrl: string,
+    browserState: any
+) => {
     console.log("request", request);
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
@@ -312,6 +316,7 @@ export const acceptRequest = (request: any) => {
                 })
                 .then((res) => {
                     dispatch(acceptRequestSuccess());
+                    history.replace(redirectUrl, browserState);
                     history.go(0);
                     console.log(res);
                 })
@@ -323,7 +328,11 @@ export const acceptRequest = (request: any) => {
     };
 };
 
-export const denyRequest = (request: any) => {
+export const denyRequest = (
+    request: any,
+    redirectUrl: string,
+    browserState: any
+) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
@@ -339,6 +348,7 @@ export const denyRequest = (request: any) => {
                 })
                 .then((res) => {
                     dispatch(denyRequestSuccess());
+                    history.replace(redirectUrl, browserState);
                     history.go(0);
                     console.log(res);
                 })
@@ -350,7 +360,12 @@ export const denyRequest = (request: any) => {
     };
 };
 
-export const changeRequestRole = (request: any, role: any) => {
+export const changeRequestRole = (
+    request: any,
+    role: any,
+    redirectUrl: string,
+    browserState: any
+) => {
     const token = localStorage.getItem("token");
     const payload = {
         ...request,
@@ -369,6 +384,7 @@ export const changeRequestRole = (request: any, role: any) => {
                 .then((res) => {
                     dispatch(changeRequestRoleSuccess());
                     console.log(res);
+                    history.replace(redirectUrl, browserState);
                     history.go(0);
                 })
                 .catch((err) => {

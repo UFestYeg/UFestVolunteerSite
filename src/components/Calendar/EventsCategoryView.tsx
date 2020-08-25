@@ -180,6 +180,16 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
         (c) => props.selectedCategories.indexOf(c.tag) > -1
     );
 
+    const WrappedEventCategory = ({ event }: { event: any }) => {
+        return (
+            <EventCategory
+                event={event}
+                defaultDate={props.defaultDate}
+                selectedCategories={props.selectedCategories}
+            />
+        );
+    };
+
     return (
         <Container maxWidth="lg">
             {loading ? (
@@ -200,7 +210,7 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                         defaultDate={props.defaultDate}
                         views={{ day: true, week: UFestWeek }}
                         components={{
-                            event: EventCategory,
+                            event: WrappedEventCategory,
                             toolbar: (tbarProps: ToolbarProps) => (
                                 <CalendarToolbar
                                     {...tbarProps}
