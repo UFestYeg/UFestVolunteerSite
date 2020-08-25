@@ -149,13 +149,6 @@ const useStyles = makeStyles((theme) =>
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        },
-    },
-};
 
 const RoleSelect: React.FC<IRoleSelectProps> = ({
     options,
@@ -184,7 +177,16 @@ const RoleSelect: React.FC<IRoleSelectProps> = ({
                         fullWidth
                         value={roleID}
                         onChange={handleChange}
-                        MenuProps={MenuProps}
+                        MenuProps={{
+                            PaperProps: {
+                                style: {
+                                    maxHeight:
+                                        ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                                },
+                            },
+                            getContentAnchorEl: null,
+                            variant: "menu",
+                        }}
                     >
                         <MenuItem disabled value="">
                             <em>Available Roles</em>
