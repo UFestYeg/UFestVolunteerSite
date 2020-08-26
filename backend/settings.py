@@ -194,16 +194,21 @@ EMAIL_BACKEND = "post_office.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "ufestmarketing@gmail.com"
+EMAIL_HOST_USER = os.getenv("EMAIL_ADDRESS")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 ATOMIC_REQUESTS = True
 
 
 # Cron job
+
+minute_interval = (
+    os.getenv("MINUTE_INTERVAL") if os.getenv("MINUTE_INTERVAL") is not None else 5
+)
+
 CRONJOBS = [
     (
-        "*/2 * * * *",
+        f"*/{minute_interval} * * * *",
         "volunteer_categories.cron.send_mail_job",
         " >> send_mail.log 2>&1",
     ),
