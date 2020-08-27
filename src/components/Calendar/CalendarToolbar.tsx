@@ -11,6 +11,7 @@ import {
     Switch,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { makeStyles } from "@material-ui/core/styles";
 import { AddCircle as AddCircleIcon } from "@material-ui/icons";
 import React from "react";
@@ -51,8 +52,10 @@ type CategoryViewProps = {
 
 type FilterProps = {
     selectedOptions?: string[];
-    handleChange?: (value: string[]) => void;
+    setSelectedCategories?: React.Dispatch<React.SetStateAction<string[]>>;
     options?: string[];
+    selectAll?: boolean;
+    setSelectAll?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type ConfigProps = {
@@ -95,18 +98,6 @@ const CustomToolbar: React.FC<
         }
     }
 
-    const handleChange = (event: any) => {
-        if (props.handleChange !== undefined) {
-            props.handleChange(event.target.value);
-        }
-    };
-
-    const handleResetFilter = () => {
-        if (props.handleChange !== undefined) {
-            const resetList = props.options !== undefined ? props.options : [];
-            props.handleChange(resetList);
-        }
-    };
     return (
         <Grid
             container
@@ -127,15 +118,11 @@ const CustomToolbar: React.FC<
 
             <Typography variant="subtitle1">{props.label}</Typography>
             <Grid item direction="row" justify="flex-end" alignItems="center">
-                {props.filter ? (
+                {props.filter &&
+                props.selectAll !== undefined &&
+                props.setSelectAll &&
+                props.setSelectedCategories ? (
                     <>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={handleResetFilter}
-                        >
-                            Reset Filter
-                        </Button>
                         <CategoryFilter
                             options={
                                 props.options !== undefined ? props.options : []
@@ -145,7 +132,9 @@ const CustomToolbar: React.FC<
                                     ? props.selectedOptions
                                     : []
                             }
-                            handleChange={handleChange}
+                            setSelectedCategories={props.setSelectedCategories}
+                            selectAll={props.selectAll}
+                            setSelectAll={props.setSelectAll}
                         />
                     </>
                 ) : null}
