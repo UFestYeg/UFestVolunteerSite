@@ -48,6 +48,8 @@ interface IEventsCategoryView {
     setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
     defaultDate: Date;
     setDefaultDate: React.Dispatch<React.SetStateAction<Date>>;
+    selectAll: boolean;
+    setSelectAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const useStyles = makeStyles((theme) =>
@@ -97,6 +99,7 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
         setOriginalList(mappedRoles);
     }, [mappedRoles]);
 
+    // Filtering
     useEffect(() => {
         const newList = originalList.filter((e) => {
             if (e.category !== undefined) {
@@ -227,7 +230,11 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                                     filter={true}
                                     options={volunteerCategoryTypes}
                                     selectedOptions={props.selectedCategories}
-                                    handleChange={props.setSelectedCategories}
+                                    setSelectedCategories={
+                                        props.setSelectedCategories
+                                    }
+                                    selectAll={props.selectAll}
+                                    setSelectAll={props.setSelectAll}
                                 />
                             ),
                         }}

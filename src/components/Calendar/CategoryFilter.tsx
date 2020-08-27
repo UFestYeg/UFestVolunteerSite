@@ -69,19 +69,34 @@ const useStyles = makeStyles((theme) => ({
 
 type FilterProps = {
     selectedOptions: string[];
-    handleChange: (
-        event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>,
-        child?: React.ReactNode
-    ) => void;
+    setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
     options: string[];
+    selectAll: boolean;
+    setSelectAll: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CategoryFilter: React.FC<FilterProps> = ({
     selectedOptions,
-    handleChange,
+    setSelectedCategories,
     options,
+    selectAll,
+    setSelectAll,
 }: FilterProps) => {
     const classes = useStyles();
+
+    const handleChange = (event: any) => {
+        if (setSelectedCategories !== undefined) {
+            setSelectedCategories(event.target.value);
+        }
+    };
+
+    const handleSelectAllChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const checked = event.target.checked;
+        setSelectAll(checked);
+        setSelectedCategories(checked ? options : []);
+    };
     return (
         <FormControl
             variant="outlined"
@@ -106,6 +121,13 @@ const CategoryFilter: React.FC<FilterProps> = ({
             >
                 <MenuItem disabled value="">
                     <em>Categories</em>
+                </MenuItem>
+                <MenuItem key={"Select All"} value="Select All">
+                    <Checkbox
+                        onChange={handleSelectAllChange}
+                        checked={selectAll}
+                    />
+                    <ListItemText primary={"Select All"} />
                 </MenuItem>
                 {options.map((option) => (
                     <MenuItem key={option} value={option}>

@@ -1,10 +1,11 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: react-this-binding-issue
 // tslint:disable: use-simple-attributes
-import { Container, Zoom } from "@material-ui/core";
-import React, { useState } from "react";
+import { Container } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
+import { compareArrays } from "../../utils";
 import EventsCategoryView from "./EventsCategoryView";
 import EventsDetailView from "./EventsDetailView";
 
@@ -61,21 +62,32 @@ const EventsCalendar: React.FC = () => {
         defaultSelectedCategories
     );
 
+    const defaultSelectAll = compareArrays(
+        selectedCategories,
+        volunteerCategoryTypeTags
+    );
+    const [selectAll, setSelectAll] = useState<boolean>(defaultSelectAll);
+
+    useEffect(() => {
+        if (compareArrays(selectedCategories, volunteerCategoryTypeTags)) {
+            setSelectAll(true);
+        } else {
+            setSelectAll(false);
+        }
+    }, [selectedCategories, volunteerCategoryTypeTags]);
+
     return (
         <Container maxWidth="lg">
             {categoryView ? (
-                <Zoom
-                    in={categoryView}
-                    style={{ transitionDelay: categoryView ? "500ms" : "0ms" }}
-                >
-                    <EventsCategoryView
-                        setCategoryView={setCategoryView}
-                        selectedCategories={selectedCategories}
-                        setSelectedCategories={setSelectedCategories}
-                        defaultDate={defaultDate}
-                        setDefaultDate={setDefaultDate}
-                    />
-                </Zoom>
+                <EventsCategoryView
+                    setCategoryView={setCategoryView}
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    defaultDate={defaultDate}
+                    setDefaultDate={setDefaultDate}
+                    selectAll={selectAll}
+                    setSelectAll={setSelectAll}
+                />
             ) : (
                 <EventsDetailView
                     setCategoryView={setCategoryView}
@@ -83,6 +95,8 @@ const EventsCalendar: React.FC = () => {
                     setSelectedCategories={setSelectedCategories}
                     defaultDate={defaultDate}
                     setDefaultDate={setDefaultDate}
+                    selectAll={selectAll}
+                    setSelectAll={setSelectAll}
                 />
             )}
         </Container>
