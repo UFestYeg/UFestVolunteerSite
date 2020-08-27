@@ -2,24 +2,8 @@
 // tslint:disable: react-this-binding-issue
 // tslint:disable: use-simple-attributes
 import { Container, Zoom } from "@material-ui/core";
-import axios from "axios";
-import * as chroma from "chroma-js";
-import moment from "moment";
-import React, { useEffect, useState } from "react";
-import {
-    Calendar,
-    EventPropGetter,
-    momentLocalizer,
-    ToolbarProps,
-    Views,
-} from "react-big-calendar";
-// tslint:disable-next-line: no-submodule-imports
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-// tslint:disable-next-line: no-submodule-imports
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useDispatch } from "react-redux";
-import { UserUrls } from "../../constants";
-import { volunteer as volunteerActions } from "../../store/actions";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
 import EventsCategoryView from "./EventsCategoryView";
 import EventsDetailView from "./EventsDetailView";
@@ -38,17 +22,29 @@ export type VolunteerCategoryType = {
     category: string;
 };
 
-const EventsCalendar: React.FC = () => {
-    const dispatch = useDispatch();
-    const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
-    const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
-        []
-    );
-    const [modalOpen, setModalOpen] = useState<boolean>(false);
-    const [categoryView, setCategoryView] = useState<boolean>(false);
+interface ILocationState {
+    oldCategoryView: boolean | undefined;
+    oldSelectedCategories: string[] | undefined;
+    oldDefaultDate: Date | undefined;
+}
 
-    const token = StateHooks.useToken();
-    const [defaultDate, setDefaultDate] = useState<Date>(new Date(2021, 4, 22));
+const EventsCalendar: React.FC = () => {
+    const { state } = useLocation<ILocationState>();
+
+    const defaultIsCategoryView =
+        state && state.oldCategoryView !== undefined
+            ? state.oldCategoryView
+            : false;
+
+    const [categoryView, setCategoryView] = useState<boolean>(
+        defaultIsCategoryView
+    );
+
+    const defaultDefaultDate =
+        state && state.oldDefaultDate !== undefined
+            ? state.oldDefaultDate
+            : new Date(2021, 4, 22);
+    const [defaultDate, setDefaultDate] = useState<Date>(defaultDefaultDate);
 
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeTags = volunteerCategories.map(
@@ -57,8 +53,12 @@ const EventsCalendar: React.FC = () => {
         }
     );
 
+    const defaultSelectedCategories =
+        state && state.oldSelectedCategories !== undefined
+            ? state.oldSelectedCategories
+            : volunteerCategoryTypeTags;
     const [selectedCategories, setSelectedCategories] = useState<string[]>(
-        volunteerCategoryTypeTags
+        defaultSelectedCategories
     );
 
     return (
