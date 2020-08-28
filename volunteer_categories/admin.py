@@ -151,3 +151,54 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
 
     inlines = [RoleInline]
 
+    change_list_template = "admin/volunteer_category_changelist.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path("export-schedule/", self.export_schedule),
+        ]
+        return my_urls + urls
+
+    def export_schedule(self, request):
+        accepted_requests = (
+            Request.requests.select_related("user", "role__category")
+            .filter(status="ACCEPTED",)
+            .order_by(
+                "role__category__start_time",
+                "role__title",
+                "role__category__category_type",
+            )
+        )
+        print(accepted_requests)
+        field_names = ["time", "role", "category", "volunteer"]
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=master-schedule.csv"
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for r in accepted_requests:
+            user = r.user
+            role = r.role
+            row = writer.writerow(
+                [
+                    "{} {}-{}".format(
+                        role.category.start_time.astimezone(timezone(TIME_ZONE)).date(),
+                        role.category.start_time.astimezone(timezone(TIME_ZONE)).time(),
+                        role.category.end_time.astimezone(timezone(TIME_ZONE)).time(),
+                    ),
+                    role.title,
+                    role.category.category_type.tag,
+                    user.get_full_name(),
+                ]
+            )
+        LogEntry.objects.log_action(
+            user_id=request.user.pk,
+            content_type_id=ContentType.objects.get_for_model(Role).pk,
+            object_id=request.user.pk,
+            object_repr="Master schedule exported",
+            action_flag=CHANGE,
+            change_message="Master schedule exported",
+        )
+        return response
+
