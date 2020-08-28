@@ -97,6 +97,7 @@ export interface State {
     auth: AuthStateType;
     user: UserStateType;
     volunteer: VolunteerStateType;
+    notifications: Notifications.NotificationsState;
 }
 
 export interface IUserProfile {

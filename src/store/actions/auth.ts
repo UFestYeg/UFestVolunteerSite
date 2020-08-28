@@ -3,6 +3,8 @@ import { AuthUrls } from "../../constants";
 import history from "../../history";
 import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
+import { success } from "react-notification-system-redux";
+import { Notification } from "react-notification-system";
 
 type DispatchType = (action: ActionType) => void;
 
@@ -204,13 +206,18 @@ export const changePassword = (
                 })
                 .then((response) => {
                     console.log(response);
-                    // dispatch(
-                    //     notifSend({
-                    //         message: "Password has been changed successfully",
-                    //         kind: "info",
-                    //         dismissAfter: 5000,
-                    //     })
-                    // );
+                    const notificationOpts: Notification = {
+                        title: "Hey, it's good to see you!",
+                        message:
+                            "Now you can see how easy it is to use notifications in React!",
+                        position: "tr",
+                        autoDismiss: 0,
+                        action: {
+                            label: "Click me!!",
+                            callback: () => alert("clicked!"),
+                        },
+                    };
+                    dispatch(success(notificationOpts));
                     // redirect to the route '/profile'
                     dispatch(changePasswordSuccess());
                     dispatch(logout());

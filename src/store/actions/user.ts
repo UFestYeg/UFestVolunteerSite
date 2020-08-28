@@ -8,6 +8,8 @@ import {
     UserActionType as ActionType,
 } from "../types";
 import * as ActionTypes from "./actionTypes";
+import { success } from "react-notification-system-redux";
+import { Notification } from "react-notification-system";
 
 type DispatchType = (action: ActionType) => void;
 
@@ -112,15 +114,14 @@ export const updateUserProfile = (formValues: IProfileEditFormValues) => {
             .patch(AuthUrls.USER_PROFILE, formValues)
             .then((response) => {
                 console.log(response);
-
-                // dispatch(
-                //     notifSend({
-                //         message: "Your profile has been updated successfully",
-                //         kind: "info",
-                //         dismissAfter: 5000,
-                //     })
-                // );
+                const notificationOpts: Notification = {
+                    title: "Success!",
+                    message: "Your profile was updated.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
                 dispatch(updateProfileSuccess());
+                dispatch(success(notificationOpts));
                 history.push("/volunteer/profile/info");
             })
             .catch((error) => {

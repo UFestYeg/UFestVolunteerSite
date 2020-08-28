@@ -12,12 +12,15 @@ import { SignUpPage } from "../components/SignUpPage";
 import { Header } from "../containers/Header";
 import { NavDrawer } from "../containers/NavDrawer";
 import PrivateRoutes from "./PrivateRoutes";
+import { StateHooks } from "../store/hooks";
+import Notifications from "react-notification-system-redux";
 
 const BaseRouter: React.FC = () => {
     const [open, setOpen] = useState(false);
-
+    const notifications = StateHooks.useNotifications();
     return (
         <React.Fragment>
+            <Notifications notifications={notifications} />
             <Switch>
                 <Route exact path="/" component={LandingPage} />
                 <Route path="/signup" component={SignUpPage} />
