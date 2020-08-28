@@ -101,9 +101,12 @@ export const checkAuthTimeout = (expirationTime: number) => {
     };
 };
 
-export const authLogin = (username: string, password: string) => {
+export const authLogin = (username: string, password: string, cookies: any) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
+        axios.defaults.headers = {
+            "X-CSRFToken": cookies,
+        };
         axios
             .post(AuthUrls.LOGIN, {
                 password,
@@ -135,10 +138,14 @@ export const authSignup = (
     username: string,
     email: string,
     password1: string,
-    password2: string
+    password2: string,
+    cookies: any
 ) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
+        axios.defaults.headers = {
+            "X-CSRFToken": cookies,
+        };
         axios
             .post(AuthUrls.SIGNUP, {
                 first_name: firstName,
@@ -187,13 +194,15 @@ export const authCheckState = () => {
 export const changePassword = (
     oldPassword: string,
     newPassword1: string,
-    newPassword2: string
+    newPassword2: string,
+    cookies: any
 ) => {
     const token = localStorage.getItem("token");
     if (token) {
         axios.defaults.headers = {
             Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": cookies,
         };
         return (dispatch: DispatchType) => {
             axios
@@ -247,9 +256,13 @@ export const confirmPasswordChange = (
     uid: string,
     token: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
+    cookies: any
 ) => {
     return (dispatch: DispatchType) => {
+        axios.defaults.headers = {
+            "X-CSRFToken": cookies,
+        };
         axios
             .post(AuthUrls.RESET_PASSWORD_CONFIRM, {
                 uid,
@@ -278,8 +291,11 @@ export const confirmPasswordChange = (
     };
 };
 
-export const activateUserAccount = (key: string) => {
+export const activateUserAccount = (key: string, cookies: any) => {
     return (dispatch: DispatchType) => {
+        axios.defaults.headers = {
+            "X-CSRFToken": cookies,
+        };
         axios
             .post(AuthUrls.USER_ACTIVATION, { key })
             .then((response) => {

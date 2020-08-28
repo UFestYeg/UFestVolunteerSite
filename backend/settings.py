@@ -26,7 +26,7 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = ["127.0.0.1"]
 
@@ -134,9 +134,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "build/static")]
-
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "build", "staticfiles")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "build/static"),
+]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # The frontend will be served here
@@ -155,7 +157,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # "rest_framework.authentication.BasicAuthentication",  # enables simple command line authentication
-        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.SessionAuthentication",  # for the browsable api
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_THROTTLE_CLASSES": [

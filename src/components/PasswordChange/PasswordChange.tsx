@@ -20,6 +20,7 @@ import {
 } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { auth } from "../../store/actions";
@@ -71,6 +72,7 @@ const PasswordChange: React.FC = () => {
     const [showPassword1, setShowPassword1] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
     const [showPassword3, setShowPassword3] = useState(false);
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     const handleClickShowPassword1 = () => {
         setShowPassword1((oldShowPassword: boolean) => !oldShowPassword);
@@ -96,7 +98,12 @@ const PasswordChange: React.FC = () => {
         const new_password2 = values.new_password2;
 
         dispatch(
-            auth.changePassword(old_password, new_password1, new_password2)
+            auth.changePassword(
+                old_password,
+                new_password1,
+                new_password2,
+                cookies.csrftoken
+            )
         );
     };
     return (

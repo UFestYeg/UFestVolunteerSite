@@ -23,8 +23,8 @@ import {
     Traffic,
     Widgets,
 } from "@material-ui/icons";
-import clsx from "clsx";
 import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Link, useRouteMatch } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
@@ -113,6 +113,7 @@ const CategorySelectPage: React.FC = () => {
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
     const smallWidth = useMediaQuery(theme.breakpoints.down("xs"));
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeMap = volunteerCategories.reduce<any>(
         (acc, categoryType) => {
@@ -124,7 +125,7 @@ const CategorySelectPage: React.FC = () => {
     const volunteerCategoryTypes = Object.keys(volunteerCategoryTypeMap);
 
     useEffect(() => {
-        dispatch(volunteerActions.getVolunteerCategoryTypes());
+        dispatch(volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken));
     }, [dispatch]);
 
     const GridTiles = () => {

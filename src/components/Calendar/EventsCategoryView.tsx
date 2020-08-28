@@ -25,6 +25,7 @@ import {
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
@@ -70,7 +71,7 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     const dispatch = useDispatch();
     const [currentList, setList] = useState<EventCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<EventCategoryType[]>([]);
-
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
 
     const token = StateHooks.useToken();
@@ -90,9 +91,9 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     });
 
     useEffect(() => {
-        dispatch(volunteerActions.getVolunteerCategoryTypes());
-        dispatch(volunteerActions.getMappedVolunteerRoles());
-    }, [dispatch]);
+        dispatch(volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken));
+        dispatch(volunteerActions.getMappedVolunteerRoles(cookies.csrftoken));
+    }, [cookies.csrftoken, dispatch]);
 
     useEffect(() => {
         setList(mappedRoles);
@@ -115,8 +116,9 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
         end: string | Date
     ) => {
         axios.defaults.headers = {
-            Authorization: token,
+            Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": cookies,
         };
         if (token && process.env.REACT_APP_API_URI !== undefined) {
             axios

@@ -28,6 +28,7 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
@@ -82,7 +83,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
         []
     );
-
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
 
     const token = StateHooks.useToken();
@@ -103,9 +104,9 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     });
 
     useEffect(() => {
-        dispatch(volunteerActions.getVolunteerCategoryTypes());
-        dispatch(volunteerActions.getVolunteerCategories());
-    }, [dispatch]);
+        dispatch(volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken));
+        dispatch(volunteerActions.getVolunteerCategories(cookies.csrftoken));
+    }, [cookies, dispatch]);
 
     useEffect(() => {
         props.setSelectedCategories(volunteerCategoryTypeTags);
@@ -140,8 +141,9 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         end: string | Date
     ) => {
         axios.defaults.headers = {
-            Authorization: token,
+            Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": cookies,
         };
         if (token && process.env.REACT_APP_API_URI !== undefined) {
             axios
