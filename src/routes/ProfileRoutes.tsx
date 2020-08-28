@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch, useRouteMatch } from "react-router-dom";
+import { Switch, useRouteMatch } from "react-router-dom";
 import { NotFoundPage } from "../components/NotFoundPage";
 import { PasswordChange } from "../components/PasswordChange";
 import { ProfileEditPage } from "../components/ProfileEditPage";
@@ -35,7 +35,7 @@ const ProfileRoutes: React.FC = () => {
                         component={PersonalInfoRoutes}
                     />
                 </ProfileBase>
-                <Route component={NotFoundPage} />
+                <ProtectedRoute path="*" component={NotFoundPage} />
             </Switch>
         </React.Fragment>
     );
