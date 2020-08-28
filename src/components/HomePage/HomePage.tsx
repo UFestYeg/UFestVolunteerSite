@@ -5,10 +5,12 @@ import {
     useScrollTrigger,
     Zoom,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { KeyboardArrowDown as KeyboardArrowDownIcon } from "@material-ui/icons";
 import clsx from "clsx";
 import React from "react";
+import { StateHooks } from "../../store/hooks";
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -106,12 +108,14 @@ const ScrollTop: React.FC = ({ children }) => {
 const HomePage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
+    const userProfile = StateHooks.useUserProfile();
+    const { is_staff } = userProfile;
 
     return (
         <main>
             <section id="home" className={clsx(classes.home, classes.parallax)}>
                 <Typography variant="h1" style={{ fontWeight: "bold" }}>
-                    Thanks For Signing Up!
+                    {is_staff ? "Welcome Admin!" : "Thanks For Signing Up!"}
                 </Typography>
                 <ScrollTop>
                     <Fab
