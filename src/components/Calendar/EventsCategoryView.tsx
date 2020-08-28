@@ -27,6 +27,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
@@ -69,6 +70,8 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const history = useHistory();
+    const { url } = useRouteMatch();
     const [currentList, setList] = useState<EventCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<EventCategoryType[]>([]);
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
@@ -89,6 +92,12 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     volunteerCategoryTypes.map((c: string, i: number) => {
         colourMap.set(c, { backgroundColor: colours[i] });
     });
+
+    const browserState = {
+        oldCategoryView: true,
+        oldDefaultDate: props.defaultDate,
+        oldSelectedCategories: props.selectedCategories,
+    };
 
     useEffect(() => {
         dispatch(volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken));
@@ -127,7 +136,11 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                     end_time: end,
                     start_time: start,
                 })
-                .then((res) => console.log(res))
+                .then((res) => {
+                    console.log(res);
+                    history.replace(url, browserState);
+                    history.go(0);
+                })
                 .catch((err) => console.error(err));
         }
     };

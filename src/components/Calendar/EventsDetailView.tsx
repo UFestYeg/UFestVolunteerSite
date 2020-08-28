@@ -30,6 +30,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
@@ -79,6 +80,8 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const history = useHistory();
+    const { url } = useRouteMatch();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
         []
@@ -94,6 +97,12 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
             return categoryType.tag;
         }
     );
+
+    const browserState = {
+        oldCategoryView: false,
+        oldDefaultDate: props.defaultDate,
+        oldSelectedCategories: props.selectedCategories,
+    };
 
     const colours = chroma
         .scale(["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"])
@@ -152,7 +161,11 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                     end_time: end,
                     start_time: start,
                 })
-                .then((res) => console.log(res))
+                .then((res) => {
+                    console.log(res);
+                    history.replace(url, browserState);
+                    history.go(0);
+                })
                 .catch((err) => console.error(err));
         }
     };
