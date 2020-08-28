@@ -143,7 +143,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         axios.defaults.headers = {
             Authorization: `Token ${token}`,
             "Content-Type": "application/json",
-            "X-CSRFToken": cookies,
+            "X-CSRFToken": cookies.csrftoken,
         };
         if (token && process.env.REACT_APP_API_URI !== undefined) {
             axios
