@@ -15,17 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from django.views.generic import TemplateView
-from django.views.decorators.cache import never_cache
+
+from .views import index
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("reset/<str:uid>/<str:token>/", index, name="index"),
+    path("account/confirm-email/<str:key>/", index, name="index"),
     re_path(r"^", include("django.contrib.auth.urls")),
-    # re_path(r"^account/", include("allauth.urls")),
+    re_path(r"^account/", include("allauth.urls")),
     path("api-auth/", include("rest_framework.urls")),
     path("rest-auth/", include("rest_auth.urls")),
     path("rest-auth/registration/", include("rest_auth.registration.urls")),
     path("api/", include("volunteer_categories.api.urls")),
     path("api/users/", include("user_profile.urls")),
-    re_path(r".*", never_cache(TemplateView.as_view(template_name="index.html"))),
+    re_path(r".*", index, name="index"),
 ]
