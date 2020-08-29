@@ -58,27 +58,6 @@ type DragStartArgs = {
     direction: "UP" | "DOWN" | "LEFT" | "RIGHT";
 };
 
-const styles = {
-    accepted: {
-        backgroundColor: "#69bb3c",
-        border: "2px solid #33691E",
-    },
-    denied: {
-        backgroundColor: "#F44336",
-        border: "2px solid #D32F2F",
-    },
-    pending: {
-        backgroundColor: "#ffcc00",
-        border: "2px solid #FBC02D",
-        color: "black",
-    },
-    unavailable: {
-        backgroundColor: "#BDBDBD",
-        border: "2px solid #616161",
-        color: "black",
-    },
-};
-
 const useStyles = makeStyles((theme) =>
     createStyles({
         card: {
@@ -163,7 +142,7 @@ const PositionRequestPage: React.FC = () => {
                 })
                 .catch((err) => console.error(err));
         }
-    }, [categoryTypeID, dispatch, roleID, token]);
+    }, [categoryTypeID, dispatch, roleID, token, cookies.csrftoken]);
 
     const customEventStyle: EventPropGetter<ScheduleEventType> = (
         event: ScheduleEventType,
