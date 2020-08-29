@@ -9,6 +9,7 @@ import {
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
@@ -81,10 +82,11 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { profileID } = useParams();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile(profileID));
-    }, [dispatch, profileID]);
+        dispatch(userActions.getUserProfile(cookies.csrftoken, profileID));
+    }, [cookies.csrftoken, dispatch, profileID]);
 
     const userProfile = profileID
         ? StateHooks.useViewedUserProfile()

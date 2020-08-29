@@ -11,12 +11,22 @@ import {
     Popover,
     Typography,
 } from "@material-ui/core";
+// tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Cancel } from "@material-ui/icons";
 import axios from "axios";
+import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { Calendar, momentLocalizer, ToolbarProps } from "react-big-calendar";
+import {
+    Calendar,
+    EventPropGetter,
+    momentLocalizer,
+    ToolbarProps,
+} from "react-big-calendar";
+// tslint:disable-next-line: no-submodule-imports
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -74,6 +84,13 @@ const useStyles = makeStyles((theme) =>
         eventRoot: {
             height: "inherit",
         },
+        myEvent: {
+            "&:hover": {
+                minHeight: "20%",
+                minWidth: "fit-content",
+                zIndex: 1000,
+            },
+        },
         typography: {
             padding: theme.spacing(2),
         },
@@ -87,6 +104,7 @@ const PositionRequestPage: React.FC = () => {
     const history = useHistory();
     const { categoryTypeID, roleID } = useParams();
     const userProfile = StateHooks.useUserProfile();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
     const [currentCategory, setCategory] = useState<string>("");
 
@@ -94,10 +112,13 @@ const PositionRequestPage: React.FC = () => {
 
     useEffect(() => {
         if (token) {
-            dispatch(volunteerActions.getVolunteerCategoryTypes());
+            dispatch(
+                volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
+            );
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies.csrftoken,
             };
 
             axios
@@ -121,7 +142,16 @@ const PositionRequestPage: React.FC = () => {
                 })
                 .catch((err) => console.error(err));
         }
-    }, [categoryTypeID, dispatch, roleID, token]);
+    }, [categoryTypeID, dispatch, roleID, token, cookies.csrftoken]);
+
+    const customEventStyle: EventPropGetter<ScheduleEventType> = (
+        event: ScheduleEventType,
+        start: string | Date,
+        end: string | Date,
+        isSelected: boolean
+    ) => {
+        return { className: clsx("rbc-event", classes.myEvent) };
+    };
 
     const Event = ({ event }: { event: any }) => {
         const [requestError, setRequestError] = useState<any>();
@@ -282,6 +312,7 @@ const PositionRequestPage: React.FC = () => {
                 selectable
                 popup={true}
                 scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
+                eventPropGetter={customEventStyle}
             />
         </Container>
     );

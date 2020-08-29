@@ -27,13 +27,14 @@ import {
 import clsx from "clsx";
 import { Form, Formik } from "formik";
 import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { IProfileEditFormValues } from "../../store/types";
-import { tShirtSizes } from "../../types";
 import { buildErrorMessage } from "../../store/utils";
+import { tShirtSizes } from "../../types";
 
 const useStyles = makeStyles((theme) => ({
     avatar: {
@@ -76,16 +77,17 @@ const ProfileEditPage: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [_userProfile, loading, error] = StateHooks.useUserInfo();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const handleFormSubmit = (values: IProfileEditFormValues) => {
         values.age = values.age === "" ? null : values.age;
-        dispatch(userActions.updateUserProfile(values));
+        dispatch(userActions.updateUserProfile(values, cookies.csrftoken));
     };
 
     const errorMessage: any[] = buildErrorMessage(error);
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile());
-    }, [dispatch]);
+        dispatch(userActions.getUserProfile(cookies.csrftoken));
+    }, [cookies, dispatch]);
 
     const userProfile = StateHooks.useUserProfile();
 

@@ -1,6 +1,7 @@
 import { Avatar, Grid, Paper, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Tabs } from "../../components/Tabs";
 import { TabProps } from "../../components/Tabs/Tabs";
@@ -75,10 +76,11 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const { useTabs, tabs } = props;
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile());
+        dispatch(userActions.getUserProfile(cookies.csrftoken));
     }, [dispatch]);
 
     const userProfile = useTabs

@@ -10,6 +10,7 @@ import {
 // tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
@@ -76,6 +77,7 @@ const RoleSelectPage: React.FC = () => {
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
     const { categoryTypeID } = useParams();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const volunteerCategories = StateHooks.useVolunteerCategories();
     const roles = volunteerCategories.map((category, idx, _arr) => {
         return category.roles;
@@ -97,8 +99,13 @@ const RoleSelectPage: React.FC = () => {
     });
 
     useEffect(() => {
-        dispatch(volunteerActions.getVolunteerCategoryOfType(categoryTypeID));
-    }, [dispatch, categoryTypeID]);
+        dispatch(
+            volunteerActions.getVolunteerCategoryOfType(
+                categoryTypeID,
+                cookies.csrftoken
+            )
+        );
+    }, [cookies.csrftoken, dispatch, categoryTypeID]);
 
     const ListItems = () => {
         const flatRoles = Object.values(combinedRoles);

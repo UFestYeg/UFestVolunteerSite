@@ -99,7 +99,7 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                         <NavListItem
                             to={`${match.url}/positions`}
                             icon={<EventIcon />}
-                            text="Schedule"
+                            text="Create an Event"
                             activeClassName={classes.active}
                             onClose={onCloseFunc}
                         />
@@ -133,15 +133,6 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     activeClassName={classes.active}
                     onClose={onCloseFunc}
                 />
-                {is_staff ? (
-                    <NavListItem
-                        to={`${match.url}/settings`}
-                        icon={<SettingsIcon />}
-                        text="Settings"
-                        activeClassName={classes.active}
-                        onClose={onCloseFunc}
-                    />
-                ) : null}
                 <NavListItem
                     to=""
                     icon={<ExitToAppIcon />}

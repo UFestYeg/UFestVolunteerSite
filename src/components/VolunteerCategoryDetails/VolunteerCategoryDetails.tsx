@@ -1,10 +1,4 @@
-import {
-    Button,
-    Grid,
-    ListItem,
-    ListItemProps,
-    Typography,
-} from "@material-ui/core";
+import { Button, Grid, Typography } from "@material-ui/core";
 import {
     createStyles,
     makeStyles,
@@ -13,6 +7,7 @@ import {
 } from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -23,20 +18,11 @@ import { CustomForm } from "../Form";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            width: "100%",
-            // maxWidth: 360,
             backgroundColor: theme.palette.background.paper,
+            width: "100%",
         },
     })
 );
-
-function ListItemLink(props: ListItemProps<"a", { button?: true }>) {
-    return <ListItem button component="a" {...props} />;
-}
-
-type SimpleListType = {
-    events: VolunteerCategoryType[];
-};
 
 type VolunteerCategoryType = {
     id: number;
@@ -51,16 +37,20 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
     const classes = useStyles(theme);
     const { positionID } = useParams();
     const dispatch = useDispatch();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
     const token = StateHooks.useToken();
     const history = useHistory();
 
     useEffect(() => {
         if (token && positionID) {
-            dispatch(volunteerActions.getVolunteerCategoryTypes());
+            dispatch(
+                volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
+            );
             axios.defaults.headers = {
-                Authorization: token,
+                Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies.csrftoken,
             };
             axios
                 .get(VolunteerUrls.CATEGORY_DETAILS(positionID))
@@ -69,7 +59,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                     console.log(res.data);
                 });
         }
-    }, [positionID, token]);
+    }, [cookies.csrftoken, dispatch, positionID, token]);
 
     const handleDelete = () => {
         if (token && positionID) {

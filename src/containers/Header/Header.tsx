@@ -14,6 +14,7 @@ import {
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
 import React, { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import Copyright from "../../components/Copyright";
@@ -88,10 +89,11 @@ const Header: React.FC<HeaderProps> = (props) => {
     const xsmallWidth = useMediaQuery(theme.breakpoints.down("xs"));
     const smallWidth = useMediaQuery(theme.breakpoints.down("sm"));
     const dispatch = useDispatch();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile());
-    }, [dispatch]);
+        dispatch(userActions.getUserProfile(cookies.csrftoken));
+    }, [cookies.csrftoken, dispatch]);
 
     const userProfile = StateHooks.useUserProfile();
 

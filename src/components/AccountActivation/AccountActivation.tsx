@@ -13,6 +13,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { CheckCircleOutline as CheckCircleOutlineIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { auth } from "../../store/actions";
@@ -56,11 +57,12 @@ const AccountActivation: React.FC = () => {
     const dispatch = useDispatch();
     const { key } = useParams();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     const errorMessage: any[] = buildErrorMessage(error);
 
     const handleFormSubmit = () => {
-        dispatch(auth.activateUserAccount(key));
+        dispatch(auth.activateUserAccount(key, cookies.csrftoken));
     };
     return (
         <Container component="main" maxWidth="xs">

@@ -24,6 +24,7 @@ import {
 } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
@@ -76,6 +77,7 @@ const SignIn: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const location = useLocation();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [showPassword, setShowPassword] = useState(false);
 
@@ -93,7 +95,7 @@ const SignIn: React.FC = () => {
         const username = values.username;
         const password = values.password;
 
-        dispatch(actions.authLogin(username, password));
+        dispatch(actions.authLogin(username, password, cookies.csrftoken));
     };
 
     const errorMessage: any[] = buildErrorMessage(error);

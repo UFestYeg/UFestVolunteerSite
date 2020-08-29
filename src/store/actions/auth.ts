@@ -101,9 +101,16 @@ export const checkAuthTimeout = (expirationTime: number) => {
     };
 };
 
-export const authLogin = (username: string, password: string) => {
+export const authLogin = (
+    username: string,
+    password: string,
+    csrftoken: string
+) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
+        axios.defaults.headers = {
+            "X-CSRFToken": csrftoken,
+        };
         axios
             .post(AuthUrls.LOGIN, {
                 password,
@@ -135,10 +142,14 @@ export const authSignup = (
     username: string,
     email: string,
     password1: string,
-    password2: string
+    password2: string,
+    csrftoken: string
 ) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
+        axios.defaults.headers = {
+            "X-CSRFToken": csrftoken,
+        };
         axios
             .post(AuthUrls.SIGNUP, {
                 first_name: firstName,
@@ -187,13 +198,15 @@ export const authCheckState = () => {
 export const changePassword = (
     oldPassword: string,
     newPassword1: string,
-    newPassword2: string
+    newPassword2: string,
+    csrftoken: string
 ) => {
     const token = localStorage.getItem("token");
     if (token) {
         axios.defaults.headers = {
             Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
         };
         return (dispatch: DispatchType) => {
             axios
@@ -224,9 +237,12 @@ export const changePassword = (
     }
 };
 
-export const resetPassword = (email: string) => {
+export const resetPassword = (email: string, csrftoken: string) => {
     return (dispatch: DispatchType) => {
         dispatch(resetPasswordStart());
+        axios.defaults.headers = {
+            "X-CSRFToken": csrftoken,
+        };
         axios
             .post(AuthUrls.RESET_PASSWORD, { email })
             .then((response) => {
@@ -247,9 +263,13 @@ export const confirmPasswordChange = (
     uid: string,
     token: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
+    csrftoken: string
 ) => {
     return (dispatch: DispatchType) => {
+        axios.defaults.headers = {
+            "X-CSRFToken": csrftoken,
+        };
         axios
             .post(AuthUrls.RESET_PASSWORD_CONFIRM, {
                 uid,
@@ -278,8 +298,11 @@ export const confirmPasswordChange = (
     };
 };
 
-export const activateUserAccount = (key: string) => {
+export const activateUserAccount = (key: string, csrftoken: string) => {
     return (dispatch: DispatchType) => {
+        axios.defaults.headers = {
+            "X-CSRFToken": csrftoken,
+        };
         axios
             .post(AuthUrls.USER_ACTIVATION, { key })
             .then((response) => {
