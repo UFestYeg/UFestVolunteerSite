@@ -24,6 +24,7 @@ import {
 } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Redirect, useLocation } from "react-router-dom";
 import * as Yup from "yup";
@@ -79,6 +80,7 @@ const SignUp: React.FC = () => {
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [showPassword1, setShowPassword1] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     const handleClickShowPassword1 = () => {
         setShowPassword1((oldShowPassword: boolean) => !oldShowPassword);
@@ -108,7 +110,8 @@ const SignUp: React.FC = () => {
                 username,
                 email,
                 password,
-                confirmPassword
+                confirmPassword,
+                cookies.csrftoken
             )
         );
     };

@@ -12,6 +12,7 @@ import {
 } from "react-big-calendar";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
@@ -60,7 +61,13 @@ const styles = {
 
 const useStyles = makeStyles((theme) =>
     createStyles({
-        myEvent: { "&:hover": { zIndex: 1000, minWidth: "fit-content" } },
+        myEvent: {
+            "&:hover": {
+                minHeight: "20%",
+                minWidth: "fit-content",
+                zIndex: 1000,
+            },
+        },
     })
 );
 
@@ -69,6 +76,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [currentList, setList] = useState<UserRequestType[]>([]);
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     const token = StateHooks.useToken();
 
@@ -97,7 +105,9 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
 
     useEffect(() => {
         if (token) {
-            dispatch(volunteerActions.getVolunteerCategoryTypes());
+            dispatch(
+                volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
+            );
 
             const mappedRequests = requests.map((r) => {
                 return {

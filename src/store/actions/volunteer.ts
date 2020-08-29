@@ -129,13 +129,14 @@ export const changeRequestRoleFail = (error: any): ActionType => {
     };
 };
 
-export const getVolunteerCategoryTypes = () => {
+export const getVolunteerCategoryTypes = (cookies: any) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .get(VolunteerUrls.CATEGORY_TYPE_LIST)
@@ -155,7 +156,7 @@ export const getVolunteerCategoryTypes = () => {
     };
 };
 
-export const getVolunteerCategories = () => {
+export const getVolunteerCategories = (cookies: any) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
@@ -163,6 +164,7 @@ export const getVolunteerCategories = () => {
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .get(VolunteerUrls.CATEGORY_LIST)
@@ -183,13 +185,17 @@ export const getVolunteerCategories = () => {
     };
 };
 
-export const getVolunteerCategoryOfType = (categoryTypeID: number) => {
+export const getVolunteerCategoryOfType = (
+    categoryTypeID: number,
+    cookies: any
+) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .get(VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID))
@@ -249,7 +255,7 @@ function addUsers(events: EventCategoryType[]) {
         });
 }
 
-export const getMappedVolunteerRoles = () => {
+export const getMappedVolunteerRoles = (cookies: any) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
@@ -257,6 +263,7 @@ export const getMappedVolunteerRoles = () => {
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .get(VolunteerUrls.CATEGORY_LIST)
@@ -298,7 +305,8 @@ export const getMappedVolunteerRoles = () => {
 export const acceptRequest = (
     request: any,
     redirectUrl: string,
-    browserState: any
+    browserState: any,
+    cookies: any
 ) => {
     console.log("request", request);
     const token = localStorage.getItem("token");
@@ -308,6 +316,7 @@ export const acceptRequest = (
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), {
@@ -331,7 +340,8 @@ export const acceptRequest = (
 export const denyRequest = (
     request: any,
     redirectUrl: string,
-    browserState: any
+    browserState: any,
+    cookies: any
 ) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
@@ -340,6 +350,7 @@ export const denyRequest = (
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), {
@@ -364,7 +375,8 @@ export const changeRequestRole = (
     request: any,
     role: any,
     redirectUrl: string,
-    browserState: any
+    browserState: any,
+    cookies: any
 ) => {
     const token = localStorage.getItem("token");
     const payload = {
@@ -378,6 +390,7 @@ export const changeRequestRole = (
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), payload)

@@ -15,6 +15,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { LockOpen as LockOpenIcon } from "@material-ui/icons";
 import { Form, Formik } from "formik";
 import React from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { auth } from "../../store/actions";
@@ -60,6 +61,7 @@ const PasswordReset: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 
     const errorMessage: any[] = buildErrorMessage(error);
@@ -67,7 +69,7 @@ const PasswordReset: React.FC = () => {
     const handleFormSubmit = (values: IResetPasswordFormValues) => {
         const email = values.email;
 
-        dispatch(auth.resetPassword(email));
+        dispatch(auth.resetPassword(email, cookies.csrftoken));
     };
 
     return (
