@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch, useRouteMatch } from "react-router-dom";
+import { Switch, useRouteMatch } from "react-router-dom";
 import { EventsCalendar } from "../components/Calendar";
 import { CategorySelectPage } from "../components/CategorySelectPage";
 import { HomePage } from "../components/HomePage";
@@ -59,7 +59,7 @@ const PrivateRoutes: React.FC = () => {
                     path={`${path}/users`}
                     component={UserRoutes}
                 />
-                <Route component={NotFoundPage} />
+                <ProtectedRoute path="*" component={NotFoundPage} />
             </Switch>
         </React.Fragment>
     );

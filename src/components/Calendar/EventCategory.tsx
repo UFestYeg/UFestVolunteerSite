@@ -30,6 +30,7 @@ import {
 } from "@material-ui/icons";
 import moment from "moment";
 import React, { useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
@@ -232,6 +233,7 @@ const EventCategory = ({
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [_categories, loading, error] = StateHooks.useVolunteerInfo();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [roleID, setRoleId] = useState<number | string>("");
@@ -258,12 +260,26 @@ const EventCategory = ({
     };
 
     const handleAccept = (request: any) => {
-        dispatch(volunteerActions.acceptRequest(request, url, browserState));
+        dispatch(
+            volunteerActions.acceptRequest(
+                request,
+                url,
+                browserState,
+                cookies.csrftoken
+            )
+        );
         handleClosePopover();
     };
 
     const handleDeny = (request: any) => {
-        dispatch(volunteerActions.denyRequest(request, url, browserState));
+        dispatch(
+            volunteerActions.denyRequest(
+                request,
+                url,
+                browserState,
+                cookies.csrftoken
+            )
+        );
         handleClosePopover();
     };
 
@@ -311,7 +327,8 @@ const EventCategory = ({
                             submitRequest,
                             submitRole,
                             url,
-                            browserState
+                            browserState,
+                            cookies.csrftoken
                         )
                     );
                 }
