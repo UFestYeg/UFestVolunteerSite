@@ -21,6 +21,13 @@ DATE_CHOICES = [
 ]
 
 
+def datetime_range(start, end, delta):
+    current = start
+    while current < end:
+        yield current
+        current += delta
+
+
 class DailyCheckinForm(forms.Form):
     selected_date = forms.ChoiceField(choices=DATE_CHOICES)
 
@@ -180,18 +187,24 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
         for r in accepted_requests:
             user = r.user
             role = r.role
-            row = writer.writerow(
-                [
-                    "{} {}-{}".format(
-                        role.category.start_time.astimezone(timezone(TIME_ZONE)).date(),
-                        role.category.start_time.astimezone(timezone(TIME_ZONE)).time(),
-                        role.category.end_time.astimezone(timezone(TIME_ZONE)).time(),
-                    ),
-                    role.title,
-                    role.category.category_type.tag,
-                    user.get_full_name(),
-                ]
-            )
+            dts = [
+                dt
+                for dt in datetime_range(
+                    role.category.start_time,
+                    role.category.end_time,
+                    datetime.timedelta(hours=1),
+                )
+            ]
+            print(dts)
+            for dt in dts:
+                row = writer.writerow(
+                    [
+                        "{}".format(dt.astimezone(timezone(TIME_ZONE)).time()),
+                        role.title,
+                        role.category.category_type.tag,
+                        user.get_full_name(),
+                    ]
+                )
         LogEntry.objects.log_action(
             user_id=request.user.pk,
             content_type_id=ContentType.objects.get_for_model(Role).pk,
