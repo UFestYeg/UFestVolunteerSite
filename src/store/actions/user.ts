@@ -68,7 +68,7 @@ export const updateProfileFail = (error: any): ActionType => {
     };
 };
 
-export const getUserProfile = (userID?: number) => {
+export const getUserProfile = (cookies: any, userID?: number) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
@@ -79,6 +79,7 @@ export const getUserProfile = (userID?: number) => {
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
             };
             axios
                 .get(userProfileUrl)
@@ -101,7 +102,10 @@ export const getUserProfile = (userID?: number) => {
     };
 };
 
-export const updateUserProfile = (formValues: IProfileEditFormValues) => {
+export const updateUserProfile = (
+    formValues: IProfileEditFormValues,
+    cookies: any
+) => {
     const token = localStorage.getItem("token");
 
     return (dispatch: DispatchType) => {
@@ -109,6 +113,7 @@ export const updateUserProfile = (formValues: IProfileEditFormValues) => {
         axios.defaults.headers = {
             Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": cookies,
         };
         axios
             .patch(AuthUrls.USER_PROFILE, formValues)

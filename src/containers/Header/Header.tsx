@@ -14,8 +14,9 @@ import {
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import { Menu as MenuIcon } from "@material-ui/icons";
 import React, { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Copyright from "../../components/Copyright";
 import { auth as authActions, user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
@@ -26,70 +27,81 @@ interface HeaderProps {
     onMenuClick: (clicked: boolean) => void;
 }
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        root: {
-            background: theme.palette.secondary.main,
-            border: 0,
-            color: theme.palette.primary.dark,
-            padding: theme.spacing(1),
-            flexGrow: 1,
-            "& a": { textDecoration: "none" },
-        },
-        copyright: {
-            padding: theme.spacing(2),
-            marginTop: "calc(5% + 60px)",
-        },
-        logo: {
-            marginLeft: theme.spacing(3),
-        },
-        avatar: {
-            width: theme.spacing(7),
-            height: theme.spacing(7),
-        },
-        avatarSmall: {
-            width: theme.spacing(5),
-            height: theme.spacing(5),
-        },
-        name: {
-            display: "inline-block",
-            marginLeft: theme.spacing(2),
-        },
-        button: {
-            backgroundColor: theme.palette.primary.dark,
-            color: "white",
-        },
-        logout: {
-            paddingLeft: theme.spacing(2),
-            paddingRight: theme.spacing(2),
-        },
-        menuItem: {
-            background: theme.palette.secondary.main,
-        },
-        menuList: {
-            "& ul": {
-                backgroundColor: theme.palette.secondary.main,
+const useStyles = (theme: any, isStaff: boolean) =>
+    makeStyles((theme) => {
+        const themeColor = isStaff
+            ? theme.palette.primary.main
+            : theme.palette.secondary.main;
+        return createStyles({
+            root: {
+                background: themeColor,
+                border: 0,
+                color: theme.palette.primary.dark,
+                padding: theme.spacing(1),
+                flexGrow: 1,
+                "& a": { textDecoration: "none" },
             },
-        },
-    })
-);
+            copyright: {
+                padding: theme.spacing(2),
+                marginTop: "calc(5% + 60px)",
+            },
+            logo: {
+                marginLeft: theme.spacing(3),
+            },
+            avatar: {
+                width: theme.spacing(7),
+                height: theme.spacing(7),
+            },
+            avatarSmall: {
+                width: theme.spacing(5),
+                height: theme.spacing(5),
+            },
+            name: {
+                display: "inline-block",
+                marginLeft: theme.spacing(2),
+            },
+            button: {
+                backgroundColor: theme.palette.primary.dark,
+                color: "white",
+            },
+            logout: {
+                paddingLeft: theme.spacing(2),
+                paddingRight: theme.spacing(2),
+            },
+            menuItem: {
+                background: theme.palette.secondary.main,
+            },
+            menuList: {
+                "& ul": {
+                    backgroundColor: theme.palette.secondary.main,
+                },
+            },
+        });
+    })(theme);
 
 const Header: React.FC<HeaderProps> = (props) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    // const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+    const [isStaff, setIsStaff] = useState<boolean>(false);
+    const history = useHistory();
     const isAuthenticated = StateHooks.useIsAuthenticated();
     const open = Boolean(anchorEl);
     const xsmallWidth = useMediaQuery(theme.breakpoints.down("xs"));
     const smallWidth = useMediaQuery(theme.breakpoints.down("sm"));
     const dispatch = useDispatch();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     useEffect(() => {
-        dispatch(userActions.getUserProfile());
-    }, [dispatch]);
+        dispatch(userActions.getUserProfile(cookies.csrftoken));
+    }, [cookies.csrftoken, dispatch]);
 
     const userProfile = StateHooks.useUserProfile();
+
+    useEffect(() => {
+        const { is_staff } = userProfile;
+        setIsStaff(is_staff);
+    }, [userProfile]);
+    const classes = useStyles(theme, isStaff);
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -97,6 +109,10 @@ const Header: React.FC<HeaderProps> = (props) => {
 
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleLoginClick = () => {
+        history.push("/login");
     };
 
     const handleLogout = () => {
@@ -126,14 +142,14 @@ const Header: React.FC<HeaderProps> = (props) => {
                         component="a"
                         href={isAuthenticated ? "/volunteer" : "/"}
                     >
-                        UFest Volunteering
+                        UFest Volunteering {isStaff ? "(Admin)" : null}
                     </Typography>
                     {!isAuthenticated && (
                         <Button
                             id="login-button"
                             size="medium"
                             className={classes.button}
-                            onClick={() => {}} // loginWithRedirect({})}
+                            onClick={handleLoginClick} // loginWithRedirect({})}
                         >
                             Login
                         </Button>
@@ -158,13 +174,13 @@ const Header: React.FC<HeaderProps> = (props) => {
                                 getContentAnchorEl={null}
                                 anchorEl={anchorEl}
                                 anchorOrigin={{
-                                    vertical: "bottom",
                                     horizontal: "center",
+                                    vertical: "bottom",
                                 }}
                                 keepMounted
                                 transformOrigin={{
-                                    vertical: "top",
                                     horizontal: "left",
+                                    vertical: "top",
                                 }}
                                 open={open}
                                 onClose={handleClose}

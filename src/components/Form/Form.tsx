@@ -4,7 +4,6 @@
 
 import DateFnsUtils from "@date-io/date-fns";
 import {
-    Box,
     Button,
     Container,
     FormControl,
@@ -23,6 +22,7 @@ import axios from "axios";
 import clsx from "clsx";
 import { Form, Formik } from "formik";
 import React from "react";
+import { useCookies } from "react-cookie";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import { VolunteerUrls } from "../../constants";
@@ -78,6 +78,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
     const classes = useStyles(theme);
     const token = StateHooks.useToken();
     const history = useHistory();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
         return categoryType.tag;
@@ -98,8 +99,9 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         const endTime = values.endTime;
 
         axios.defaults.headers = {
-            Authorization: token,
+            Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": cookies.csrftoken,
         };
         if (token) {
             switch (requestType) {
@@ -258,7 +260,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                     <KeyboardDateTimePicker
                                         disableToolbar
                                         variant="inline"
-                                        format="MM/dd/yyyy HH:mm"
+                                        format="MM/dd/yyyy hh:mm a"
                                         margin="normal"
                                         name="startTime"
                                         id="start-time"
@@ -289,7 +291,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                     <KeyboardDateTimePicker
                                         disableToolbar
                                         variant="inline"
-                                        format="MM/dd/yyyy HH:mm"
+                                        format="MM/dd/yyyy hh:mm a"
                                         margin="normal"
                                         name="endTime"
                                         id="end-time"

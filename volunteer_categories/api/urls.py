@@ -12,7 +12,7 @@ from .views import (
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r"positions", VolunteerCategoryViewSet, basename="volunteerCategory")
-router.register(r"roles", RoleViewSet, basename="request")
+router.register(r"roles", RoleViewSet, basename="role")
 router.register(r"requests", RequestViewSet, basename="request")
 router.register(r"categories", CategoryTypeViewSet, basename="category")
 router.register(

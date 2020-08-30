@@ -28,7 +28,9 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
@@ -78,11 +80,13 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const history = useHistory();
+    const { url } = useRouteMatch();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
         []
     );
-
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
 
     const token = StateHooks.useToken();
@@ -94,6 +98,12 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         }
     );
 
+    const browserState = {
+        oldCategoryView: false,
+        oldDefaultDate: props.defaultDate,
+        oldSelectedCategories: props.selectedCategories,
+    };
+
     const colours = chroma
         .scale(["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"])
         .colors(volunteerCategoryTypeTags.length);
@@ -103,9 +113,9 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     });
 
     useEffect(() => {
-        dispatch(volunteerActions.getVolunteerCategoryTypes());
-        dispatch(volunteerActions.getVolunteerCategories());
-    }, [dispatch]);
+        dispatch(volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken));
+        dispatch(volunteerActions.getVolunteerCategories(cookies.csrftoken));
+    }, [cookies, dispatch]);
 
     useEffect(() => {
         props.setSelectedCategories(volunteerCategoryTypeTags);
@@ -140,8 +150,9 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         end: string | Date
     ) => {
         axios.defaults.headers = {
-            Authorization: token,
+            Authorization: `Token ${token}`,
             "Content-Type": "application/json",
+            "X-CSRFToken": cookies.csrftoken,
         };
         if (token && process.env.REACT_APP_API_URI !== undefined) {
             axios
@@ -150,7 +161,11 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                     end_time: end,
                     start_time: start,
                 })
-                .then((res) => console.log(res))
+                .then((res) => {
+                    console.log(res);
+                    history.replace(url, browserState);
+                    history.go(0);
+                })
                 .catch((err) => console.error(err));
         }
     };

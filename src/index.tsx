@@ -1,5 +1,6 @@
 // tslint:disable: no-submodule-imports
 import React from "react";
+import { CookiesProvider } from "react-cookie";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
@@ -47,9 +48,11 @@ const persistor = persistStore(store);
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <PersistGate loading={<Loading />} persistor={persistor}>
-                <App />
-            </PersistGate>
+            <CookiesProvider>
+                <PersistGate loading={<Loading />} persistor={persistor}>
+                    <App />
+                </PersistGate>
+            </CookiesProvider>
         </Provider>
     </React.StrictMode>,
     document.getElementById("root")

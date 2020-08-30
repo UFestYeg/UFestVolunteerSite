@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -37,15 +38,19 @@ const VolunteerCategoryList: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const token = StateHooks.useToken();
 
     useEffect(() => {
         if (token) {
-            dispatch(volunteerActions.getVolunteerCategoryTypes());
+            dispatch(
+                volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
+            );
             axios.defaults.headers = {
-                Authorization: token,
+                Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
+                "X-CSRFToken": cookies.csrftoken,
             };
 
             axios.get(VolunteerUrls.CATEGORY_LIST).then((res) => {
@@ -53,7 +58,7 @@ const VolunteerCategoryList: React.FC = () => {
                 console.log(res.data);
             });
         }
-    }, [token, dispatch]);
+    }, [token, cookies.csrftoken, dispatch]);
 
     return (
         <div className={classes.root}>

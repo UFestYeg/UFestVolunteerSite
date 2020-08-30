@@ -26,7 +26,7 @@ const BaseRouter: React.FC = () => {
                 <Route path="/signup" component={SignUpPage} />
                 <Route path="/login" component={LoginPage} />
                 <Route
-                    path="/account/confirm-email/:key(\\d+)"
+                    path="/account/confirm-email/:key"
                     component={AccountActivation}
                 />
                 <Route path="/signup_done" component={SignupDone} />
@@ -42,7 +42,7 @@ const BaseRouter: React.FC = () => {
                     component={PasswordResetDone}
                 />
                 <Route
-                    path="/reset/:uid(\\d+)/:token(\\d+)/"
+                    path="/reset/:uid/:token/"
                     component={PasswordResetConfirm}
                 />
                 <Route component={NotFoundPage} />

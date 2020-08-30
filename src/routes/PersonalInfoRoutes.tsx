@@ -24,7 +24,7 @@ const ProfileRoutes: React.FC = () => {
                     path={`${path}/schedule`}
                     component={ProfileCalendar}
                 />
-                <Route component={NotFoundPage} />
+                <ProtectedRoute path="*" component={NotFoundPage} />
             </Switch>
         </React.Fragment>
     );
