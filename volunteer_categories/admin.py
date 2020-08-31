@@ -168,34 +168,53 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def export_schedule(self, request):
-        friday_requests = (
-            Request.requests.select_related("user", "role__category")
-            .filter(
-                status="ACCEPTED",
-                role__category__start_time__date=datetime.date(2021, 5, 21),
-            )
-            .order_by(
-                "role__category__start_time",
-                "role__title",
-                "role__category__category_type",
-            )
-        )
-        saturday_requests = (
-            Request.requests.select_related("user", "role__category")
-            .filter(
-                status="ACCEPTED",
-                role__category__start_time__date=datetime.date(2021, 5, 22),
-            )
-            .order_by(
-                "role__category__start_time",
-                "role__title",
-                "role__category__category_type",
-            )
-        )
 
-        headings = ["Friday", "Saturday"]
+        wednesday_roles = Role.roles.filter(
+            category__start_time__date=datetime.date(2021, 5, 19),
+        ).order_by("category__category_type", "title")
+
+        thursday_roles = Role.roles.filter(
+            category__start_time__date=datetime.date(2021, 5, 20),
+        ).order_by("category__category_type", "title")
+
+        friday_roles = Role.roles.filter(
+            category__start_time__date=datetime.date(2021, 5, 21),
+        ).order_by("category__category_type", "title")
+
+        saturday_roles = Role.roles.filter(
+            category__start_time__date=datetime.date(2021, 5, 22),
+        ).order_by("category__category_type", "title")
+
+        sunday_roles = Role.roles.filter(
+            category__start_time__date=datetime.date(2021, 5, 23),
+        ).order_by("category__category_type", "title")
+
+        wednesday_times = [
+            dt.time()
+            for dt in datetime_range(
+                datetime.datetime(year=2021, month=5, day=19, hour=8).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.datetime(year=2021, month=5, day=20, hour=0).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.timedelta(minutes=30),
+            )
+        ]
+        thursday_times = [
+            dt.time()
+            for dt in datetime_range(
+                datetime.datetime(year=2021, month=5, day=20, hour=8).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.datetime(year=2021, month=5, day=21, hour=0).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.timedelta(minutes=30),
+            )
+        ]
         friday_times = [
-            dt
+            dt.time()
             for dt in datetime_range(
                 datetime.datetime(year=2021, month=5, day=21, hour=8).astimezone(
                     timezone(TIME_ZONE)
@@ -207,7 +226,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             )
         ]
         saturday_times = [
-            dt
+            dt.time()
             for dt in datetime_range(
                 datetime.datetime(
                     year=2021, month=5, day=22, hour=7, minute=30
@@ -218,65 +237,173 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                 datetime.timedelta(minutes=30),
             )
         ]
-        columns1 = ["", "time"]
-        columns1.extend(friday_times)
-        columns2 = ["", "time"]
-        columns2.extend(saturday_times)
-        print(columns1)
-        print(columns2)
+        sunday_times = [
+            dt.time()
+            for dt in datetime_range(
+                datetime.datetime(
+                    year=2021, month=5, day=23, hour=7, minute=30
+                ).astimezone(timezone(TIME_ZONE)),
+                datetime.datetime(year=2021, month=5, day=24, hour=0).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.timedelta(minutes=30),
+            )
+        ]
+
+        wednesday_heading = ["", "time"]
+        wednesday_heading.extend(wednesday_times)
+        thursday_heading = ["", "time"]
+        thursday_heading.extend(thursday_times)
+        friday_heading = ["", "time"]
+        friday_heading.extend(friday_times)
+        saturday_heading = ["", "time"]
+        saturday_heading.extend(saturday_times)
+        sunday_heading = ["", "time"]
+        sunday_heading.extend(sunday_times)
+
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=master-schedule.csv"
         writer = csv.writer(response)
 
-        writer.writerow(["Friday"])
-        writer.writerow(columns1)
-        for r in friday_requests:
-
-            user = r.user
-            role = r.role
-            row = [role.category.category_type.tag, role.title]
-            row.extend([""] * len(friday_times))
-            dts = [
-                dt
-                for dt in datetime_range(
-                    role.category.start_time.astimezone(timezone(TIME_ZONE)),
-                    role.category.end_time.astimezone(timezone(TIME_ZONE)),
-                    datetime.timedelta(minutes=30),
-                )
+        writer.writerow(["Wednesday"])
+        writer.writerow(wednesday_heading)
+        for r in wednesday_roles:
+            number_of_positions = r.number_of_positions
+            accepted_requests = r.requests.filter(status=Request.ACCEPTED)
+            volunteers = [
+                "{} {}".format(ar.user.first_name, ar.user.last_name)
+                for ar in accepted_requests
             ]
-            for dt in dts:
-                try:
-                    row[columns1.index(dt)] = "{} {}".format(
-                        user.first_name, user.last_name
+            volunteers.extend(["X"] * r.number_of_open_positions)
+            for i in range(number_of_positions):
+                row = [r.category.category_type.tag, r.title]
+                row.extend([""] * len(friday_times))
+                dts = [
+                    dt.time()
+                    for dt in datetime_range(
+                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
+                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
+                        datetime.timedelta(minutes=30),
                     )
-                except:
-                    print("invalid date")
-            writer.writerow(row)
+                ]
+                for dt in dts:
+                    try:
+                        row[wednesday_heading.index(dt)] = volunteers[i]
+                    except:
+                        print("invalid date")
+                writer.writerow(row)
+
+        writer.writerow(["Thursday"])
+        writer.writerow(thursday_heading)
+        for r in thursday_roles:
+            number_of_positions = r.number_of_positions
+            accepted_requests = r.requests.filter(status=Request.ACCEPTED)
+            volunteers = [
+                "{} {}".format(ar.user.first_name, ar.user.last_name)
+                for ar in accepted_requests
+            ]
+            volunteers.extend(["X"] * r.number_of_open_positions)
+            for i in range(number_of_positions):
+                row = [r.category.category_type.tag, r.title]
+                row.extend([""] * len(friday_times))
+                dts = [
+                    dt.time()
+                    for dt in datetime_range(
+                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
+                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
+                        datetime.timedelta(minutes=30),
+                    )
+                ]
+                for dt in dts:
+                    try:
+                        row[thursday_heading.index(dt)] = volunteers[i]
+                    except:
+                        print("invalid date")
+                writer.writerow(row)
+
+        writer.writerow(["Friday"])
+        writer.writerow(friday_heading)
+        for r in friday_roles:
+            number_of_positions = r.number_of_positions
+            accepted_requests = r.requests.filter(status=Request.ACCEPTED)
+            volunteers = [
+                "{} {}".format(ar.user.first_name, ar.user.last_name)
+                for ar in accepted_requests
+            ]
+            volunteers.extend(["X"] * r.number_of_open_positions)
+            for i in range(number_of_positions):
+                row = [r.category.category_type.tag, r.title]
+                row.extend([""] * len(friday_times))
+                dts = [
+                    dt.time()
+                    for dt in datetime_range(
+                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
+                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
+                        datetime.timedelta(minutes=30),
+                    )
+                ]
+                for dt in dts:
+                    try:
+                        row[friday_heading.index(dt)] = volunteers[i]
+                    except:
+                        print("invalid date")
+                writer.writerow(row)
 
         writer.writerow(["Saturday"])
-        writer.writerow(columns2)
-        for r in saturday_requests:
-
-            user = r.user
-            role = r.role
-            row = [role.category.category_type.tag, role.title]
-            row.extend([""] * len(saturday_times))
-            dts = [
-                dt
-                for dt in datetime_range(
-                    role.category.start_time.astimezone(timezone(TIME_ZONE)),
-                    role.category.end_time.astimezone(timezone(TIME_ZONE)),
-                    datetime.timedelta(minutes=30),
-                )
+        writer.writerow(saturday_heading)
+        for r in saturday_roles:
+            number_of_positions = r.number_of_positions
+            accepted_requests = r.requests.filter(status=Request.ACCEPTED)
+            volunteers = [
+                "{} {}".format(ar.user.first_name, ar.user.last_name)
+                for ar in accepted_requests
             ]
-            for dt in dts:
-                try:
-                    row[columns2.index(dt)] = "{} {}".format(
-                        user.first_name, user.last_name
+            volunteers.extend(["X"] * r.number_of_open_positions)
+            for i in range(number_of_positions):
+                row = [r.category.category_type.tag, r.title]
+                row.extend([""] * len(saturday_times))
+                dts = [
+                    dt.time()
+                    for dt in datetime_range(
+                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
+                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
+                        datetime.timedelta(minutes=30),
                     )
-                except:
-                    print("invalid date")
-            writer.writerow(row)
+                ]
+                for dt in dts:
+                    try:
+                        row[saturday_heading.index(dt)] = volunteers[i]
+                    except:
+                        print("invalid date")
+                writer.writerow(row)
+
+        writer.writerow(["Sunday"])
+        writer.writerow(sunday_heading)
+        for r in sunday_roles:
+            number_of_positions = r.number_of_positions
+            accepted_requests = r.requests.filter(status=Request.ACCEPTED)
+            volunteers = [
+                "{} {}".format(ar.user.first_name, ar.user.last_name)
+                for ar in accepted_requests
+            ]
+            volunteers.extend(["X"] * r.number_of_open_positions)
+            for i in range(number_of_positions):
+                row = [r.category.category_type.tag, r.title]
+                row.extend([""] * len(saturday_times))
+                dts = [
+                    dt.time()
+                    for dt in datetime_range(
+                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
+                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
+                        datetime.timedelta(minutes=30),
+                    )
+                ]
+                for dt in dts:
+                    try:
+                        row[sunday_heading.index(dt)] = volunteers[i]
+                    except:
+                        print("invalid date")
+                writer.writerow(row)
 
         LogEntry.objects.log_action(
             user_id=request.user.pk,
