@@ -21,6 +21,13 @@ DATE_CHOICES = [
 ]
 
 
+def datetime_range(start, end, delta):
+    current = start
+    while current < end:
+        yield current
+        current += delta
+
+
 class DailyCheckinForm(forms.Form):
     selected_date = forms.ChoiceField(choices=DATE_CHOICES)
 
@@ -151,3 +158,194 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
 
     inlines = [RoleInline]
 
+    change_list_template = "admin/volunteer_category_changelist.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path("export-schedule/", self.export_schedule),
+        ]
+        return my_urls + urls
+
+    def export_schedule(self, request):
+        def filter_roles_for_day(year, month, day):
+            return Role.roles.filter(
+                category__start_time__date=datetime.date(year, month, day),
+            ).order_by("category__category_type", "title")
+
+        def time_range_for_day(
+            start_year=2021,
+            start_month=5,
+            start_day=19,
+            start_hour=8,
+            start_minute=0,
+            end_year=2021,
+            end_month=5,
+            end_day=20,
+            end_hour=0,
+            end_minute=0,
+        ):
+            return [
+                dt.time()
+                for dt in datetime_range(
+                    datetime.datetime(
+                        year=start_year,
+                        month=start_month,
+                        day=start_day,
+                        hour=start_hour,
+                        minute=start_minute,
+                    ).astimezone(timezone(TIME_ZONE)),
+                    datetime.datetime(
+                        year=end_year,
+                        month=end_month,
+                        day=end_day,
+                        hour=end_hour,
+                        minute=end_minute,
+                    ).astimezone(timezone(TIME_ZONE)),
+                    datetime.timedelta(minutes=30),
+                )
+            ]
+
+        def round_time_to_nearest(t, nearest):
+            return t - datetime.timedelta(minutes=t.minute % nearest, seconds=t.second,)
+
+        def write_day_schedule_to_csv(csv_writer, day_roles, day_heading):
+            for r in day_roles:
+                number_of_positions = r.number_of_positions
+                accepted_requests = r.requests.filter(status=Request.ACCEPTED)
+                volunteers = [
+                    "{} {}".format(ar.user.first_name, ar.user.last_name)
+                    for ar in accepted_requests
+                ]
+                volunteers.extend(["X"] * r.number_of_open_positions)
+                for i in range(number_of_positions):
+                    row = [r.category.category_type.tag, r.title]
+                    row.extend([""] * len(wednesday_times))
+                    start = r.category.start_time.astimezone(timezone(TIME_ZONE))
+                    end = r.category.end_time.astimezone(timezone(TIME_ZONE))
+                    start = round_time_to_nearest(start, 30)
+                    end = round_time_to_nearest(end, 30)
+                    dts = [
+                        dt.time()
+                        for dt in datetime_range(
+                            start, end, datetime.timedelta(minutes=30),
+                        )
+                    ]
+                    for dt in dts:
+                        try:
+                            row[day_heading.index(dt)] = volunteers[i]
+                        except:
+                            print("invalid date")
+                    csv_writer.writerow(row)
+
+        wednesday_roles = filter_roles_for_day(2021, 5, 19)
+        thursday_roles = filter_roles_for_day(2021, 5, 20)
+        friday_roles = filter_roles_for_day(2021, 5, 21)
+        saturday_roles = filter_roles_for_day(2021, 5, 22)
+        sunday_roles = filter_roles_for_day(2021, 5, 23)
+
+        wednesday_times = time_range_for_day(
+            start_year=2021,
+            start_month=5,
+            start_day=19,
+            start_hour=8,
+            start_minute=0,
+            end_year=2021,
+            end_month=5,
+            end_day=20,
+            end_hour=0,
+            end_minute=0,
+        )
+        thursday_times = time_range_for_day(
+            start_year=2021,
+            start_month=5,
+            start_day=20,
+            start_hour=8,
+            start_minute=0,
+            end_year=2021,
+            end_month=5,
+            end_day=21,
+            end_hour=0,
+            end_minute=0,
+        )
+        friday_times = time_range_for_day(
+            start_year=2021,
+            start_month=5,
+            start_day=21,
+            start_hour=8,
+            start_minute=0,
+            end_year=2021,
+            end_month=5,
+            end_day=22,
+            end_hour=0,
+            end_minute=0,
+        )
+        saturday_times = time_range_for_day(
+            start_year=2021,
+            start_month=5,
+            start_day=22,
+            start_hour=7,
+            start_minute=30,
+            end_year=2021,
+            end_month=5,
+            end_day=23,
+            end_hour=0,
+            end_minute=0,
+        )
+        sunday_times = time_range_for_day(
+            start_year=2021,
+            start_month=5,
+            start_day=23,
+            start_hour=7,
+            start_minute=30,
+            end_year=2021,
+            end_month=5,
+            end_day=24,
+            end_hour=0,
+            end_minute=0,
+        )
+
+        wednesday_heading = ["", "time"]
+        wednesday_heading.extend(wednesday_times)
+        thursday_heading = ["", "time"]
+        thursday_heading.extend(thursday_times)
+        friday_heading = ["", "time"]
+        friday_heading.extend(friday_times)
+        saturday_heading = ["", "time"]
+        saturday_heading.extend(saturday_times)
+        sunday_heading = ["", "time"]
+        sunday_heading.extend(sunday_times)
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=master-schedule.csv"
+        writer = csv.writer(response)
+
+        writer.writerow(["Wednesday"])
+        writer.writerow(wednesday_heading)
+        write_day_schedule_to_csv(writer, wednesday_roles, wednesday_heading)
+
+        writer.writerow(["Thursday"])
+        writer.writerow(thursday_heading)
+        write_day_schedule_to_csv(writer, thursday_roles, thursday_heading)
+
+        writer.writerow(["Friday"])
+        writer.writerow(friday_heading)
+        write_day_schedule_to_csv(writer, friday_roles, friday_heading)
+
+        writer.writerow(["Saturday"])
+        writer.writerow(saturday_heading)
+        write_day_schedule_to_csv(writer, saturday_roles, saturday_heading)
+
+        writer.writerow(["Sunday"])
+        writer.writerow(sunday_heading)
+        write_day_schedule_to_csv(writer, sunday_roles, sunday_heading)
+
+        LogEntry.objects.log_action(
+            user_id=request.user.pk,
+            content_type_id=ContentType.objects.get_for_model(Role).pk,
+            object_id=request.user.pk,
+            object_repr="Master schedule exported",
+            action_flag=CHANGE,
+            change_message="Master schedule exported",
+        )
+        return response
