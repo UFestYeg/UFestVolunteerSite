@@ -8,7 +8,6 @@ import { PositionRequestPage } from "../components/PositionRequestPage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { RoleSelectPage } from "../components/RoleSelectPage";
 import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails";
-import { VolunteerCategoryList } from "../components/VolunteerCategoryList";
 import ProfileRoutes from "./ProfileRoutes";
 import UserRoutes from "./UserRoutes";
 
@@ -24,12 +23,6 @@ const PrivateRoutes: React.FC = () => {
                     staffOnly
                     path={`${path}/calendar`}
                     component={EventsCalendar}
-                />
-                <ProtectedRoute
-                    exact
-                    staffOnly
-                    path={`${path}/positions`}
-                    component={VolunteerCategoryList}
                 />
                 <ProtectedRoute
                     staffOnly

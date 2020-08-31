@@ -4,17 +4,18 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
+    ListSubheader,
+    Typography,
 } from "@material-ui/core";
 // tslint:disable-next-line: no-submodule-imports
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
     AccessibilityNew as AccessibilityNewIcon,
+    AccountBalance as AccountBalanceIcon,
     AccountCircle as AccountCircleIcon,
     CalendarToday as CalendarTodayIcon,
-    Event as EventIcon,
     ExitToApp as ExitToAppIcon,
     PermContactCalendar,
-    Settings as SettingsIcon,
 } from "@material-ui/icons";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -38,6 +39,9 @@ const useStyles = makeStyles((theme) => ({
     },
     inactive: {
         color: "rgba(0, 0, 0, 0.54)",
+    },
+    subheader: {
+        background: theme.palette.primary.dark,
     },
 }));
 
@@ -93,25 +97,51 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
     };
     return (
         <Drawer open={open} onClose={() => onCloseFunc(false)}>
-            <List className={classes.inactive}>
-                {is_staff ? (
-                    <>
-                        <NavListItem
-                            to={`${match.url}/positions`}
-                            icon={<EventIcon />}
-                            text="Create an Event"
-                            activeClassName={classes.active}
-                            onClose={onCloseFunc}
-                        />
-                        <NavListItem
-                            to={`${match.url}/calendar`}
-                            icon={<CalendarTodayIcon />}
-                            text="Calendar"
-                            activeClassName={classes.active}
-                            onClose={onCloseFunc}
-                        />
-                    </>
-                ) : null}
+            {is_staff ? (
+                <List
+                    className={classes.inactive}
+                    subheader={
+                        <ListSubheader
+                            component="div"
+                            id="nested-admin-list-subheader"
+                            className={classes.subheader}
+                        >
+                            <Typography variant="subtitle1">
+                                Admin Menu
+                            </Typography>
+                        </ListSubheader>
+                    }
+                >
+                    <NavListItem
+                        to={"admin/"}
+                        icon={<AccountBalanceIcon />}
+                        text="Admin Dashboard"
+                        activeClassName={classes.active}
+                        onClose={onCloseFunc}
+                    />
+                    <NavListItem
+                        to={`${match.url}/calendar`}
+                        icon={<CalendarTodayIcon />}
+                        text="Calendar"
+                        activeClassName={classes.active}
+                        onClose={onCloseFunc}
+                    />
+                </List>
+            ) : null}
+            <List
+                className={classes.inactive}
+                subheader={
+                    <ListSubheader
+                        component="div"
+                        id="nested-list-subheader"
+                        className={classes.subheader}
+                    >
+                        <Typography variant="subtitle1">
+                            Volunteer Menu
+                        </Typography>
+                    </ListSubheader>
+                }
+            >
                 <NavListItem
                     to={`${match.url}/profile/schedule`}
                     icon={<PermContactCalendar />}

@@ -13,13 +13,13 @@ const NotFoundPage: React.FC = () => {
 
     let width: number;
     if (small) {
-        width = 400;
+        width = 200;
     } else if (medium) {
-        width = 700;
+        width = 500;
     } else if (large) {
-        width = 800;
+        width = 600;
     } else {
-        width = 300;
+        width = 100;
     }
     return (
         <Grid container direction="column" justify="center" alignItems="center">
@@ -32,7 +32,7 @@ const NotFoundPage: React.FC = () => {
                 />
             </Grid>
             <Grid item xs={12}>
-                <Typography variant="h2">
+                <Typography variant="h3">
                     Looks like that page doesn't exist...
                 </Typography>
             </Grid>
