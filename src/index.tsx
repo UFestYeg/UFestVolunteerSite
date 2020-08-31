@@ -2,6 +2,7 @@
 import React from "react";
 import { CookiesProvider } from "react-cookie";
 import ReactDOM from "react-dom";
+import { reducer as notifications } from "react-notification-system-redux";
 import { Provider } from "react-redux";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 import { persistReducer, persistStore } from "redux-persist";
@@ -12,7 +13,6 @@ import App from "./App";
 import { Loading } from "./components/Loading";
 import * as serviceWorker from "./serviceWorker";
 import { authReducer, userReducer, volunteerReducer } from "./store/reducers";
-import { reducer as notifications } from "react-notification-system-redux";
 
 declare global {
     interface Window {

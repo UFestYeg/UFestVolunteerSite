@@ -115,7 +115,9 @@ const HomePage: React.FC = () => {
         <main>
             <section id="home" className={clsx(classes.home, classes.parallax)}>
                 <Typography variant="h1" style={{ fontWeight: "bold" }}>
-                    {is_staff ? "Welcome Admin!" : "Thanks For Signing Up!"}
+                    {is_staff
+                        ? "Welcome Admin!"
+                        : "Thank you for signing up to volunteer at UFest!"}
                 </Typography>
                 <ScrollTop>
                     <Fab
@@ -139,43 +141,58 @@ const HomePage: React.FC = () => {
                     spacing={8}
                 >
                     <Grid item xs={12}>
-                        <Typography variant="h2">Next Steps:</Typography>
+                        <Typography variant="h2">To begin:</Typography>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="h3">
-                            Update Your Profile
+                            1) Update Your Profile
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="body1">
-                            To get started check out your profile and make sure
-                            the information is up to date. You can access your
+                            Review your profile and update all the information
+                            to make sure it is up to date. You can access your
                             profile by clicking on the side menu in the top left
-                            corner or your profile logo in the top right and
-                            selecting Profile
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="h3">Sign up!</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">
-                            Try signing up for a volunteer position! Check out
-                            the many ways you can contribute to our wonderful
-                            festival and help make it your own. Fill out the
-                            form which can be found in the top left side menu.
+                            corner or click your profile logo in the top right
+                            corner and select Profile.
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="h3">
-                            Check out your schedule!
+                            2) Sign up to Volunteer
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="body1">
-                            See what you have on your plate for the week of the
-                            festival. Check out the event calendar from the side
-                            menu.
+                            Check out the many ways you can contribute to our
+                            festival. To sign up, choose a category, position
+                            and shift-time. Fill out the form with the rest of
+                            your information. The form can be found on the top
+                            left side menu. Remember, you can sign up for more
+                            than one shift, as long as they are not at the same
+                            time.
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="h3">
+                            3) Review your Schedule
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">
+                            Once your shift is confirmed by UFest, you'll see it
+                            in your schedule. Make sure it's the slot you signed
+                            up for and that you're available. More details will
+                            be sent to you prior to the festival.
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">
+                            If you have any questions, please email{" "}
+                            <a href="mailto: volunteerufest@gmail.com">
+                                volunteerufest@gmail.com
+                            </a>{" "}
+                            Thank you for volunteering and see you at UFest!
                         </Typography>
                     </Grid>
                 </Grid>

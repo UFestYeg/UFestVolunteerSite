@@ -53,6 +53,12 @@ interface NavListItemProps {
     onClose: Function;
 }
 
+interface LinkListItemProps {
+    text: string;
+    icon: JSX.Element;
+    href: string;
+}
+
 const NavListItem = ({
     text,
     icon,
@@ -69,6 +75,15 @@ const NavListItem = ({
             activeClassName={activeClassName}
             onClick={() => onClose(false)}
         >
+            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemText primary={text} />
+        </ListItem>
+    );
+};
+
+const LinkListItem = ({ text, icon, href }: LinkListItemProps) => {
+    return (
+        <ListItem button component="a" href={href}>
             <ListItemIcon>{icon}</ListItemIcon>
             <ListItemText primary={text} />
         </ListItem>
@@ -112,12 +127,10 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                         </ListSubheader>
                     }
                 >
-                    <NavListItem
-                        to={"admin/"}
+                    <LinkListItem
+                        href={`${window.location.origin}/admin/`}
                         icon={<AccountBalanceIcon />}
                         text="Admin Dashboard"
-                        activeClassName={classes.active}
-                        onClose={onCloseFunc}
                     />
                     <NavListItem
                         to={`${match.url}/calendar`}

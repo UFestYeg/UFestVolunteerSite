@@ -26,7 +26,7 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG")
+DEBUG = os.getenv("DEBUG") != "False"
 
 ALLOWED_HOSTS = ["127.0.0.1"]
 
@@ -199,6 +199,8 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.getenv("EMAIL_ADDRESS")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_ADDRESS")
+SERVER_EMAIL = os.getenv("EMAIL_ADDRESS")
+ADMINS = [("admin", os.getenv("EMAIL_ADDRESS"))]
 
 ATOMIC_REQUESTS = True
 

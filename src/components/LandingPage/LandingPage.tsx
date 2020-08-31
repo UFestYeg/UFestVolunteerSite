@@ -46,6 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
         image: {
             [theme.breakpoints.down("md")]: {
                 width: "90%",
+                maxHeight: "90%",
             },
             [theme.breakpoints.up("md")]: {
                 // float: "left",
