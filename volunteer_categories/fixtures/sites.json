@@ -1,0 +1,8 @@
+{
+    "model": "sites.site",
+    "pk": 1,
+    "fields": {
+        "domain": "www.volunteer.ufest.ca",
+        "name": "www.volunteer.ufest.ca"
+    }
+}
