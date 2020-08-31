@@ -168,43 +168,110 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def export_schedule(self, request):
-        accepted_requests = (
+        friday_requests = (
             Request.requests.select_related("user", "role__category")
-            .filter(status="ACCEPTED",)
+            .filter(
+                status="ACCEPTED",
+                role__category__start_time__date=datetime.date(2021, 5, 21),
+            )
             .order_by(
                 "role__category__start_time",
                 "role__title",
                 "role__category__category_type",
             )
         )
-        print(accepted_requests)
-        field_names = ["time", "role", "category", "volunteer"]
+        saturday_requests = (
+            Request.requests.select_related("user", "role__category")
+            .filter(
+                status="ACCEPTED",
+                role__category__start_time__date=datetime.date(2021, 5, 22),
+            )
+            .order_by(
+                "role__category__start_time",
+                "role__title",
+                "role__category__category_type",
+            )
+        )
+
+        headings = ["Friday", "Saturday"]
+        friday_times = [
+            dt
+            for dt in datetime_range(
+                datetime.datetime(year=2021, month=5, day=21, hour=8).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.datetime(year=2021, month=5, day=22, hour=0).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.timedelta(minutes=30),
+            )
+        ]
+        saturday_times = [
+            dt
+            for dt in datetime_range(
+                datetime.datetime(
+                    year=2021, month=5, day=22, hour=7, minute=30
+                ).astimezone(timezone(TIME_ZONE)),
+                datetime.datetime(year=2021, month=5, day=23, hour=0).astimezone(
+                    timezone(TIME_ZONE)
+                ),
+                datetime.timedelta(minutes=30),
+            )
+        ]
+        columns1 = ["", "time"]
+        columns1.extend(friday_times)
+        columns2 = ["", "time"]
+        columns2.extend(saturday_times)
+        print(columns1)
+        print(columns2)
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=master-schedule.csv"
         writer = csv.writer(response)
 
-        writer.writerow(field_names)
-        for r in accepted_requests:
+        writer.writerow(["Friday"])
+        writer.writerow(columns1)
+        for r in friday_requests:
+
             user = r.user
             role = r.role
+            row = [role.category.category_type.tag, role.title]
+            row.extend([""] * len(friday_times))
             dts = [
                 dt
                 for dt in datetime_range(
-                    role.category.start_time,
-                    role.category.end_time,
-                    datetime.timedelta(hours=1),
+                    role.category.start_time.astimezone(timezone(TIME_ZONE)),
+                    role.category.end_time.astimezone(timezone(TIME_ZONE)),
+                    datetime.timedelta(minutes=30),
                 )
             ]
-            print(dts)
             for dt in dts:
-                row = writer.writerow(
-                    [
-                        "{}".format(dt.astimezone(timezone(TIME_ZONE)).time()),
-                        role.title,
-                        role.category.category_type.tag,
-                        user.get_full_name(),
-                    ]
+                row[columns2.index(dt)] = "{} {}".format(
+                    user.first_name, user.last_name
                 )
+            writer.writerow(row)
+
+        writer.writerow(["Saturday"])
+        writer.writerow(columns2)
+        for r in saturday_requests:
+
+            user = r.user
+            role = r.role
+            row = [role.category.category_type.tag, role.title]
+            row.extend([""] * len(saturday_times))
+            dts = [
+                dt
+                for dt in datetime_range(
+                    role.category.start_time.astimezone(timezone(TIME_ZONE)),
+                    role.category.end_time.astimezone(timezone(TIME_ZONE)),
+                    datetime.timedelta(minutes=30),
+                )
+            ]
+            for dt in dts:
+                row[columns2.index(dt)] = "{} {}".format(
+                    user.first_name, user.last_name
+                )
+            writer.writerow(row)
+
         LogEntry.objects.log_action(
             user_id=request.user.pk,
             content_type_id=ContentType.objects.get_for_model(Role).pk,
