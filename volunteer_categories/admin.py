@@ -277,13 +277,19 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             volunteers.extend(["X"] * r.number_of_open_positions)
             for i in range(number_of_positions):
                 row = [r.category.category_type.tag, r.title]
-                row.extend([""] * len(friday_times))
+                row.extend([""] * len(wednesday_times))
+                start = r.category.start_time.astimezone(timezone(TIME_ZONE))
+                end = r.category.end_time.astimezone(timezone(TIME_ZONE))
+                start = start - datetime.timedelta(
+                    minutes=start.minute % 30, seconds=start.second,
+                )
+                end = end - datetime.timedelta(
+                    minutes=end.minute % 30, seconds=end.second,
+                )
                 dts = [
                     dt.time()
                     for dt in datetime_range(
-                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
-                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
-                        datetime.timedelta(minutes=30),
+                        start, end, datetime.timedelta(minutes=30),
                     )
                 ]
                 for dt in dts:
@@ -305,13 +311,19 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             volunteers.extend(["X"] * r.number_of_open_positions)
             for i in range(number_of_positions):
                 row = [r.category.category_type.tag, r.title]
-                row.extend([""] * len(friday_times))
+                row.extend([""] * len(thursday_times))
+                start = r.category.start_time.astimezone(timezone(TIME_ZONE))
+                end = r.category.end_time.astimezone(timezone(TIME_ZONE))
+                start = start - datetime.timedelta(
+                    minutes=start.minute % 30, seconds=start.second,
+                )
+                end = end - datetime.timedelta(
+                    minutes=end.minute % 30, seconds=end.second,
+                )
                 dts = [
                     dt.time()
                     for dt in datetime_range(
-                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
-                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
-                        datetime.timedelta(minutes=30),
+                        start, end, datetime.timedelta(minutes=30),
                     )
                 ]
                 for dt in dts:
@@ -334,12 +346,18 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             for i in range(number_of_positions):
                 row = [r.category.category_type.tag, r.title]
                 row.extend([""] * len(friday_times))
+                start = r.category.start_time.astimezone(timezone(TIME_ZONE))
+                end = r.category.end_time.astimezone(timezone(TIME_ZONE))
+                start = start - datetime.timedelta(
+                    minutes=start.minute % 30, seconds=start.second,
+                )
+                end = end - datetime.timedelta(
+                    minutes=end.minute % 30, seconds=end.second,
+                )
                 dts = [
                     dt.time()
                     for dt in datetime_range(
-                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
-                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
-                        datetime.timedelta(minutes=30),
+                        start, end, datetime.timedelta(minutes=30),
                     )
                 ]
                 for dt in dts:
@@ -362,12 +380,18 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             for i in range(number_of_positions):
                 row = [r.category.category_type.tag, r.title]
                 row.extend([""] * len(saturday_times))
+                start = r.category.start_time.astimezone(timezone(TIME_ZONE))
+                end = r.category.end_time.astimezone(timezone(TIME_ZONE))
+                start = start - datetime.timedelta(
+                    minutes=start.minute % 30, seconds=start.second,
+                )
+                end = end - datetime.timedelta(
+                    minutes=end.minute % 30, seconds=end.second,
+                )
                 dts = [
                     dt.time()
                     for dt in datetime_range(
-                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
-                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
-                        datetime.timedelta(minutes=30),
+                        start, end, datetime.timedelta(minutes=30),
                     )
                 ]
                 for dt in dts:
@@ -389,13 +413,19 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             volunteers.extend(["X"] * r.number_of_open_positions)
             for i in range(number_of_positions):
                 row = [r.category.category_type.tag, r.title]
-                row.extend([""] * len(saturday_times))
+                row.extend([""] * len(sunday_times))
+                start = r.category.start_time.astimezone(timezone(TIME_ZONE))
+                end = r.category.end_time.astimezone(timezone(TIME_ZONE))
+                start = start - datetime.timedelta(
+                    minutes=start.minute % 30, seconds=start.second,
+                )
+                end = end - datetime.timedelta(
+                    minutes=end.minute % 30, seconds=end.second,
+                )
                 dts = [
                     dt.time()
                     for dt in datetime_range(
-                        r.category.start_time.astimezone(timezone(TIME_ZONE)),
-                        r.category.end_time.astimezone(timezone(TIME_ZONE)),
-                        datetime.timedelta(minutes=30),
+                        start, end, datetime.timedelta(minutes=30),
                     )
                 ]
                 for dt in dts:
