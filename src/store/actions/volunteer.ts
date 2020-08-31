@@ -328,7 +328,7 @@ export const acceptRequest = (
                 .then((res) => {
                     const notificationOpts: Notification = {
                         title: "Success!",
-                        message: `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request`,
+                        message: `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
                         position: "tr",
                         autoDismiss: 5,
                     };
@@ -370,7 +370,7 @@ export const denyRequest = (
                 .then((res) => {
                     const notificationOpts: Notification = {
                         title: "Success!",
-                        message: `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request`,
+                        message: `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
                         position: "tr",
                         autoDismiss: 5,
                     };
@@ -414,7 +414,7 @@ export const changeRequestRole = (
                 .then((res) => {
                     const notificationOpts: Notification = {
                         title: "Success!",
-                        message: `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role`,
+                        message: `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role to ${role.title}`,
                         position: "tr",
                         autoDismiss: 5,
                     };

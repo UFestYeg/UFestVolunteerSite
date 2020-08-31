@@ -53,7 +53,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
     const initialValue = tabValues
         .map((t) => t.target)
         .indexOf(location.pathname);
-    console.log(initialValue);
+
     const [value, setValue] = useState(initialValue);
     const handleChange = (_event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);

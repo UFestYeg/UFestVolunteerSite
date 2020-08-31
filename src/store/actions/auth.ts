@@ -1,10 +1,10 @@
 import axios from "axios";
+import { Notification } from "react-notification-system";
+import { error, success } from "react-notification-system-redux";
 import { AuthUrls } from "../../constants";
 import history from "../../history";
 import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
-import { success, error } from "react-notification-system-redux";
-import { Notification } from "react-notification-system";
 
 type DispatchType = (action: ActionType) => void;
 
@@ -230,10 +230,10 @@ export const changePassword = (
                     dispatch(success(notificationOpts));
                     dispatch(logout());
                 })
-                .catch((error) => {
+                .catch((reqError) => {
                     // If request is bad...
                     // Show an error to the user
-                    dispatch(changePasswordFail(error));
+                    dispatch(changePasswordFail(reqError));
                     const notificationOpts: Notification = {
                         title: "Oops, something went wrong!",
                         message: "Unable to change password. Please try again.",
@@ -267,10 +267,10 @@ export const resetPassword = (email: string, csrftoken: string) => {
                 dispatch(success(notificationOpts));
                 history.push("/reset_password_done");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(resetPasswordFail(error));
+                dispatch(resetPasswordFail(reqError));
             });
     };
 };
@@ -305,10 +305,10 @@ export const confirmPasswordChange = (
                 dispatch(success(notificationOpts));
                 history.push("/login");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(resetPasswordFail(error));
+                dispatch(resetPasswordFail(reqError));
             });
     };
 };
@@ -333,10 +333,10 @@ export const activateUserAccount = (key: string, csrftoken: string) => {
                 dispatch(success(notificationOpts));
                 history.push("/login");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(authFail(error));
+                dispatch(authFail(reqError));
             });
     };
 };
