@@ -245,9 +245,12 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                 )
             ]
             for dt in dts:
-                row[columns2.index(dt)] = "{} {}".format(
-                    user.first_name, user.last_name
-                )
+                try:
+                    row[columns1.index(dt)] = "{} {}".format(
+                        user.first_name, user.last_name
+                    )
+                except:
+                    print("invalid date")
             writer.writerow(row)
 
         writer.writerow(["Saturday"])
@@ -267,9 +270,12 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                 )
             ]
             for dt in dts:
-                row[columns2.index(dt)] = "{} {}".format(
-                    user.first_name, user.last_name
-                )
+                try:
+                    row[columns2.index(dt)] = "{} {}".format(
+                        user.first_name, user.last_name
+                    )
+                except:
+                    print("invalid date")
             writer.writerow(row)
 
         LogEntry.objects.log_action(
