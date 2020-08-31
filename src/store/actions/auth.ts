@@ -1,4 +1,6 @@
 import axios from "axios";
+import { Notification } from "react-notification-system";
+import { error, success } from "react-notification-system-redux";
 import { AuthUrls } from "../../constants";
 import history from "../../history";
 import { AuthActionType as ActionType } from "../types";
@@ -217,21 +219,28 @@ export const changePassword = (
                 })
                 .then((response) => {
                     console.log(response);
-                    // dispatch(
-                    //     notifSend({
-                    //         message: "Password has been changed successfully",
-                    //         kind: "info",
-                    //         dismissAfter: 5000,
-                    //     })
-                    // );
+                    const notificationOpts: Notification = {
+                        title: "Success!",
+                        message: "Your password was changed.",
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
                     // redirect to the route '/profile'
                     dispatch(changePasswordSuccess());
+                    dispatch(success(notificationOpts));
                     dispatch(logout());
                 })
-                .catch((error) => {
+                .catch((reqError) => {
                     // If request is bad...
                     // Show an error to the user
-                    dispatch(changePasswordFail(error));
+                    dispatch(changePasswordFail(reqError));
+                    const notificationOpts: Notification = {
+                        title: "Oops, something went wrong!",
+                        message: "Unable to change password. Please try again.",
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(error(notificationOpts));
                 });
         };
     }
@@ -249,12 +258,19 @@ export const resetPassword = (email: string, csrftoken: string) => {
                 // redirect to reset done page
                 console.log(response);
                 dispatch(resetPasswordEmailSent());
+                const notificationOpts: Notification = {
+                    title: "Success!",
+                    message: "Password reset email sent.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.push("/reset_password_done");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(resetPasswordFail(error));
+                dispatch(resetPasswordFail(reqError));
             });
     };
 };
@@ -279,21 +295,20 @@ export const confirmPasswordChange = (
             })
             .then((response) => {
                 console.log(response);
-                // dispatch(
-                //     notifSend({
-                //         message:
-                //             "Password has been reset successfully, please log in",
-                //         kind: "info",
-                //         dismissAfter: 5000,
-                //     })
-                // );
                 dispatch(resetPasswordSuccess());
+                const notificationOpts: Notification = {
+                    title: "Success!",
+                    message: "Your password has been reset, please log in.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.push("/login");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(resetPasswordFail(error));
+                dispatch(resetPasswordFail(reqError));
             });
     };
 };
@@ -307,18 +322,21 @@ export const activateUserAccount = (key: string, csrftoken: string) => {
             .post(AuthUrls.USER_ACTIVATION, { key })
             .then((response) => {
                 console.log(response);
-                // dispatch(notifSend({
-                //     message: "Your account has been activated successfully, please log in",
-                //     kind: "info",
-                //     dismissAfter: 5000
-                // }));
                 dispatch(authActivationSent());
+                const notificationOpts: Notification = {
+                    title: "You're all set!",
+                    message:
+                        "Your account has been activated successfully, please log in.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.push("/login");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(authFail(error));
+                dispatch(authFail(reqError));
             });
     };
 };

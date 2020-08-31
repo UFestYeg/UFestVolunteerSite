@@ -12,6 +12,7 @@ import App from "./App";
 import { Loading } from "./components/Loading";
 import * as serviceWorker from "./serviceWorker";
 import { authReducer, userReducer, volunteerReducer } from "./store/reducers";
+import { reducer as notifications } from "react-notification-system-redux";
 
 declare global {
     interface Window {
@@ -26,12 +27,13 @@ const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
     volunteer: volunteerReducer,
+    notifications,
 });
 
 const persistConfig = {
     key: "root",
     storage,
-    whitelist: ["auth", "user"],
+    whitelist: ["auth", "user", "notifications"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

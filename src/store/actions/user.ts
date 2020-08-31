@@ -1,4 +1,6 @@
 import axios from "axios";
+import { Notification } from "react-notification-system";
+import { error, success } from "react-notification-system-redux";
 import { AuthUrls, UserUrls } from "../../constants";
 import history from "../../history";
 import { IProfileEditFormValues } from "../../store/types";
@@ -33,9 +35,9 @@ export const getViewedUserProfileSucces = (
     };
 };
 
-export const getUserProfileFail = (error: any): ActionType => {
+export const getUserProfileFail = (reqError: any): ActionType => {
     return {
-        error,
+        error: reqError,
         type: ActionTypes.USER_GET_PROFILE_FAIL,
     };
 };
@@ -59,9 +61,9 @@ export const updateProfileSuccess = (): ActionType => {
     };
 };
 
-export const updateProfileFail = (error: any): ActionType => {
+export const updateProfileFail = (reqError: any): ActionType => {
     return {
-        error,
+        error: reqError,
         type: ActionTypes.UPDATE_PROFILE_FAIL,
     };
 };
@@ -87,12 +89,19 @@ export const getUserProfile = (cookies: any, userID?: number) => {
                         ? dispatch(getViewedUserProfileSucces(response.data))
                         : dispatch(getUserProfileSucces(response.data));
                 })
-                .catch((error) => {
+                .catch((reqError) => {
                     // If request is bad...
                     // Show an error to the user
-                    console.error(error);
-                    dispatch(getUserProfileFail(error));
+                    console.error(reqError);
+                    dispatch(getUserProfileFail(reqError));
                     // TODO: send notification and redirect
+                    const notificationOpts: Notification = {
+                        title: "Oops, something went wrong!",
+                        message: "Unable to get user profile.",
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(error(notificationOpts));
                 });
         } else {
             console.log("Unable to get user without token");
@@ -117,21 +126,27 @@ export const updateUserProfile = (
             .patch(AuthUrls.USER_PROFILE, formValues)
             .then((response) => {
                 console.log(response);
-
-                // dispatch(
-                //     notifSend({
-                //         message: "Your profile has been updated successfully",
-                //         kind: "info",
-                //         dismissAfter: 5000,
-                //     })
-                // );
+                const notificationOpts: Notification = {
+                    title: "Success!",
+                    message: "Your profile was updated.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
                 dispatch(updateProfileSuccess());
+                dispatch(success(notificationOpts));
                 history.push("/volunteer/profile/info");
             })
-            .catch((error) => {
+            .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
-                dispatch(updateProfileFail(error));
+                dispatch(updateProfileFail(reqError));
+                const notificationOpts: Notification = {
+                    title: "Oops, something went wrong!",
+                    message: "Unable to update profile. Please try again.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(error(notificationOpts));
             });
     };
 };

@@ -56,3 +56,7 @@ export const useVolunteerInfo = () => {
     const error = useSelector((state: State) => state.volunteer.error);
     return [useVolunteerCategories(), loading, error];
 };
+
+export const useNotifications = () => {
+    return useSelector((state: State) => state.notifications);
+};

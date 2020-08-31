@@ -17,6 +17,9 @@ import moment from "moment";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
+import { Notification } from "react-notification-system";
+import { error, success } from "react-notification-system-redux";
+import { useDispatch } from "react-redux";
 
 type UserRequestType = {
     id: number;
@@ -71,7 +74,7 @@ const RequestEvent = ({ event }: { event: any }) => {
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
         null
     );
-
+    const dispatch = useDispatch();
     const handleClick = (
         clickEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
@@ -86,10 +89,24 @@ const RequestEvent = ({ event }: { event: any }) => {
             .delete(VolunteerUrls.REQUESTS_DETAILS(role.id))
             .then((res) => {
                 console.log(res);
+                const notificationOpts: Notification = {
+                    title: "Succcess!",
+                    message: `Request for ${role.title} has been deleted.`,
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.go(0);
             })
             .catch((err) => {
                 setRequestError(err);
+                const notificationOpts: Notification = {
+                    title: "Oops, something went wrong!",
+                    message: `Could not delete request, please try again.`,
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(error(notificationOpts));
                 console.error(err);
             });
     };

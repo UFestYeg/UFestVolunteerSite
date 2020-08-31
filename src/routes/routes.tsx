@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Notifications, {
+    NotificationsState,
+} from "react-notification-system-redux";
 import { Route, Switch } from "react-router-dom";
 import { AccountActivation } from "../components/AccountActivation";
 import { LandingPage } from "../components/LandingPage";
@@ -11,13 +14,23 @@ import { SignupDone } from "../components/SignupDone";
 import { SignUpPage } from "../components/SignUpPage";
 import { Header } from "../containers/Header";
 import { NavDrawer } from "../containers/NavDrawer";
+import { StateHooks } from "../store/hooks";
 import PrivateRoutes from "./PrivateRoutes";
 
 const BaseRouter: React.FC = () => {
     const [open, setOpen] = useState(false);
+    const notifications = StateHooks.useNotifications();
+    const [notificationState, setNotificationState] = useState<
+        NotificationsState
+    >();
+
+    useEffect(() => {
+        setNotificationState(notifications);
+    }, [notifications]);
 
     return (
         <React.Fragment>
+            <Notifications notifications={notificationState} />
             <Switch>
                 <Route exact path="/" component={LandingPage} />
                 <Route path="/signup" component={SignUpPage} />

@@ -27,6 +27,8 @@ import {
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
+import { Notification } from "react-notification-system";
+import { error } from "react-notification-system-redux";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -176,9 +178,19 @@ const PositionRequestPage: React.FC = () => {
                 })
                 .then((res) => {
                     console.log(res);
-                    history.push("/volunteer/profile/edit");
+                    history.push("/volunteer/profile/edit", {
+                        fromRequestPage: true,
+                        title: role.title,
+                    });
                 })
                 .catch((err) => {
+                    const notificationOpts: Notification = {
+                        title: "Oops, something went wrong!",
+                        message: `Could not submit request, please try again.`,
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(error(notificationOpts));
                     setRequestError(err);
                     console.log(err.response);
                     console.error(err);
