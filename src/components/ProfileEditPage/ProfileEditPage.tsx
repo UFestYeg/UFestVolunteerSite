@@ -28,6 +28,8 @@ import clsx from "clsx";
 import { Form, Formik } from "formik";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
+import { Notification } from "react-notification-system";
+import { error, success } from "react-notification-system-redux";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { user as userActions } from "../../store/actions";
@@ -35,6 +37,7 @@ import { StateHooks } from "../../store/hooks";
 import { IProfileEditFormValues } from "../../store/types";
 import { buildErrorMessage } from "../../store/utils";
 import { tShirtSizes } from "../../types";
+import { useLocation } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     avatar: {
@@ -72,9 +75,15 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+interface ILocationState {
+    fromRequestPage: boolean;
+    title: string;
+}
+
 const ProfileEditPage: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
+    const { state } = useLocation<ILocationState>();
     const dispatch = useDispatch();
     const [_userProfile, loading, error] = StateHooks.useUserInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
@@ -174,6 +183,15 @@ const ProfileEditPage: React.FC = () => {
                             setTimeout(() => {
                                 // alert(JSON.stringify(values, null, 2));
                                 handleFormSubmit(values);
+                                if (state.fromRequestPage && state.title) {
+                                    const notificationOpts: Notification = {
+                                        title: "Success!",
+                                        message: `Request submitted for ${state.title}`,
+                                        position: "tr",
+                                        autoDismiss: 5,
+                                    };
+                                    dispatch(success(notificationOpts));
+                                }
                                 setSubmitting(false);
                             }, 400);
                         }}

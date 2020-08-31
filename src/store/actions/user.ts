@@ -8,7 +8,7 @@ import {
     UserActionType as ActionType,
 } from "../types";
 import * as ActionTypes from "./actionTypes";
-import { success } from "react-notification-system-redux";
+import { success, error } from "react-notification-system-redux";
 import { Notification } from "react-notification-system";
 
 type DispatchType = (action: ActionType) => void;
@@ -95,6 +95,13 @@ export const getUserProfile = (cookies: any, userID?: number) => {
                     console.error(error);
                     dispatch(getUserProfileFail(error));
                     // TODO: send notification and redirect
+                    const notificationOpts: Notification = {
+                        title: "Oops, something went wrong!",
+                        message: "Unable to get user profile.",
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(error(notificationOpts));
                 });
         } else {
             console.log("Unable to get user without token");
@@ -133,6 +140,13 @@ export const updateUserProfile = (
                 // If request is bad...
                 // Show an error to the user
                 dispatch(updateProfileFail(error));
+                const notificationOpts: Notification = {
+                    title: "Oops, something went wrong!",
+                    message: "Unable to update profile. Please try again.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(error(notificationOpts));
             });
     };
 };

@@ -1,4 +1,6 @@
 import axios from "axios";
+import { Notification } from "react-notification-system";
+import { error, success } from "react-notification-system-redux";
 import { EventCategoryType } from "../../components/Calendar/EventCategory";
 import { UserUrls, VolunteerUrls } from "../../constants";
 import history from "../../history";
@@ -324,7 +326,15 @@ export const acceptRequest = (
                     status: "ACCEPTED",
                 })
                 .then((res) => {
+                    const notificationOpts: Notification = {
+                        title: "Success!",
+                        message: `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request`,
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(success(notificationOpts));
                     dispatch(acceptRequestSuccess());
+                    // redirect to the route '/profile'
                     history.replace(redirectUrl, browserState);
                     history.go(0);
                     console.log(res);
@@ -358,10 +368,17 @@ export const denyRequest = (
                     status: "DENIED",
                 })
                 .then((res) => {
+                    const notificationOpts: Notification = {
+                        title: "Success!",
+                        message: `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request`,
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(success(notificationOpts));
                     dispatch(denyRequestSuccess());
                     history.replace(redirectUrl, browserState);
                     history.go(0);
-                    console.log(res);
+                    console.log("res", res);
                 })
                 .catch((err) => {
                     dispatch(denyRequestFail(err));
@@ -395,12 +412,26 @@ export const changeRequestRole = (
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), payload)
                 .then((res) => {
+                    const notificationOpts: Notification = {
+                        title: "Success!",
+                        message: `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role`,
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(success(notificationOpts));
                     dispatch(changeRequestRoleSuccess());
                     console.log(res);
                     history.replace(redirectUrl, browserState);
                     history.go(0);
                 })
                 .catch((err) => {
+                    const notificationOpts: Notification = {
+                        title: "Oops, something went wrong!",
+                        message: `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role`,
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(error(notificationOpts));
                     dispatch(changeRequestRoleFail(err));
                     console.error(err);
                 });

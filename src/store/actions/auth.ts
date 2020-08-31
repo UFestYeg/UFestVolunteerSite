@@ -3,7 +3,7 @@ import { AuthUrls } from "../../constants";
 import history from "../../history";
 import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
-import { success } from "react-notification-system-redux";
+import { success, error } from "react-notification-system-redux";
 import { Notification } from "react-notification-system";
 
 type DispatchType = (action: ActionType) => void;
@@ -220,25 +220,27 @@ export const changePassword = (
                 .then((response) => {
                     console.log(response);
                     const notificationOpts: Notification = {
-                        title: "Hey, it's good to see you!",
-                        message:
-                            "Now you can see how easy it is to use notifications in React!",
+                        title: "Success!",
+                        message: "Your password was changed.",
                         position: "tr",
-                        autoDismiss: 0,
-                        action: {
-                            label: "Click me!!",
-                            callback: () => alert("clicked!"),
-                        },
+                        autoDismiss: 5,
                     };
-                    dispatch(success(notificationOpts));
                     // redirect to the route '/profile'
                     dispatch(changePasswordSuccess());
+                    dispatch(success(notificationOpts));
                     dispatch(logout());
                 })
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
                     dispatch(changePasswordFail(error));
+                    const notificationOpts: Notification = {
+                        title: "Oops, something went wrong!",
+                        message: "Unable to change password. Please try again.",
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(error(notificationOpts));
                 });
         };
     }
@@ -256,6 +258,13 @@ export const resetPassword = (email: string, csrftoken: string) => {
                 // redirect to reset done page
                 console.log(response);
                 dispatch(resetPasswordEmailSent());
+                const notificationOpts: Notification = {
+                    title: "Success!",
+                    message: "Password reset email sent.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.push("/reset_password_done");
             })
             .catch((error) => {
@@ -286,15 +295,14 @@ export const confirmPasswordChange = (
             })
             .then((response) => {
                 console.log(response);
-                // dispatch(
-                //     notifSend({
-                //         message:
-                //             "Password has been reset successfully, please log in",
-                //         kind: "info",
-                //         dismissAfter: 5000,
-                //     })
-                // );
                 dispatch(resetPasswordSuccess());
+                const notificationOpts: Notification = {
+                    title: "Success!",
+                    message: "Your password has been reset, please log in.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.push("/login");
             })
             .catch((error) => {
@@ -314,12 +322,15 @@ export const activateUserAccount = (key: string, csrftoken: string) => {
             .post(AuthUrls.USER_ACTIVATION, { key })
             .then((response) => {
                 console.log(response);
-                // dispatch(notifSend({
-                //     message: "Your account has been activated successfully, please log in",
-                //     kind: "info",
-                //     dismissAfter: 5000
-                // }));
                 dispatch(authActivationSent());
+                const notificationOpts: Notification = {
+                    title: "You're all set!",
+                    message:
+                        "Your account has been activated successfully, please log in.",
+                    position: "tr",
+                    autoDismiss: 5,
+                };
+                dispatch(success(notificationOpts));
                 history.push("/login");
             })
             .catch((error) => {
