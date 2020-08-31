@@ -1,0 +1,57 @@
+[
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 1,
+        "fields": { "tag": "Marketing" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 2,
+        "fields": { "tag": "Vendors" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 3,
+        "fields": { "tag": "Workshops" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 4,
+        "fields": { "tag": "Finance" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 5,
+        "fields": { "tag": "Entertainment" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 6,
+        "fields": { "tag": "Site and Traffic" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 7,
+        "fields": { "tag": "Volunteers" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 8,
+        "fields": { "tag": "Kids" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 9,
+        "fields": { "tag": "Beer Gardens" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 10,
+        "fields": { "tag": "Cafe" }
+    },
+    {
+        "model": "volunteer_categories.categorytype",
+        "pk": 11,
+        "fields": { "tag": "Open to anything" }
+    }
+]
