@@ -35,7 +35,7 @@ class RequestSerializer(serializers.ModelSerializer):
         model = Request
         fields = ("id", "user", "status", "role")
 
-    def shouldBeMadeUnavailable(self, request1, request2):
+    def overlappingRequests(self, request1, request2):
         event1 = request1.role.category
         event2 = request2.role.category
         return (
@@ -90,7 +90,7 @@ class RequestSerializer(serializers.ModelSerializer):
 
             requests = request.user.requests.all().exclude(pk=request.id)
             for req in requests:
-                if req.status == Request.ACCEPTED and self.shouldBeMadeUnavailable(
+                if req.status == Request.ACCEPTED and self.overlappingRequests(
                     request, req
                 ):
                     request.status = Request.UNAVAILABLE
@@ -159,8 +159,14 @@ class RequestSerializer(serializers.ModelSerializer):
                 )
             requests = instance.user.requests.all().exclude(pk=instance.id)
             for req in requests:
-                if self.shouldBeMadeUnavailable(instance, req):
+                if self.overlappingRequests(instance, req):
                     req.status = Request.UNAVAILABLE
+                    req.save()
+        elif old_status == Request.ACCEPTED and instance.status != Request.ACCEPTED:
+            requests = instance.user.requests.all().exclude(pk=instance.id)
+            for req in requests:
+                if self.overlappingRequests(instance, req):
+                    req.status = Request.PENDING
                     req.save()
 
         instance.save()

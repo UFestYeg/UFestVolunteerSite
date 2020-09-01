@@ -30,6 +30,15 @@ class RequestViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `detail`, `create`, `update` and `delete` actions.
     """
+    def overlappingRequests(self, request1, request2):
+        event1 = request1.role.category
+        event2 = request2.role.category
+        return (
+            event2.start_time >= event1.start_time
+            and event2.start_time < event1.end_time
+        ) or (
+            event2.end_time > event1.start_time and event2.end_time <= event1.end_time
+        )
 
     def perform_destroy(self, instance):
         from django.db.models import Q
@@ -65,6 +74,13 @@ class RequestViewSet(viewsets.ModelViewSet):
             context=email_context,
             bcc=recipient_list,
         )
+
+        if instance.status == Request.ACCEPTED:
+            requests = instance.user.requests.all().exclude(pk=instance.id)
+            for req in requests:
+                if self.overlappingRequests(instance, req):
+                    req.status = Request.PENDING
+                    req.save()
 
         instance.delete()
 
