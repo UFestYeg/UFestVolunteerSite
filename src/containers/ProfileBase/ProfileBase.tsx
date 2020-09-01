@@ -1,4 +1,10 @@
-import { Avatar, Grid, Paper, Typography } from "@material-ui/core";
+import {
+    Avatar,
+    Grid,
+    Paper,
+    Typography,
+    useMediaQuery,
+} from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
@@ -78,7 +84,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
     const dispatch = useDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const { useTabs, tabs } = props;
-
+    const mobile = !useMediaQuery("(min-width:400px)");
     useEffect(() => {
         dispatch(userActions.getUserProfile(cookies.csrftoken));
     }, [dispatch]);
@@ -125,7 +131,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
                         </Avatar>
                     </Grid>
                     <Grid className={classes.tabPanel} item>
-                        <Typography variant="h2">
+                        <Typography variant={mobile ? "h4" : "h2"}>
                             {userProfile.first_name
                                 ? `${userProfile.first_name} ${userProfile.last_name}`
                                 : "Firstname Lastname"}
