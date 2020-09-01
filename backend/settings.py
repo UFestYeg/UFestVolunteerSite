@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "user_profile",
     "post_office",
     "django_crontab",
+    "django_extensions",
 ]
 
 SITE_ID = 1

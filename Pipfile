@@ -33,6 +33,8 @@ django-post-office = "*"
 jsonfield = "*"
 bleach = "*"
 django-crontab = "*"
+django-extensions = "*"
+graphviz = "*"
 
 [requires]
 python_version = "3.8"
