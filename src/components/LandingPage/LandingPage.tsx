@@ -44,11 +44,11 @@ const useStyles = makeStyles((theme: Theme) =>
             marginTop: 16,
         },
         image: {
-            [theme.breakpoints.down("md")]: {
+            [theme.breakpoints.down("xs")]: {
                 width: "90%",
                 maxHeight: 125,
             },
-            [theme.breakpoints.up("md")]: {
+            [theme.breakpoints.up("xs")]: {
                 // float: "left",
                 width: "90%",
             },

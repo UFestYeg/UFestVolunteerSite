@@ -221,7 +221,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 // xs={10}
             >
                 <Typography variant="subtitle2">
-                    Medical Resitrictions
+                    Medical Restrictions
                 </Typography>
                 <Box flexGrow={1} alignItems="center" justifyContent="center">
                     <Divider className={classes.divider} />
