@@ -5,6 +5,7 @@ import {
     Grid,
     Paper,
     Typography,
+    useMediaQuery,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import clsx from "clsx";
@@ -61,6 +62,12 @@ const useStyles = makeStyles((theme) => ({
     fullWidth: {
         width: "95%",
         padding: theme.spacing(2),
+        [theme.breakpoints.up("md")]: {
+            marginLeft: theme.spacing(4),
+        },
+        [theme.breakpoints.down("md")]: {
+            marginLeft: theme.spacing(2),
+        },
     },
     tabPanel: {
         margin: theme.spacing(2),
@@ -83,7 +90,8 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
     const dispatch = useDispatch();
     const { profileID } = useParams();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
-
+    const mobile = !useMediaQuery("(min-width:400px)");
+    const flexDirection = mobile ? "column" : "row";
     useEffect(() => {
         dispatch(userActions.getUserProfile(cookies.csrftoken, profileID));
     }, [cookies.csrftoken, dispatch, profileID]);
@@ -105,14 +113,18 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 <Typography variant="h3">Other Info</Typography>
                 {canEdit ? (
                     <>
-                        <Divider orientation="vertical" flexItem />
+                        <Divider
+                            orientation={mobile ? "horizontal" : "vertical"}
+                            flexItem
+                        />
                         <Grid
                             item
                             container
                             direction="column"
                             alignItems="stretch"
                             justify="flex-start"
-                            xs={3}
+                            xs={12}
+                            sm={3}
                         >
                             <Button
                                 size="small"
@@ -145,7 +157,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
@@ -159,7 +171,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
@@ -174,7 +186,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                     className={classes.grid}
                     item
                     container
-                    direction="row"
+                    direction={flexDirection}
                     justify="space-between"
                     // xs={10}
                 >
@@ -204,12 +216,12 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">
-                    Medical Resitrictions
+                    Medical Restrictions
                 </Typography>
                 <Box flexGrow={1} alignItems="center" justifyContent="center">
                     <Divider className={classes.divider} />
@@ -222,7 +234,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
@@ -240,7 +252,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
@@ -258,7 +270,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
@@ -276,7 +288,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >
@@ -294,7 +306,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 className={classes.grid}
                 item
                 container
-                direction="row"
+                direction={flexDirection}
                 justify="space-between"
                 // xs={10}
             >

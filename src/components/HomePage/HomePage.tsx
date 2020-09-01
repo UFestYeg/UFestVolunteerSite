@@ -2,6 +2,7 @@ import {
     Fab,
     Grid,
     Typography,
+    useMediaQuery,
     useScrollTrigger,
     Zoom,
 } from "@material-ui/core";
@@ -76,7 +77,6 @@ const useStyles = makeStyles((theme) =>
 const ScrollTop: React.FC = ({ children }) => {
     const theme = useTheme();
     const classes = useStyles(theme);
-
     const trigger = useScrollTrigger({
         disableHysteresis: true,
         threshold: 100,
@@ -110,11 +110,15 @@ const HomePage: React.FC = () => {
     const classes = useStyles(theme);
     const userProfile = StateHooks.useUserProfile();
     const { is_staff } = userProfile;
+    const mobile = !useMediaQuery("(min-width:400px)");
 
     return (
         <main>
             <section id="home" className={clsx(classes.home, classes.parallax)}>
-                <Typography variant="h1" style={{ fontWeight: "bold" }}>
+                <Typography
+                    variant={mobile ? "h4" : "h2"}
+                    style={{ fontWeight: "bold" }}
+                >
                     {is_staff
                         ? "Welcome Admin!"
                         : "Thank you for signing up to volunteer at UFest!"}

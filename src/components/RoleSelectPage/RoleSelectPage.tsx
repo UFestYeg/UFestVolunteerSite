@@ -46,10 +46,15 @@ const useStyles = makeStyles((theme) =>
         listContent: {
             padding: theme.spacing(1),
             display: "flex",
-            flexDirection: "row",
             alignItems: "center",
             textAlign: "center",
             width: "80vw",
+            [theme.breakpoints.down("md")]: {
+                flexDirection: "column",
+            },
+            [theme.breakpoints.up("md")]: {
+                flexDirection: "row",
+            },
         },
         grid: {
             overflow: "hidden",
@@ -123,6 +128,7 @@ const RoleSelectPage: React.FC = () => {
                                       primary={"Title"}
                                       primaryTypographyProps={{
                                           color: "textPrimary",
+                                          variant: "overline",
                                       }}
                                       secondary={role.title}
                                       secondaryTypographyProps={{
@@ -138,6 +144,7 @@ const RoleSelectPage: React.FC = () => {
                                       primary={"Description"}
                                       primaryTypographyProps={{
                                           color: "textPrimary",
+                                          variant: "overline",
                                       }}
                                       secondary={role.description}
                                       secondaryTypographyProps={{
@@ -146,7 +153,10 @@ const RoleSelectPage: React.FC = () => {
                                       }}
                                   />
                                   <ListItemText>
-                                      <Typography color="textPrimary">
+                                      <Typography
+                                          color="textPrimary"
+                                          variant="caption"
+                                      >
                                           {`positions available: ${role.number_of_open_positions}/${role.number_of_positions}`}
                                       </Typography>
                                   </ListItemText>
