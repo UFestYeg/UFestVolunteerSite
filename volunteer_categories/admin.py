@@ -13,11 +13,11 @@ from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 
 DATE_CHOICES = [
-    (datetime.date(2021, 5, 19), "Wednesday"),
-    (datetime.date(2021, 5, 20), "Thursday"),
-    (datetime.date(2021, 5, 21), "Friday"),
-    (datetime.date(2021, 5, 22), "Saturday"),
-    (datetime.date(2021, 5, 23), "Sunday"),
+    (datetime.date(2022, 5, 25), "Wednesday"),
+    (datetime.date(2022, 5, 26), "Thursday"),
+    (datetime.date(2022, 5, 27), "Friday"),
+    (datetime.date(2022, 5, 28), "Saturday"),
+    (datetime.date(2022, 5, 29), "Sunday"),
 ]
 
 
@@ -174,14 +174,14 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             ).order_by("category__category_type", "title")
 
         def time_range_for_day(
-            start_year=2021,
+            start_year=2022,
             start_month=5,
-            start_day=19,
+            start_day=25,
             start_hour=8,
             start_minute=0,
-            end_year=2021,
+            end_year=2022,
             end_month=5,
-            end_day=20,
+            end_day=26,
             end_hour=0,
             end_minute=0,
         ):
@@ -238,69 +238,69 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                             print("invalid date")
                     csv_writer.writerow(row)
 
-        wednesday_roles = filter_roles_for_day(2021, 5, 19)
-        thursday_roles = filter_roles_for_day(2021, 5, 20)
-        friday_roles = filter_roles_for_day(2021, 5, 21)
-        saturday_roles = filter_roles_for_day(2021, 5, 22)
-        sunday_roles = filter_roles_for_day(2021, 5, 23)
+        wednesday_roles = filter_roles_for_day(2022, 5, 25)
+        thursday_roles = filter_roles_for_day(2022, 5, 26)
+        friday_roles = filter_roles_for_day(2022, 5, 27)
+        saturday_roles = filter_roles_for_day(2022, 5, 28)
+        sunday_roles = filter_roles_for_day(2022, 5, 29)
 
         wednesday_times = time_range_for_day(
-            start_year=2021,
+            start_year=2022,
             start_month=5,
-            start_day=19,
+            start_day=25,
             start_hour=8,
             start_minute=0,
-            end_year=2021,
+            end_year=2022,
             end_month=5,
-            end_day=20,
+            end_day=26,
             end_hour=0,
             end_minute=0,
         )
         thursday_times = time_range_for_day(
-            start_year=2021,
+            start_year=2022,
             start_month=5,
-            start_day=20,
+            start_day=26,
             start_hour=8,
             start_minute=0,
-            end_year=2021,
+            end_year=2022,
             end_month=5,
-            end_day=21,
+            end_day=27,
             end_hour=0,
             end_minute=0,
         )
         friday_times = time_range_for_day(
-            start_year=2021,
+            start_year=2022,
             start_month=5,
-            start_day=21,
+            start_day=27,
             start_hour=8,
             start_minute=0,
-            end_year=2021,
+            end_year=2022,
             end_month=5,
-            end_day=22,
+            end_day=28,
             end_hour=0,
             end_minute=0,
         )
         saturday_times = time_range_for_day(
-            start_year=2021,
+            start_year=2022,
             start_month=5,
-            start_day=22,
+            start_day=28,
             start_hour=7,
             start_minute=30,
-            end_year=2021,
+            end_year=2022,
             end_month=5,
-            end_day=23,
+            end_day=29,
             end_hour=0,
             end_minute=0,
         )
         sunday_times = time_range_for_day(
-            start_year=2021,
+            start_year=2022,
             start_month=5,
-            start_day=23,
+            start_day=29,
             start_hour=7,
             start_minute=30,
-            end_year=2021,
+            end_year=2022,
             end_month=5,
-            end_day=24,
+            end_day=30,
             end_hour=0,
             end_minute=0,
         )

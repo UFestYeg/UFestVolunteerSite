@@ -157,9 +157,8 @@ const PositionRequestPage: React.FC = () => {
 
     const Event = ({ event }: { event: any }) => {
         const [requestError, setRequestError] = useState<any>();
-        const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(
-            null
-        );
+        const [anchorEl, setAnchorEl] =
+            React.useState<HTMLDivElement | null>(null);
 
         const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
             setAnchorEl(event.currentTarget);
@@ -186,7 +185,7 @@ const PositionRequestPage: React.FC = () => {
                 .catch((err) => {
                     const notificationOpts: Notification = {
                         title: "Oops, something went wrong!",
-                        message: `Could not submit request, please try again.`,
+                        message: "Could not submit request, please try again.",
                         position: "tr",
                         autoDismiss: 5,
                     };
@@ -308,7 +307,7 @@ const PositionRequestPage: React.FC = () => {
                 endAccessor="end_time"
                 style={{ height: 600 }}
                 defaultView="week"
-                defaultDate={new Date(2021, 4, 21)}
+                defaultDate={new Date(2022, 4, 25)}
                 views={{ day: true, week: UFestWeek }}
                 components={{
                     event: Event,

@@ -134,7 +134,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                 endAccessor="end_time"
                 style={{ height: 600 }}
                 defaultView="day"
-                defaultDate={new Date(2021, 4, 22)}
+                defaultDate={new Date(2022, 4, 25)}
                 views={{ day: true, week: UFestWeek }}
                 components={{
                     event: RequestEvent,

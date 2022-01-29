@@ -44,7 +44,7 @@ const EventsCalendar: React.FC = () => {
     const defaultDefaultDate =
         state && state.oldDefaultDate !== undefined
             ? state.oldDefaultDate
-            : new Date(2021, 4, 22);
+            : new Date(2022, 4, 25);
     const [defaultDate, setDefaultDate] = useState<Date>(defaultDefaultDate);
 
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
