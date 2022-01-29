@@ -24,7 +24,7 @@
         "@types/react-router-dom": "^5.1.5",
         "@types/redux-persist": "^4.3.1",
         "@types/yup": "^0.29.3",
-        "axios": "^0.19.2",
+        "axios": "^0.21.0",
         "chroma-js": "^2.1.0",
         "clsx": "^1.1.1",
         "date-arithmetic": "^4.1.0",

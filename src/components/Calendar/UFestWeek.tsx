@@ -7,14 +7,14 @@ import TimeGrid from "react-big-calendar/lib/TimeGrid";
 
 const moment = extendMoment(Moment);
 
-const UFEST_VOLUNTEERING_START_DATE = new Date("May 19, 2021");
-const UFEST_VOLUNTEERING_END_DATE = new Date("May 23, 2021");
+const UFEST_VOLUNTEERING_START_DATE = new Date("May 25, 2022");
+const UFEST_VOLUNTEERING_END_DATE = new Date("May 29, 2022");
 
 class UFestWeek extends React.Component<{ date: Date }> {
     range = (date: Date) =>
-        Array.from(
-            moment.range(date, moment(date).add(1, "d")).by("day")
-        ).map((m) => m.toDate());
+        Array.from(moment.range(date, moment(date).add(1, "d")).by("day")).map(
+            (m) => m.toDate()
+        );
 
     static navigate = (date: Date, action: NavigateAction) => {
         switch (action) {
