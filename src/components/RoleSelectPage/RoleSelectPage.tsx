@@ -44,18 +44,18 @@ const useStyles = makeStyles((theme) =>
             width: "80vw",
         },
         listContent: {
-            padding: theme.spacing(1),
+            padding: theme.spacing(2),
             display: "flex",
-            alignItems: "center",
-            textAlign: "center",
+            alignItems: "baseline",
+            textAlign: "start",
+            justifyContent: "space-between",
             width: "80vw",
-            flexDirection: "column",
-            // [theme.breakpoints.down("md")]: {
-            //     flexDirection: "column",
-            // },
-            // [theme.breakpoints.up("md")]: {
-            //     flexDirection: "row",
-            // },
+            [theme.breakpoints.down("md")]: {
+                flexDirection: "column",
+            },
+            [theme.breakpoints.up("md")]: {
+                flexDirection: "row",
+            },
         },
         grid: {
             overflow: "hidden",
@@ -125,42 +125,62 @@ const RoleSelectPage: React.FC = () => {
                               className={classes.link}
                           >
                               <ListItem button className={classes.listContent}>
-                                  <ListItemText
-                                      primary={"Title"}
-                                      primaryTypographyProps={{
-                                          color: "textPrimary",
-                                          variant: "overline",
-                                      }}
-                                      secondary={role.title}
-                                      secondaryTypographyProps={{
-                                          color: "textPrimary",
-                                          variant: "subtitle2",
-                                      }}
+                                  <Grid
+                                      container
+                                      spacing={2}
+                                      justify="space-between"
+                                      alignItems="baseline"
                                   >
-                                      <Typography color="textPrimary">
-                                          {role.title}
-                                      </Typography>
-                                  </ListItemText>
-                                  <ListItemText
-                                      primary={"Description"}
-                                      primaryTypographyProps={{
-                                          color: "textPrimary",
-                                          variant: "overline",
-                                      }}
-                                      secondary={role.description}
-                                      secondaryTypographyProps={{
-                                          color: "textPrimary",
-                                          variant: "subtitle2",
-                                      }}
-                                  />
-                                  <ListItemText>
-                                      <Typography
-                                          color="textPrimary"
-                                          variant="caption"
+                                      <Grid item xs={12} md={3}>
+                                          <ListItemText
+                                              primary={"Title"}
+                                              primaryTypographyProps={{
+                                                  color: "textPrimary",
+                                                  variant: "overline",
+                                              }}
+                                              secondary={role.title}
+                                              secondaryTypographyProps={{
+                                                  color: "textPrimary",
+                                                  variant: "subtitle2",
+                                              }}
+                                          >
+                                              <Typography color="textPrimary">
+                                                  {role.title}
+                                              </Typography>
+                                          </ListItemText>
+                                      </Grid>
+                                      <Grid item xs={12} md={7}>
+                                          <ListItemText
+                                              primary={"Description"}
+                                              primaryTypographyProps={{
+                                                  color: "textPrimary",
+                                                  variant: "overline",
+                                              }}
+                                              secondary={role.description}
+                                              secondaryTypographyProps={{
+                                                  color: "textPrimary",
+                                                  variant: "subtitle2",
+                                              }}
+                                          />
+                                      </Grid>
+                                      <Grid
+                                          item
+                                          container
+                                          xs={12}
+                                          md={2}
+                                          alignContent="center"
                                       >
-                                          {`positions available: ${role.number_of_open_positions}/${role.number_of_positions}`}
-                                      </Typography>
-                                  </ListItemText>
+                                          <ListItemText>
+                                              <Typography
+                                                  color="textPrimary"
+                                                  variant="caption"
+                                                  align="center"
+                                              >
+                                                  {`positions available: ${role.number_of_open_positions}/${role.number_of_positions}`}
+                                              </Typography>
+                                          </ListItemText>
+                                      </Grid>
+                                  </Grid>
                               </ListItem>
                               <Divider />
                           </Link>
