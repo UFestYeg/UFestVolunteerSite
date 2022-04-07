@@ -49,12 +49,13 @@ const useStyles = makeStyles((theme) =>
             alignItems: "center",
             textAlign: "center",
             width: "80vw",
-            [theme.breakpoints.down("md")]: {
-                flexDirection: "column",
-            },
-            [theme.breakpoints.up("md")]: {
-                flexDirection: "row",
-            },
+            flexDirection: "column",
+            // [theme.breakpoints.down("md")]: {
+            //     flexDirection: "column",
+            // },
+            // [theme.breakpoints.up("md")]: {
+            //     flexDirection: "row",
+            // },
         },
         grid: {
             overflow: "hidden",
