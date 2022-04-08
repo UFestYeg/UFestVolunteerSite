@@ -92,14 +92,15 @@ const RoleSelectPage: React.FC = () => {
     const combinedRoles: any = {};
     roles.flat().forEach((role) => {
         if (role) {
-            if (role.title in combinedRoles) {
-                combinedRoles[role.title].number_of_positions +=
+            const titleLower = role.title.toLowerCase();
+            if (titleLower in combinedRoles) {
+                combinedRoles[titleLower].number_of_positions +=
                     role.number_of_positions;
-                combinedRoles[role.title].number_of_open_positions +=
+                combinedRoles[titleLower].number_of_open_positions +=
                     role.number_of_open_positions;
             } else {
                 // Deep copy of role object
-                combinedRoles[role.title] = JSON.parse(JSON.stringify(role));
+                combinedRoles[titleLower] = JSON.parse(JSON.stringify(role));
             }
         }
     });

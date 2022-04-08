@@ -317,10 +317,12 @@ const EventCategory = ({
                 });
                 if (submitMappedRole) {
                     const submitRole = {
+                        id: submitMappedRole.roleID,
                         title: submitMappedRole.title,
                         description: submitMappedRole.description,
                         number_of_positions:
                             submitMappedRole.number_of_positions,
+                        category: submitMappedRole.category,
                     };
                     dispatch(
                         volunteerActions.changeRequestRole(

@@ -157,8 +157,9 @@ const PositionRequestPage: React.FC = () => {
 
     const Event = ({ event }: { event: any }) => {
         const [requestError, setRequestError] = useState<any>();
-        const [anchorEl, setAnchorEl] =
-            React.useState<HTMLDivElement | null>(null);
+        const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(
+            null
+        );
 
         const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
             setAnchorEl(event.currentTarget);
@@ -183,16 +184,33 @@ const PositionRequestPage: React.FC = () => {
                     });
                 })
                 .catch((err) => {
+                    let errDetail = "Please try again.";
+                    setRequestError(err);
+                    if (err.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(err.response.data);
+                        console.log(err.response.status);
+                        console.log(err.response.headers);
+                        errDetail = err.response.data.detail;
+                    } else if (err.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(err.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", err.message);
+                    }
+                    console.log(err.config);
+                    console.error(err);
                     const notificationOpts: Notification = {
                         title: "Oops, something went wrong!",
-                        message: "Could not submit request, please try again.",
+                        message: `Could not submit request. ${errDetail}`,
                         position: "tr",
                         autoDismiss: 5,
                     };
                     dispatch(error(notificationOpts));
-                    setRequestError(err);
-                    console.log(err.response);
-                    console.error(err);
                 });
         };
 
@@ -210,16 +228,17 @@ const PositionRequestPage: React.FC = () => {
         const open = Boolean(anchorEl);
         const id = open ? "simple-popover" : undefined;
         const selectedRole = event.roles.find(
-            (r: any) => r.title === currentCategory
+            (r: any) => r.title.toLowerCase() === currentCategory.toLowerCase()
         );
         return (
             <>
                 <Container onClick={handleClick} className={classes.eventRoot}>
+                    {errorMessage}
                     <strong>{event.title}</strong> : {currentCategory}
                     <br />
                     Available Positions:{" "}
-                    {selectedRole.number_of_positions !== null &&
-                    selectedRole.number_of_open_positions !== null
+                    {selectedRole?.number_of_positions != null &&
+                    selectedRole?.number_of_open_positions != null
                         ? `${selectedRole.number_of_open_positions}/${selectedRole.number_of_positions}`
                         : "N/A"}
                 </Container>
@@ -251,7 +270,6 @@ const PositionRequestPage: React.FC = () => {
                                 }
                                 title="Submit Request"
                             />
-                            {errorMessage}
                             <List dense>
                                 <ListItem>
                                     category:{" "}

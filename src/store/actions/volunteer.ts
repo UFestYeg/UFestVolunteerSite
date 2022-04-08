@@ -149,8 +149,24 @@ export const getVolunteerCategoryTypes = (cookies: any) => {
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
-                    console.error(error);
                     // TODO: send notification and redirect
+                    if (error.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(error.response.data);
+                        console.log(error.response.status);
+                        console.log(error.response.headers);
+                    } else if (error.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(error.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", error.message);
+                    }
+                    console.log(error.config);
+                    console.error(error);
                 });
         } else {
             console.log("Unable to get category without token");
@@ -177,6 +193,22 @@ export const getVolunteerCategories = (cookies: any) => {
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
+                    if (error.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(error.response.data);
+                        console.log(error.response.status);
+                        console.log(error.response.headers);
+                    } else if (error.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(error.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", error.message);
+                    }
+                    console.log(error.config);
                     console.error(error);
                     dispatch(getVolunteerCategoriesFail(error));
                     // TODO: send notification and redirect
@@ -208,6 +240,22 @@ export const getVolunteerCategoryOfType = (
                 .catch((error) => {
                     // If request is bad...
                     // Show an error to the user
+                    if (error.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(error.response.data);
+                        console.log(error.response.status);
+                        console.log(error.response.headers);
+                    } else if (error.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(error.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", error.message);
+                    }
+                    console.log(error.config);
                     console.error(error);
                     // TODO: send notification and redirect
                 });
@@ -341,6 +389,22 @@ export const acceptRequest = (
                 })
                 .catch((err) => {
                     dispatch(acceptRequestFail(err));
+                    if (err.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(err.response.data);
+                        console.log(err.response.status);
+                        console.log(err.response.headers);
+                    } else if (err.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(err.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", err.message);
+                    }
+                    console.log(err.config);
                     console.error(err);
                 });
         }
@@ -382,6 +446,22 @@ export const denyRequest = (
                 })
                 .catch((err) => {
                     dispatch(denyRequestFail(err));
+                    if (err.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(err.response.data);
+                        console.log(err.response.status);
+                        console.log(err.response.headers);
+                    } else if (err.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(err.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", err.message);
+                    }
+                    console.log(err.config);
                     console.error(err);
                 });
         }
@@ -427,12 +507,34 @@ export const changeRequestRole = (
                 .catch((err) => {
                     const notificationOpts: Notification = {
                         title: "Oops, something went wrong!",
-                        message: `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role`,
+                        message:
+                            `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role` +
+                            `${
+                                err?.response?.data
+                                    ? `:${err.response.data.detail}`
+                                    : ""
+                            }`,
                         position: "tr",
                         autoDismiss: 5,
                     };
                     dispatch(error(notificationOpts));
                     dispatch(changeRequestRoleFail(err));
+                    if (err.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(err.response.data);
+                        console.log(err.response.status);
+                        console.log(err.response.headers);
+                    } else if (err.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(err.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", err.message);
+                    }
+                    console.log(err.config);
                     console.error(err);
                 });
         }
