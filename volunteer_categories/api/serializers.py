@@ -10,6 +10,9 @@ class CategoryTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryType
         fields = ("id", "tag")
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -26,6 +29,9 @@ class RoleSerializer(serializers.ModelSerializer):
             "category",
         )
         depth = 1
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
 
 
 class RequestSerializer(serializers.ModelSerializer):
@@ -34,6 +40,9 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = ("id", "user", "status", "role")
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
 
     def overlappingRequests(self, request1, request2):
         event1 = request1.role.category
@@ -81,9 +90,12 @@ class RequestSerializer(serializers.ModelSerializer):
 
         try:
             role_validated_data = validated_data.pop("role")
+
             role = Role.roles.get(
+                id=role_validated_data.get("id"),
                 title=role_validated_data.get("title"),
                 description=role_validated_data.get("description"),
+                number_of_positions=role_validated_data.get("number_of_positions"),
             )
             validated_data["role"] = role
             request = Request.requests.create(**validated_data)
@@ -102,8 +114,9 @@ class RequestSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"detail": "Duplicate requests not allowed."}
             )
-        except:
-            print("unexpected error")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise e
 
     def update(self, instance, validated_data):
         def send_update_mail(instance):
@@ -139,41 +152,52 @@ class RequestSerializer(serializers.ModelSerializer):
                 context=email_context,
             )
 
-        role_validated_data = validated_data.pop("role")
+        try:
+            role_validated_data = validated_data.pop("role")
 
-        old_status = instance.status
-        instance.status = validated_data.get("status", instance.status)
+            old_status = instance.status
+            instance.status = validated_data.get("status", instance.status)
 
-        role = Role.roles.get(
-            title=role_validated_data.get("title"),
-            description=role_validated_data.get("description"),
-            number_of_positions=role_validated_data.get("number_of_positions"),
-        )
-        instance.role = role
+            role = Role.roles.get(
+                id=role_validated_data.get("id"),
+                title=role_validated_data.get("title"),
+                description=role_validated_data.get("description"),
+                number_of_positions=role_validated_data.get("number_of_positions"),
+            )
+            instance.role = role
 
-        if old_status != Request.ACCEPTED and instance.status == Request.ACCEPTED:
-            accepted_requests = instance.role.requests.filter(status=Request.ACCEPTED)
-            if instance.role.number_of_positions == len(accepted_requests):
-                raise serializers.ValidationError(
-                    {"detail": "Cannot accept any more requests."}
+            if old_status != Request.ACCEPTED and instance.status == Request.ACCEPTED:
+                accepted_requests = instance.role.requests.filter(
+                    status=Request.ACCEPTED
                 )
-            requests = instance.user.requests.all().exclude(pk=instance.id)
-            for req in requests:
-                if self.overlappingRequests(instance, req):
-                    req.status = Request.UNAVAILABLE
-                    req.save()
-        elif old_status == Request.ACCEPTED and instance.status != Request.ACCEPTED:
-            requests = instance.user.requests.all().exclude(pk=instance.id)
-            for req in requests:
-                if self.overlappingRequests(instance, req):
-                    req.status = Request.PENDING
-                    req.save()
+                if instance.role.number_of_positions == len(accepted_requests):
+                    raise serializers.ValidationError(
+                        {"detail": "Cannot accept any more requests."}
+                    )
+                requests = instance.user.requests.all().exclude(pk=instance.id)
+                for req in requests:
+                    if self.overlappingRequests(instance, req):
+                        req.status = Request.UNAVAILABLE
+                        req.save()
+            elif old_status == Request.ACCEPTED and instance.status != Request.ACCEPTED:
+                requests = instance.user.requests.all().exclude(pk=instance.id)
+                for req in requests:
+                    if self.overlappingRequests(instance, req):
+                        req.status = Request.PENDING
+                        req.save()
 
-        instance.save()
+            instance.save()
 
-        send_update_mail(instance)
+            send_update_mail(instance)
 
-        return instance
+            return instance
+        except IntegrityError as ie:
+            raise serializers.ValidationError(
+                {"detail": "Duplicate requests not allowed."}
+            )
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise e
 
 
 class VolunteerCategorySerializer(serializers.ModelSerializer):
@@ -195,6 +219,9 @@ class VolunteerCategorySerializer(serializers.ModelSerializer):
             "number_of_positions",
             "number_of_open_positions",
         )
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
 
     def create(self, validated_data):
         category_type_validated_data = validated_data.pop("category_type")
