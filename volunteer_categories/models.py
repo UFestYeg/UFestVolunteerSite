@@ -78,7 +78,7 @@ class Role(models.Model):
     roles = models.Manager()
 
     def __str__(self):
-        return f"Role {self.title}: {self.number_of_positions}"
+        return f"Role {self.title}: {self.category.start_time} - {self.category.end_time} #{self.number_of_positions}"
 
     @property
     def number_of_open_positions(self):
