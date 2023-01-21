@@ -91,6 +91,17 @@ export type VolunteerActionType =
     | {
           type: actionTypes.GetVolunteerCategoriesOfTypeType;
           payload: IVolunteerCategory[];
+      }
+    | {
+          type: actionTypes.GetEventDatesStartType;
+      }
+    | {
+          type: actionTypes.GetEventDatesSuccessType;
+          payload: IEventDate[];
+      }
+    | {
+          type: actionTypes.GetEventDatesFailType;
+          error: string;
       };
 
 export interface State {
@@ -210,3 +221,9 @@ export type IRole = {
     number_of_slots: number;
     category: IVolunteerPosition;
 };
+
+export interface IEventDate {
+    pk: number;
+    event_date: string;
+    label: string;
+}

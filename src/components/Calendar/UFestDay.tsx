@@ -18,14 +18,11 @@ function mapStateToProps(state: State) {
     return { eventDates: volunteer.eventDates };
 }
 
-class UFestWeek extends React.Component<{
+class UFestDay extends React.Component<{
     date: Date;
     eventDates: IEventDate[];
 }> {
-    range = (date: Date) =>
-        Array.from(moment.range(date, moment(date).add(1, "d")).by("day")).map(
-            (m) => m.toDate()
-        );
+    range = (date: Date) => [date];
 
     static navigate = (date: Date, action: NavigateAction) => {
         switch (action) {
@@ -48,12 +45,7 @@ class UFestWeek extends React.Component<{
         }
     };
     static title = (date: Date, options: TitleOptions) => {
-        return `UFest Volunteer Schedule: ${date.toLocaleDateString()} to ${moment(
-            date
-        )
-            .add(1, "d")
-            .toDate()
-            .toLocaleDateString()}`;
+        return `UFest Volunteer Schedule: ${date.toLocaleDateString()}`;
     };
 
     render() {
@@ -73,10 +65,10 @@ class UFestWeek extends React.Component<{
             <TimeGrid
                 {...this.props}
                 range={range}
-                onNavigate={UFestWeek.navigate}
+                onNavigate={UFestDay.navigate}
             />
         );
     }
 }
 
-export default connect(mapStateToProps)(UFestWeek);
+export default connect(mapStateToProps)(UFestDay);

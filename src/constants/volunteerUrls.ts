@@ -14,6 +14,7 @@ const VolunteerUrls = {
     REQUESTS: `${ROOT_URL}api/requests/`,
     REQUESTS_DETAILS: (requestID: number) =>
         `${ROOT_URL}api/requests/${requestID}/`,
+    EVENT_DATES_LIST: `${ROOT_URL}api/eventdates/`,
 };
 
 export default VolunteerUrls;

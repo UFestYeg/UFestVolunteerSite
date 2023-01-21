@@ -86,7 +86,7 @@ interface IRenderRowProps {
 interface IEventCategory {
     event: any;
     selectedCategories: string[];
-    defaultDate: Date;
+    defaultDate: Date | null;
 }
 
 const useStyles = makeStyles((theme) =>

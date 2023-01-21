@@ -19,7 +19,9 @@ import { StateHooks } from "../../store/hooks";
 import { IUserRequest } from "../../store/types";
 import CalendarToolbar from "./CalendarToolbar";
 import { RequestEvent } from "./RequestEvent";
+import { getEarliestDate } from "../../utils";
 import UFestWeek from "./UFestWeek";
+import UFestDay from "./UFestDay";
 
 type UserRequestType = {
     id: number;
@@ -79,6 +81,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     const token = StateHooks.useToken();
+    const eventDates = StateHooks.useEventDates();
 
     const customRequestStyle: EventPropGetter<UserRequestType> = (
         event: UserRequestType,
@@ -108,6 +111,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
+            dispatch(volunteerActions.getEventDates(cookies.csrftoken));
 
             const mappedRequests = requests.map((r) => {
                 return {
@@ -125,6 +129,10 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
 
     const localizer = momentLocalizer(moment);
 
+    const earliest = getEarliestDate(eventDates) ?? new Date();
+    console.log(`event dates ${eventDates}`);
+
+    console.log(`Earliest date ${earliest}`);
     return (
         <Container maxWidth="lg">
             <Calendar
@@ -134,8 +142,8 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                 endAccessor="end_time"
                 style={{ height: 600 }}
                 defaultView="day"
-                defaultDate={new Date(2022, 4, 25)}
-                views={{ day: true, week: UFestWeek }}
+                defaultDate={earliest}
+                views={{ day: UFestDay, week: UFestWeek }}
                 components={{
                     event: RequestEvent,
                     toolbar: (props: ToolbarProps) => (
