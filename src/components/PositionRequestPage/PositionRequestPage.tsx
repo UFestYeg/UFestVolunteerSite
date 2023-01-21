@@ -129,22 +129,33 @@ const PositionRequestPage: React.FC = () => {
 
             axios
                 .get(
-                    VolunteerUrls.CATEGORIES_WITH_ROLE_LIST(
-                        categoryTypeID,
-                        roleID
-                    )
+                    roleID != undefined
+                        ? VolunteerUrls.CATEGORIES_WITH_ROLE_LIST(
+                              categoryTypeID,
+                              roleID
+                          )
+                        : VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID)
                 )
                 .then((res) => {
                     const data = res.data;
-                    const category = data.pop();
-                    setCategory(category.role_title);
+                    if (roleID != undefined) {
+                        const category = data.pop();
+                        setCategory(category.role_title);
 
-                    const mappedData = data.map((d: any) => {
-                        d.start_time = new Date(d.start_time);
-                        d.end_time = new Date(d.end_time);
-                        return d;
-                    });
-                    setList(mappedData);
+                        const mappedData = data.map((d: any) => {
+                            d.start_time = new Date(d.start_time);
+                            d.end_time = new Date(d.end_time);
+                            return d;
+                        });
+                        setList(mappedData);
+                    } else {
+                        const mappedData = data[0].roles.map((d: any) => {
+                            d.start_time = new Date(d.category.start_time);
+                            d.end_time = new Date(d.category.end_time);
+                            return d;
+                        });
+                        setList(mappedData);
+                    }
                 })
                 .catch((err) => console.error(err));
         }
@@ -165,8 +176,11 @@ const PositionRequestPage: React.FC = () => {
             null
         );
 
-        const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-            setAnchorEl(event.currentTarget);
+        const handleClick = (clickEvent: React.MouseEvent<HTMLDivElement>) => {
+            setAnchorEl(clickEvent.currentTarget);
+            if (roleID == undefined) {
+                setCategory(event.title);
+            }
         };
 
         const handleClose = () => {
@@ -238,9 +252,15 @@ const PositionRequestPage: React.FC = () => {
 
         const open = Boolean(anchorEl);
         const id = open ? "simple-popover" : undefined;
-        const selectedRole = event.roles.find(
-            (r: any) => r.title.toLowerCase() === currentCategory.toLowerCase()
-        );
+        const selectedRole =
+            roleID != undefined
+                ? event.roles.find(
+                      (r: any) =>
+                          r.title.toLowerCase() ===
+                          currentCategory.toLowerCase()
+                  )
+                : event;
+
         const noPositionsLeft =
             selectedRole === undefined ||
             selectedRole?.number_of_open_positions === 0;
@@ -287,8 +307,8 @@ const PositionRequestPage: React.FC = () => {
                             <List dense>
                                 <ListItem>
                                     category:{" "}
-                                    {event.category_type
-                                        ? event.category_type.tag
+                                    {selectedRole.category
+                                        ? selectedRole.category.title
                                         : ""}
                                 </ListItem>
                                 <ListItem>
@@ -334,14 +354,14 @@ const PositionRequestPage: React.FC = () => {
     const localizer = momentLocalizer(moment);
 
     return (
-        <Container maxWidth="lg">
+        <Container>
             <Calendar
                 localizer={localizer}
                 events={currentList}
                 startAccessor="start_time"
                 endAccessor="end_time"
                 style={{ height: 600 }}
-                defaultView="week"
+                defaultView={roleID != undefined ? "week" : "day"}
                 defaultDate={earliest ?? new Date()}
                 views={{ day: UFestDay, week: UFestWeek }}
                 components={{

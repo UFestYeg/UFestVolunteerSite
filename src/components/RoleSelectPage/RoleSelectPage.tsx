@@ -1,10 +1,14 @@
 // tslint:disable: use-simple-attributes
 import {
     Divider,
+    FormControl,
     Grid,
+    InputLabel,
     List,
     ListItem,
     ListItemText,
+    MenuItem,
+    Select,
     Typography,
 } from "@material-ui/core";
 // tslint:disable-next-line: no-submodule-imports
@@ -15,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { PositionRequestPage } from "../PositionRequestPage";
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -74,6 +79,9 @@ const useStyles = makeStyles((theme) =>
             marginRight: 8,
             padding: "2%",
         },
+        calendarContainer: {
+            width: "-webkit-fill-available",
+        },
     })
 );
 
@@ -84,6 +92,7 @@ const RoleSelectPage: React.FC = () => {
     const { url } = useRouteMatch();
     const { categoryTypeID } = useParams();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
+    const [view, setView] = React.useState("list");
     const volunteerCategories = StateHooks.useVolunteerCategories();
     const roles = volunteerCategories.map((category, idx, _arr) => {
         return category.roles;
@@ -113,6 +122,10 @@ const RoleSelectPage: React.FC = () => {
             )
         );
     }, [cookies.csrftoken, dispatch, categoryTypeID]);
+
+    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setView(event.target.value as string);
+    };
 
     const ListItems = () => {
         const flatRoles = Object.values(combinedRoles);
@@ -202,10 +215,29 @@ const RoleSelectPage: React.FC = () => {
         >
             <Grid item>
                 <Typography variant="h2">Request to Volunteer</Typography>
+                <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">View</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={view}
+                        label="View"
+                        onChange={handleChange}
+                    >
+                        <MenuItem value={"list"}>List View</MenuItem>
+                        <MenuItem value={"calendar"}>Calendar View</MenuItem>
+                    </Select>
+                </FormControl>
             </Grid>
-            <Grid item>
-                <List className={classes.list}>{ListItems()}</List>
-            </Grid>
+            {view == "calendar" ? (
+                <Grid item className={classes.calendarContainer}>
+                    <PositionRequestPage />
+                </Grid>
+            ) : (
+                <Grid item>
+                    <List className={classes.list}>{ListItems()}</List>
+                </Grid>
+            )}
         </Grid>
     );
 };
