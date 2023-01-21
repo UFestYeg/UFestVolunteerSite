@@ -7,6 +7,7 @@ from .views import (
     CategoryOfTypeViewSet,
     CategoriesWithRolesViewSet,
     RoleViewSet,
+    EventDateViewSet,
 )
 
 # Create a router and register our viewsets with it.
@@ -15,6 +16,7 @@ router.register(r"positions", VolunteerCategoryViewSet, basename="volunteerCateg
 router.register(r"roles", RoleViewSet, basename="role")
 router.register(r"requests", RequestViewSet, basename="request")
 router.register(r"categories", CategoryTypeViewSet, basename="category")
+router.register(r"eventdates", EventDateViewSet, basename="eventDate")
 router.register(
     r"positions/category", CategoryOfTypeViewSet, basename="positionCategory"
 )
