@@ -5,6 +5,7 @@ import { EventCategoryType } from "../../components/Calendar/EventCategory";
 import { UserUrls, VolunteerUrls } from "../../constants";
 import history from "../../history";
 import {
+    IEventDate,
     IVolunteerCategory,
     IVolunteerCategoryType,
     VolunteerActionType as ActionType,
@@ -28,6 +29,26 @@ export const setVolunteerCategoriesOfType = (
     return {
         payload,
         type: ActionTypes.GET_VOLUNTEER_CATEGORY_OF_TYPE,
+    };
+};
+
+export const getEventDatesStart = (): ActionType => {
+    return {
+        type: ActionTypes.GET_EVENT_DATES_START,
+    };
+};
+
+export const getEventDatesSuccess = (payload: IEventDate[]): ActionType => {
+    return {
+        payload,
+        type: ActionTypes.GET_EVENT_DATES_SUCCESS,
+    };
+};
+
+export const getEventDatesFail = (error: any): ActionType => {
+    return {
+        error,
+        type: ActionTypes.GET_EVENT_DATES_FAIL,
     };
 };
 
@@ -261,6 +282,52 @@ export const getVolunteerCategoryOfType = (
                 });
         } else {
             console.log("Unable to get category without token");
+        }
+    };
+};
+
+export const getEventDates = (cookies: any) => {
+    const token = localStorage.getItem("token");
+    return (dispatch: DispatchType) => {
+        if (token) {
+            dispatch(getEventDatesStart());
+            axios.defaults.headers = {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
+            };
+            axios
+                .get(VolunteerUrls.EVENT_DATES_LIST)
+                .then((response) => {
+                    console.log(response.data);
+                    dispatch(getEventDatesSuccess(response.data));
+                })
+                .catch((error) => {
+                    // If request is bad...
+                    // Show an error to the user
+                    // TODO: send notification and redirect
+                    if (error.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.error("Error");
+                        console.log(error.response.data);
+                        console.log(error.response.status);
+                        console.log(error.response.headers);
+                    } else if (error.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log("Error", error.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log("Error", error.message);
+                    }
+                    console.log(error.config);
+                    console.error(error);
+                    dispatch(getEventDatesSuccess(error));
+                });
+        } else {
+            console.log("Unable to get eventdates without token");
         }
     };
 };

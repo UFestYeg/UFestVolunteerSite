@@ -5,9 +5,12 @@ import { Container } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
-import { compareArrays } from "../../utils";
+import { compareArrays, getEarliestDate } from "../../utils";
+import { useDispatch } from "react-redux";
+import { volunteer as volunteerActions } from "../../store/actions";
 import EventsCategoryView from "./EventsCategoryView";
 import EventsDetailView from "./EventsDetailView";
+import { useCookies } from "react-cookie";
 
 export type VolunteerCategoryType = {
     id: number;
@@ -31,6 +34,11 @@ interface ILocationState {
 
 const EventsCalendar: React.FC = () => {
     const { state } = useLocation<ILocationState>();
+    const [cookies, _setCookie] = useCookies(["csrftoken"]);
+    const dispatch = useDispatch();
+    const eventDates = StateHooks.useEventDates();
+    const earliest = getEarliestDate(eventDates);
+    console.log(`earliest ${earliest}`);
 
     const defaultIsCategoryView =
         state && state.oldCategoryView !== undefined
@@ -42,10 +50,10 @@ const EventsCalendar: React.FC = () => {
     );
 
     const defaultDefaultDate =
-        state && state.oldDefaultDate !== undefined
-            ? state.oldDefaultDate
-            : new Date(2022, 4, 25);
-    const [defaultDate, setDefaultDate] = useState<Date>(defaultDefaultDate);
+        state && state.oldDefaultDate ? state.oldDefaultDate : earliest;
+    const [defaultDate, setDefaultDate] = useState<Date | null>(
+        defaultDefaultDate
+    );
 
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeTags = volunteerCategories.map(
@@ -75,6 +83,14 @@ const EventsCalendar: React.FC = () => {
             setSelectAll(false);
         }
     }, [selectedCategories, volunteerCategoryTypeTags]);
+
+    useEffect(() => {
+        dispatch(volunteerActions.getEventDates(cookies.csrftoken));
+    }, [dispatch]);
+
+    if (!defaultDate && earliest) {
+        setDefaultDate(earliest);
+    }
 
     return (
         <Container maxWidth="lg">

@@ -6,6 +6,7 @@ import { actionTypes } from "../actions";
 import {
     DefaultVolunteerCategory,
     DefaultVolunteerCategoryType,
+    IEventDate,
     IVolunteerCategory,
     IVolunteerCategoryType,
 } from "../types";
@@ -15,6 +16,7 @@ export interface IVolunteerState {
     categoryTypes: IVolunteerCategoryType[];
     categories: IVolunteerCategory[];
     mappedRoles: EventCategoryType[];
+    eventDates: IEventDate[];
     error: any | null;
     loading: boolean;
 }
@@ -23,6 +25,7 @@ const initialState: IVolunteerState = {
     categories: [DefaultVolunteerCategory],
     categoryTypes: [DefaultVolunteerCategoryType],
     mappedRoles: [defaultEventCategory],
+    eventDates: [],
     loading: false,
     error: null,
 };
@@ -149,6 +152,28 @@ const getVolunteerCategoriesOfType = (state: IVolunteerState, action: any) => {
     });
 };
 
+const getEventDatesStart = (state: IVolunteerState, action: any) => {
+    return updateObject(state, {
+        error: null,
+        loading: true,
+    });
+};
+
+const getEventDatesSuccess = (state: IVolunteerState, action: any) => {
+    return updateObject(state, {
+        eventDates: action.payload,
+        error: null,
+        loading: false,
+    });
+};
+
+const getEventDatesFail = (state: IVolunteerState, action: any) => {
+    return updateObject(state, {
+        error: action.error,
+        loading: false,
+    });
+};
+
 export const reducer = (state = initialState, action: any) => {
     switch (action.type) {
         case actionTypes.GET_VOLUNTEER_CATEGORY_TYPES:
@@ -185,6 +210,12 @@ export const reducer = (state = initialState, action: any) => {
             return changeRequestRoleFail(state, action);
         case actionTypes.GET_VOLUNTEER_CATEGORY_OF_TYPE:
             return getVolunteerCategoriesOfType(state, action);
+        case actionTypes.GET_EVENT_DATES_START:
+            return getEventDatesStart(state, action);
+        case actionTypes.GET_EVENT_DATES_SUCCESS:
+            return getEventDatesSuccess(state, action);
+        case actionTypes.GET_EVENT_DATES_FAIL:
+            return getEventDatesFail(state, action);
         default:
             return state;
     }

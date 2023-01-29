@@ -1,9 +1,10 @@
-from ..models import VolunteerCategory, Request, CategoryType, Role
+from ..models import VolunteerCategory, Request, CategoryType, Role, EventDate
 from .serializers import (
     VolunteerCategorySerializer,
     RequestSerializer,
     CategoryTypeSerializer,
     RoleSerializer,
+    EventDateSerializer,
 )
 from .permissions import IsAdminOrAuthenticatedReadOnly
 
@@ -30,6 +31,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `detail`, `create`, `update` and `delete` actions.
     """
+
     def overlappingRequests(self, request1, request2):
         event1 = request1.role.category
         event2 = request2.role.category
@@ -144,3 +146,12 @@ class CategoriesWithRolesViewSet(viewsets.ViewSet):
         # print(role_dict)
         role_dict.append({"role_title": role.title})
         return Response(role_dict)
+
+
+class EventDateViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list`, `detail` actions.
+    """
+
+    queryset = EventDate.dates.all()
+    serializer_class = EventDateSerializer

@@ -28,13 +28,14 @@ import {
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
 import { Notification } from "react-notification-system";
-import { error } from "react-notification-system-redux";
+import { error, success } from "react-notification-system-redux";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
-import { CalendarToolbar, UFestWeek } from "../Calendar";
+import { getEarliestDate } from "../../utils";
+import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
 
 type ScheduleEventType = {
     id: number;
@@ -111,12 +112,15 @@ const PositionRequestPage: React.FC = () => {
     const [currentCategory, setCategory] = useState<string>("");
 
     const token = StateHooks.useToken();
+    const eventDates = StateHooks.useEventDates();
+    const earliest = getEarliestDate(eventDates);
 
     useEffect(() => {
         if (token) {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
+            dispatch(volunteerActions.getEventDates(cookies.csrftoken));
             axios.defaults.headers = {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json",
@@ -178,10 +182,17 @@ const PositionRequestPage: React.FC = () => {
                 })
                 .then((res) => {
                     console.log(res);
-                    history.push("/volunteer/profile/edit", {
+                    history.push("/volunteer", {
                         fromRequestPage: true,
                         title: role.title,
                     });
+                    const notificationOpts: Notification = {
+                        title: "Success!",
+                        message: `Request submitted for ${role.title}`,
+                        position: "tr",
+                        autoDismiss: 5,
+                    };
+                    dispatch(success(notificationOpts));
                 })
                 .catch((err) => {
                     let errDetail = "Please try again.";
@@ -230,6 +241,9 @@ const PositionRequestPage: React.FC = () => {
         const selectedRole = event.roles.find(
             (r: any) => r.title.toLowerCase() === currentCategory.toLowerCase()
         );
+        const noPositionsLeft =
+            selectedRole === undefined ||
+            selectedRole?.number_of_open_positions === 0;
         return (
             <>
                 <Container onClick={handleClick} className={classes.eventRoot}>
@@ -297,8 +311,11 @@ const PositionRequestPage: React.FC = () => {
                                 <Button
                                     aria-label="add to favorites"
                                     onClick={handleSubmitClick}
+                                    disabled={noPositionsLeft}
                                 >
-                                    Submit
+                                    {noPositionsLeft
+                                        ? "No positions left"
+                                        : "Submit"}
                                 </Button>
                                 <Button
                                     aria-label="share"
@@ -325,8 +342,8 @@ const PositionRequestPage: React.FC = () => {
                 endAccessor="end_time"
                 style={{ height: 600 }}
                 defaultView="week"
-                defaultDate={new Date(2022, 4, 25)}
-                views={{ day: true, week: UFestWeek }}
+                defaultDate={earliest ?? new Date()}
+                views={{ day: UFestDay, week: UFestWeek }}
                 components={{
                     event: Event,
                     toolbar: (props: ToolbarProps) => (

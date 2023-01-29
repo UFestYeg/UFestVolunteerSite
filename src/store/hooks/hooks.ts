@@ -60,3 +60,7 @@ export const useVolunteerInfo = () => {
 export const useNotifications = () => {
     return useSelector((state: State) => state.notifications);
 };
+
+export const useEventDates = () => {
+    return useSelector((state: State) => state.volunteer.eventDates);
+};

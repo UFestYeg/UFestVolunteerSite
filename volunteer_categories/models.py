@@ -113,3 +113,16 @@ class Request(models.Model):
 
     def __str__(self):
         return f"{self.role.category.title}-{self.role.title}: {self.status}"
+
+
+class EventDate(models.Model):
+    event_date = models.DateTimeField()
+
+    dates = models.Manager()
+
+    @property
+    def label(self):
+        return self.event_date.strftime("%A")
+
+    def __str__(self):
+        return f"Event Date: {self.event_date} - {self.label}"

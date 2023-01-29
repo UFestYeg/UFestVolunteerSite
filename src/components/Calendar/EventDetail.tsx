@@ -8,7 +8,7 @@ interface IEventDetails {
     event: VolunteerCategoryType;
     setCategoryView: React.Dispatch<React.SetStateAction<boolean>>;
     setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
-    setDefaultDate: React.Dispatch<React.SetStateAction<Date>>;
+    setDefaultDate: React.Dispatch<React.SetStateAction<Date | null>>;
 }
 
 const useStyles = makeStyles((theme) =>

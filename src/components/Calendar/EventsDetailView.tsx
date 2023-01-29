@@ -38,6 +38,7 @@ import { CustomForm } from "../Form";
 import { Loading } from "../Loading";
 import CalendarToolbar from "./CalendarToolbar";
 import EventDetail from "./EventDetail";
+import UFestDay from "./UFestDay";
 import UFestWeek from "./UFestWeek";
 
 export type VolunteerCategoryType = {
@@ -70,8 +71,8 @@ interface IEventsDetailView {
     setCategoryView: React.Dispatch<React.SetStateAction<boolean>>;
     selectedCategories: string[];
     setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
-    defaultDate: Date;
-    setDefaultDate: React.Dispatch<React.SetStateAction<Date>>;
+    defaultDate: Date | null;
+    setDefaultDate: React.Dispatch<React.SetStateAction<Date | null>>;
     selectAll: boolean;
     setSelectAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -88,7 +89,6 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     );
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
-
     const token = StateHooks.useToken();
     const [volunteerCategories, loading, error] = StateHooks.useVolunteerInfo();
     const volunteerCategoryTypes = StateHooks.useVolunteerCategoryTypes();
@@ -264,8 +264,8 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                         endAccessor="end_time"
                         style={{ height: 600 }}
                         defaultView="day"
-                        defaultDate={props.defaultDate}
-                        views={{ day: true, week: UFestWeek }}
+                        defaultDate={props.defaultDate ?? new Date()}
+                        views={{ day: UFestDay, week: UFestWeek }}
                         components={{
                             event: WrappedEventDetail,
                             toolbar: (tbarProps: ToolbarProps) => (

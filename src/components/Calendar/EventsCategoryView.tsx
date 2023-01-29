@@ -35,6 +35,7 @@ import { CustomForm } from "../Form";
 import { Loading } from "../Loading";
 import CalendarToolbar from "./CalendarToolbar";
 import EventCategory, { EventCategoryType } from "./EventCategory";
+import UFestDay from "./UFestDay";
 import UFestWeek from "./UFestWeek";
 
 type DragAndDropData = {
@@ -48,8 +49,8 @@ interface IEventsCategoryView {
     setCategoryView: React.Dispatch<React.SetStateAction<boolean>>;
     selectedCategories: string[];
     setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
-    defaultDate: Date;
-    setDefaultDate: React.Dispatch<React.SetStateAction<Date>>;
+    defaultDate: Date | null;
+    setDefaultDate: React.Dispatch<React.SetStateAction<Date | null>>;
     selectAll: boolean;
     setSelectAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -225,8 +226,8 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                         }
                         style={{ height: 600 }}
                         defaultView="day"
-                        defaultDate={props.defaultDate}
-                        views={{ day: true, week: UFestWeek }}
+                        defaultDate={props.defaultDate ?? new Date()}
+                        views={{ day: UFestDay, week: UFestWeek }}
                         components={{
                             event: WrappedEventCategory,
                             toolbar: (tbarProps: ToolbarProps) => (

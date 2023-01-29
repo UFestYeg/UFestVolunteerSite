@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from volunteer_categories.models import VolunteerCategory, Request, Role, CategoryType
+from volunteer_categories.models import (
+    VolunteerCategory,
+    Request,
+    Role,
+    CategoryType,
+    EventDate,
+)
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import User
 from backend import settings
@@ -252,3 +258,13 @@ class VolunteerCategorySerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class EventDateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventDate
+        fields = ("id", "event_date", "label")
+        depth = 1
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
