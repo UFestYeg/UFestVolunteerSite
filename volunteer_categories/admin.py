@@ -39,12 +39,15 @@ DEFAULT_DATES = [
     date_and_name(datetime_five),
 ]
 # not eorking
-def date_choies():
-    return (
-        list(map(tuple_to_date_and_name, EventDate.dates.values_list()))
-        if EventDate.dates.exists()
-        else DEFAULT_DATES
-    )
+def date_choices():
+    try:
+        return (
+            list(map(tuple_to_date_and_name, EventDate.dates.values_list()))
+            if EventDate.dates.exists()
+            else DEFAULT_DATES
+        )
+    except:
+        return DEFAULT_DATES
 
 
 def datetime_range(start, end, delta):
@@ -55,7 +58,7 @@ def datetime_range(start, end, delta):
 
 
 class DailyCheckinForm(forms.Form):
-    selected_date = forms.ChoiceField(choices=date_choies())
+    selected_date = forms.ChoiceField(choices=date_choices())
 
 
 # Register your models here.
@@ -297,7 +300,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
         response["Content-Disposition"] = "attachment; filename=master-schedule.csv"
         writer = csv.writer(response)
 
-        for event_tuple in date_choies():
+        for event_tuple in date_choices():
             date, label = event_tuple
             date_roles = filter_roles_for_day(date.year, date.month, date.day)
 
