@@ -23,8 +23,31 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAdminOrAuthenticatedReadOnly]
 
-    queryset = VolunteerCategory.categories.all()
     serializer_class = VolunteerCategorySerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned categories to a given user,
+        by filtering against a `date` query parameter in the URL.
+        """
+        queryset = VolunteerCategory.categories.all()
+        use_event_dates = self.request.query_params.get("use_event_dates")
+        try:
+            if (
+                use_event_dates
+                and use_event_dates.lower() == "true"
+                and EventDate.dates.exists()
+            ):
+                start_date = EventDate.dates.earliest("event_date").event_date.strftime(
+                    "%Y-%m-%d"
+                )
+                end_date = EventDate.dates.latest("event_date").event_date.strftime(
+                    "%Y-%m-%d"
+                )
+                queryset = queryset.filter(start_time__range=[start_date, end_date])
+        except Exception as e:
+            print(f"Issue {e}")
+        return queryset
 
 
 class RequestViewSet(viewsets.ModelViewSet):
@@ -120,7 +143,25 @@ class CategoryOfTypeViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminOrAuthenticatedReadOnly]
 
     def retrieve(self, request, pk=None):
-        queryset = VolunteerCategory.categories.filter(category_type__pk__iexact=pk)
+        use_event_dates = request.query_params.get("use_event_dates")
+
+        if (
+            use_event_dates
+            and use_event_dates.lower() == "true"
+            and EventDate.dates.exists()
+        ):
+            start_date = EventDate.dates.earliest("event_date").event_date.strftime(
+                "%Y-%m-%d"
+            )
+            end_date = EventDate.dates.latest("event_date").event_date.strftime(
+                "%Y-%m-%d"
+            )
+            queryset = VolunteerCategory.categories.filter(
+                category_type__pk__iexact=pk
+            ).filter(start_time__range=[start_date, end_date])
+        else:
+            queryset = VolunteerCategory.categories.filter(category_type__pk__iexact=pk)
+
         serializer = VolunteerCategorySerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -140,7 +181,27 @@ class CategoriesWithRolesViewSet(viewsets.ViewSet):
     )
     def get_with_roleid(self, request, pk=None, rid=None):
         role = Role.roles.get(pk=rid)
-        queryset = VolunteerCategory.categories.filter(roles__title__iexact=role.title)
+        use_event_dates = request.query_params.get("use_event_dates")
+
+        if (
+            use_event_dates
+            and use_event_dates.lower() == "true"
+            and EventDate.dates.exists()
+        ):
+            start_date = EventDate.dates.earliest("event_date").event_date.strftime(
+                "%Y-%m-%d"
+            )
+            end_date = EventDate.dates.latest("event_date").event_date.strftime(
+                "%Y-%m-%d"
+            )
+            queryset = VolunteerCategory.categories.filter(
+                roles__title__iexact=role.title
+            ).filter(start_time__range=[start_date, end_date])
+        else:
+            queryset = VolunteerCategory.categories.filter(
+                roles__title__iexact=role.title
+            )
+
         serializer = VolunteerCategorySerializer(queryset, many=True)
         role_dict = serializer.data
         # print(role_dict)

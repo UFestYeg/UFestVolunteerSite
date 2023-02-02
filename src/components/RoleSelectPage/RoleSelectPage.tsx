@@ -216,10 +216,12 @@ const RoleSelectPage: React.FC = () => {
             <Grid item>
                 <Typography variant="h2">Request to Volunteer</Typography>
                 <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">View</InputLabel>
+                    <InputLabel id="volunter-view-select-label">
+                        View
+                    </InputLabel>
                     <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
+                        labelId="volunter-view-select-label"
+                        id="volunter-view-select"
                         value={view}
                         label="View"
                         onChange={handleChange}
@@ -229,7 +231,7 @@ const RoleSelectPage: React.FC = () => {
                     </Select>
                 </FormControl>
             </Grid>
-            {view == "calendar" ? (
+            {view === "calendar" ? (
                 <Grid item className={classes.calendarContainer}>
                     <PositionRequestPage />
                 </Grid>

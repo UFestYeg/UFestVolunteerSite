@@ -62,7 +62,7 @@ class UFestWeek extends React.Component<{
 
         const earliest = getEarliestDate(eventDates);
         const latest = getLatestDate(eventDates);
-        console.log(`UFEST WEEK${eventDates} ${earliest} ${latest}`);
+
         if (earliest) {
             UFEST_VOLUNTEERING_START_DATE = earliest;
         }

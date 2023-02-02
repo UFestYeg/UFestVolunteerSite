@@ -36,6 +36,7 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { getEarliestDate } from "../../utils";
 import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
+import { Loading } from "../Loading";
 
 type ScheduleEventType = {
     id: number;
@@ -106,6 +107,7 @@ const PositionRequestPage: React.FC = () => {
     const dispatch = useDispatch();
     const history = useHistory();
     const { categoryTypeID, roleID } = useParams();
+    const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
     const userProfile = StateHooks.useUserProfile();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
@@ -114,6 +116,7 @@ const PositionRequestPage: React.FC = () => {
     const token = StateHooks.useToken();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
+    console.log(`early ${earliest}`);
 
     useEffect(() => {
         if (token) {
@@ -138,24 +141,33 @@ const PositionRequestPage: React.FC = () => {
                 )
                 .then((res) => {
                     const data = res.data;
+
+                    let mappedData;
                     if (roleID != undefined) {
                         const category = data.pop();
                         setCategory(category.role_title);
-
-                        const mappedData = data.map((d: any) => {
+                        mappedData = data.map((d: any) => {
                             d.start_time = new Date(d.start_time);
                             d.end_time = new Date(d.end_time);
                             return d;
                         });
-                        setList(mappedData);
                     } else {
-                        const mappedData = data[0].roles.map((d: any) => {
-                            d.start_time = new Date(d.category.start_time);
-                            d.end_time = new Date(d.category.end_time);
-                            return d;
-                        });
-                        setList(mappedData);
+                        mappedData = data.reduce(
+                            (accum: any, d: any) =>
+                                accum.concat(
+                                    ...d.roles.map((r: any) => {
+                                        r.role = JSON.parse(JSON.stringify(r));
+                                        r.title = d.title;
+                                        r.start_time = new Date(d.start_time);
+                                        r.end_time = new Date(d.end_time);
+                                        return r;
+                                    })
+                                ),
+                            []
+                        );
                     }
+                    console.log(`mappedData ${mappedData}`);
+                    setList(mappedData);
                 })
                 .catch((err) => console.error(err));
         }
@@ -178,9 +190,6 @@ const PositionRequestPage: React.FC = () => {
 
         const handleClick = (clickEvent: React.MouseEvent<HTMLDivElement>) => {
             setAnchorEl(clickEvent.currentTarget);
-            if (roleID == undefined) {
-                setCategory(event.title);
-            }
         };
 
         const handleClose = () => {
@@ -259,11 +268,15 @@ const PositionRequestPage: React.FC = () => {
                           r.title.toLowerCase() ===
                           currentCategory.toLowerCase()
                   )
-                : event;
+                : event.role;
 
         const noPositionsLeft =
             selectedRole === undefined ||
             selectedRole?.number_of_open_positions === 0;
+
+        if (roleID == undefined) {
+            setCategory(event.role.title);
+        }
         return (
             <>
                 <Container onClick={handleClick} className={classes.eventRoot}>
@@ -355,31 +368,35 @@ const PositionRequestPage: React.FC = () => {
 
     return (
         <Container>
-            <Calendar
-                localizer={localizer}
-                events={currentList}
-                startAccessor="start_time"
-                endAccessor="end_time"
-                style={{ height: 600 }}
-                defaultView={roleID != undefined ? "week" : "day"}
-                defaultDate={earliest ?? new Date()}
-                views={{ day: UFestDay, week: UFestWeek }}
-                components={{
-                    event: Event,
-                    toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar
-                            {...props}
-                            addButton={false}
-                            categoryView={false}
-                            filter={false}
-                        />
-                    ),
-                }}
-                selectable
-                popup={true}
-                scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
-                eventPropGetter={customEventStyle}
-            />
+            {loading ? (
+                <Loading />
+            ) : (
+                <Calendar
+                    localizer={localizer}
+                    events={currentList}
+                    startAccessor="start_time"
+                    endAccessor="end_time"
+                    style={{ height: 600 }}
+                    defaultView={roleID != undefined ? "week" : "day"}
+                    defaultDate={earliest ?? new Date()}
+                    views={{ day: UFestDay, week: UFestWeek }}
+                    components={{
+                        event: Event,
+                        toolbar: (props: ToolbarProps) => (
+                            <CalendarToolbar
+                                {...props}
+                                addButton={false}
+                                categoryView={false}
+                                filter={false}
+                            />
+                        ),
+                    }}
+                    selectable
+                    popup={true}
+                    scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
+                    eventPropGetter={customEventStyle}
+                />
+            )}
         </Container>
     );
 };
