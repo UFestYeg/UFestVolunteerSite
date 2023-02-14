@@ -36,6 +36,7 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { getEarliestDate } from "../../utils";
 import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
+import { Loading } from "../Loading";
 
 type ScheduleEventType = {
     id: number;
@@ -106,14 +107,15 @@ const PositionRequestPage: React.FC = () => {
     const dispatch = useDispatch();
     const history = useHistory();
     const { categoryTypeID, roleID } = useParams();
+    const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
     const userProfile = StateHooks.useUserProfile();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
-    const [currentCategory, setCategory] = useState<string>("");
 
     const token = StateHooks.useToken();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
+    console.log(`early ${earliest}`);
 
     useEffect(() => {
         if (token) {
@@ -129,21 +131,49 @@ const PositionRequestPage: React.FC = () => {
 
             axios
                 .get(
-                    VolunteerUrls.CATEGORIES_WITH_ROLE_LIST(
-                        categoryTypeID,
-                        roleID
-                    )
+                    roleID != undefined
+                        ? VolunteerUrls.CATEGORIES_WITH_ROLE_LIST(
+                              categoryTypeID,
+                              roleID
+                          )
+                        : VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID)
                 )
                 .then((res) => {
                     const data = res.data;
-                    const category = data.pop();
-                    setCategory(category.role_title);
 
-                    const mappedData = data.map((d: any) => {
-                        d.start_time = new Date(d.start_time);
-                        d.end_time = new Date(d.end_time);
-                        return d;
-                    });
+                    let mappedData;
+                    if (roleID != undefined) {
+                        const category = data.pop();
+                        // In this case we only look at one of the event roles that matches the name received from the badckend
+                        mappedData = data.map((d: any) => {
+                            const role = d.roles.find(
+                                (r: any) =>
+                                    r.title.toLowerCase() ===
+                                    category.role_title.toLowerCase()
+                            );
+                            d.role = JSON.parse(JSON.stringify(role));
+                            d.start_time = new Date(d.start_time);
+                            d.end_time = new Date(d.end_time);
+                            return d;
+                        });
+                    } else {
+                        // In this case we look at tall the roles under an event
+                        mappedData = data.reduce(
+                            (accum: any, d: any) =>
+                                accum.concat(
+                                    ...d.roles.map((r: any) => {
+                                        r.role = JSON.parse(JSON.stringify(r));
+                                        r.title = d.title;
+                                        r.start_time = new Date(d.start_time);
+                                        r.end_time = new Date(d.end_time);
+                                        return r;
+                                    })
+                                ),
+                            []
+                        );
+                    }
+                    console.log("mappedData");
+                    console.log(mappedData);
                     setList(mappedData);
                 })
                 .catch((err) => console.error(err));
@@ -238,17 +268,17 @@ const PositionRequestPage: React.FC = () => {
 
         const open = Boolean(anchorEl);
         const id = open ? "simple-popover" : undefined;
-        const selectedRole = event.roles.find(
-            (r: any) => r.title.toLowerCase() === currentCategory.toLowerCase()
-        );
+        const selectedRole = event.role;
+
         const noPositionsLeft =
             selectedRole === undefined ||
             selectedRole?.number_of_open_positions === 0;
+
         return (
             <>
                 <Container onClick={handleClick} className={classes.eventRoot}>
                     {errorMessage}
-                    <strong>{event.title}</strong> : {currentCategory}
+                    <strong>{event.title}</strong> : {event.role.title}
                     <br />
                     Available Positions:{" "}
                     {selectedRole?.number_of_positions != null &&
@@ -287,8 +317,8 @@ const PositionRequestPage: React.FC = () => {
                             <List dense>
                                 <ListItem>
                                     category:{" "}
-                                    {event.category_type
-                                        ? event.category_type.tag
+                                    {selectedRole.category
+                                        ? selectedRole.category.title
                                         : ""}
                                 </ListItem>
                                 <ListItem>
@@ -334,32 +364,36 @@ const PositionRequestPage: React.FC = () => {
     const localizer = momentLocalizer(moment);
 
     return (
-        <Container maxWidth="lg">
-            <Calendar
-                localizer={localizer}
-                events={currentList}
-                startAccessor="start_time"
-                endAccessor="end_time"
-                style={{ height: 600 }}
-                defaultView="week"
-                defaultDate={earliest ?? new Date()}
-                views={{ day: UFestDay, week: UFestWeek }}
-                components={{
-                    event: Event,
-                    toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar
-                            {...props}
-                            addButton={false}
-                            categoryView={false}
-                            filter={false}
-                        />
-                    ),
-                }}
-                selectable
-                popup={true}
-                scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
-                eventPropGetter={customEventStyle}
-            />
+        <Container>
+            {loading ? (
+                <Loading />
+            ) : (
+                <Calendar
+                    localizer={localizer}
+                    events={currentList}
+                    startAccessor="start_time"
+                    endAccessor="end_time"
+                    style={{ height: 600 }}
+                    defaultView={roleID != undefined ? "week" : "day"}
+                    defaultDate={earliest ?? new Date()}
+                    views={{ day: UFestDay, week: UFestWeek }}
+                    components={{
+                        event: Event,
+                        toolbar: (props: ToolbarProps) => (
+                            <CalendarToolbar
+                                {...props}
+                                addButton={false}
+                                categoryView={false}
+                                filter={false}
+                            />
+                        ),
+                    }}
+                    selectable
+                    popup={true}
+                    scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
+                    eventPropGetter={customEventStyle}
+                />
+            )}
         </Container>
     );
 };

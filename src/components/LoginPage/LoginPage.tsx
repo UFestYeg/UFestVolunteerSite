@@ -105,9 +105,10 @@ const SignIn: React.FC = () => {
             {isAuthenticated ? (
                 <Redirect
                     to={{
-                        pathname: "/volunteer",
+                        pathname: "/volunteer/profile/edit",
                         state: {
                             from: location,
+                            fromLoginPage: true,
                         },
                     }}
                 />

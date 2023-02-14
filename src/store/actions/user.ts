@@ -134,7 +134,7 @@ export const updateUserProfile = (
                 };
                 dispatch(updateProfileSuccess());
                 dispatch(success(notificationOpts));
-                history.push("/volunteer/profile/info");
+                history.push("/volunteer");
             })
             .catch((reqError) => {
                 // If request is bad...

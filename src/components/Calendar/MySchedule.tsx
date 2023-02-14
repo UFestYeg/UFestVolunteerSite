@@ -22,6 +22,7 @@ import { RequestEvent } from "./RequestEvent";
 import { getEarliestDate } from "../../utils";
 import UFestWeek from "./UFestWeek";
 import UFestDay from "./UFestDay";
+import { Loading } from "../Loading";
 
 type UserRequestType = {
     id: number;
@@ -78,6 +79,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const [currentList, setList] = useState<UserRequestType[]>([]);
+    const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     const token = StateHooks.useToken();
@@ -135,31 +137,35 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     console.log(`Earliest date ${earliest}`);
     return (
         <Container maxWidth="lg">
-            <Calendar
-                localizer={localizer}
-                events={currentList}
-                startAccessor="start_time"
-                endAccessor="end_time"
-                style={{ height: 600 }}
-                defaultView="day"
-                defaultDate={earliest}
-                views={{ day: UFestDay, week: UFestWeek }}
-                components={{
-                    event: RequestEvent,
-                    toolbar: (props: ToolbarProps) => (
-                        <CalendarToolbar
-                            {...props}
-                            categoryView={false}
-                            filter={false}
-                            addButton={false}
-                        />
-                    ),
-                }}
-                selectable
-                popup={true}
-                scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
-                eventPropGetter={customRequestStyle}
-            />
+            {loading ? (
+                <Loading />
+            ) : (
+                <Calendar
+                    localizer={localizer}
+                    events={currentList}
+                    startAccessor="start_time"
+                    endAccessor="end_time"
+                    style={{ height: 600 }}
+                    defaultView="day"
+                    defaultDate={earliest}
+                    views={{ day: UFestDay, week: UFestWeek }}
+                    components={{
+                        event: RequestEvent,
+                        toolbar: (props: ToolbarProps) => (
+                            <CalendarToolbar
+                                {...props}
+                                categoryView={false}
+                                filter={false}
+                                addButton={false}
+                            />
+                        ),
+                    }}
+                    selectable
+                    popup={true}
+                    scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
+                    eventPropGetter={customRequestStyle}
+                />
+            )}
         </Container>
     );
 };
