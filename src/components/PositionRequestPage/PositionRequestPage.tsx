@@ -111,7 +111,6 @@ const PositionRequestPage: React.FC = () => {
     const userProfile = StateHooks.useUserProfile();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
-    const [currentCategory, setCategory] = useState<string>("");
 
     const token = StateHooks.useToken();
     const eventDates = StateHooks.useEventDates();
@@ -145,13 +144,20 @@ const PositionRequestPage: React.FC = () => {
                     let mappedData;
                     if (roleID != undefined) {
                         const category = data.pop();
-                        setCategory(category.role_title);
+                        // In this case we only look at one of the event roles that matches the name received from the badckend
                         mappedData = data.map((d: any) => {
+                            const role = d.roles.find(
+                                (r: any) =>
+                                    r.title.toLowerCase() ===
+                                    category.role_title.toLowerCase()
+                            );
+                            d.role = JSON.parse(JSON.stringify(role));
                             d.start_time = new Date(d.start_time);
                             d.end_time = new Date(d.end_time);
                             return d;
                         });
                     } else {
+                        // In this case we look at tall the roles under an event
                         mappedData = data.reduce(
                             (accum: any, d: any) =>
                                 accum.concat(
@@ -166,7 +172,8 @@ const PositionRequestPage: React.FC = () => {
                             []
                         );
                     }
-                    console.log(`mappedData ${mappedData}`);
+                    console.log("mappedData");
+                    console.log(mappedData);
                     setList(mappedData);
                 })
                 .catch((err) => console.error(err));
@@ -188,8 +195,8 @@ const PositionRequestPage: React.FC = () => {
             null
         );
 
-        const handleClick = (clickEvent: React.MouseEvent<HTMLDivElement>) => {
-            setAnchorEl(clickEvent.currentTarget);
+        const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+            setAnchorEl(event.currentTarget);
         };
 
         const handleClose = () => {
@@ -261,27 +268,17 @@ const PositionRequestPage: React.FC = () => {
 
         const open = Boolean(anchorEl);
         const id = open ? "simple-popover" : undefined;
-        const selectedRole =
-            roleID != undefined
-                ? event.roles.find(
-                      (r: any) =>
-                          r.title.toLowerCase() ===
-                          currentCategory.toLowerCase()
-                  )
-                : event.role;
+        const selectedRole = event.role;
 
         const noPositionsLeft =
             selectedRole === undefined ||
             selectedRole?.number_of_open_positions === 0;
 
-        if (roleID == undefined) {
-            setCategory(event.role.title);
-        }
         return (
             <>
                 <Container onClick={handleClick} className={classes.eventRoot}>
                     {errorMessage}
-                    <strong>{event.title}</strong> : {currentCategory}
+                    <strong>{event.title}</strong> : {event.role.title}
                     <br />
                     Available Positions:{" "}
                     {selectedRole?.number_of_positions != null &&
