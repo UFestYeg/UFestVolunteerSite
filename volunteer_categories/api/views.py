@@ -111,8 +111,31 @@ class RequestViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    queryset = Request.requests.all()
     serializer_class = RequestSerializer
+    
+    def get_queryset(self):
+        """
+        Optionally restricts the returned requests to a given user,
+        by filtering against a `date` query parameter in the URL.
+        """
+        queryset = Request.requests.all()
+        use_event_dates = self.request.query_params.get("use_event_dates")
+        try:
+            if (
+                use_event_dates
+                and use_event_dates.lower() == "true"
+                and EventDate.dates.exists()
+            ):
+                start_date = EventDate.dates.earliest("event_date").event_date.strftime(
+                    "%Y-%m-%d"
+                )
+                end_date = EventDate.dates.latest("event_date").event_date.strftime(
+                    "%Y-%m-%d"
+                )
+                queryset = queryset.filter(role__category__start_time__range=[start_date, end_date])
+        except Exception as e:
+            print(f"Issue {e}")
+        return queryset
 
 
 class CategoryTypeViewSet(viewsets.ReadOnlyModelViewSet):
