@@ -11,7 +11,7 @@ const VolunteerUrls = {
         `${ROOT_URL}api/positions/category/${categoryTypeID}/?use_event_dates=true`,
     CATEGORIES_WITH_ROLE_LIST: (categoryTypeID: number, roleID: number) =>
         `${ROOT_URL}api/positions/category/${categoryTypeID}/roles/${roleID}/?use_event_dates=true`,
-    REQUESTS: `${ROOT_URL}api/requests/`,
+    REQUESTS: `${ROOT_URL}api/requests/?use_event_dates=true`,
     REQUESTS_DETAILS: (requestID: number) =>
         `${ROOT_URL}api/requests/${requestID}/`,
     EVENT_DATES_LIST: `${ROOT_URL}api/eventdates/`,
