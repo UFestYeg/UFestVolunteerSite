@@ -80,13 +80,21 @@ class RoleAdmin(admin.ModelAdmin):
 
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
-    list_display = ["status", "user", "role"]
+    list_display = ["status", "user", "role", "role_start_time"]
 
     list_filter = [
         "status",
     ]
 
     change_list_template = "admin/request_changelist.html"
+
+    ordering = ["role__category__start_time"]
+
+    def role_start_time(self, obj):
+        return obj.role.category.start_time
+
+    role_start_time.admin_order_field = "role__category__start_time"
+    role_start_time.short_description = "Role Start Time"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -164,6 +172,20 @@ class RequestAdmin(admin.ModelAdmin):
         form = DailyCheckinForm()
         payload = {"form": form}
         return render(request, "admin/export_daily_checkin_form.html", payload)
+
+    def export_selected_emails(self, request, queryset):
+        emails = queryset.values_list("user__email", flat=True).distinct()
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=selected-request-emails.csv"
+        writer = csv.writer(response)
+        writer.writerow(["email"])
+        for email in emails:
+            writer.writerow([email])
+        return response
+
+    export_selected_emails.short_description = "Export emails of selected requests to CSV"
+
+    actions = ["export_selected_emails"]
 
 
 class RoleInline(admin.TabularInline):

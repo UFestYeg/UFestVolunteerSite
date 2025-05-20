@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import F, Sum, Count
 from django.contrib.auth.models import User
+from backend.settings import TIME_ZONE
+from pytz import timezone
 
 # Create your models here.
 
@@ -28,9 +30,11 @@ class CategoryType(models.Model):
 class VolunteerCategory(models.Model):
     class Meta:
         verbose_name_plural = "volunteer categories"
-
+    
     def __str__(self):
-        return f"{self.title} {self.start_time} - {self.end_time}"
+        start_local = self.start_time.astimezone(timezone(TIME_ZONE)).strftime('%Y-%m-%d %H:%M')
+        end_local = self.end_time.astimezone(timezone(TIME_ZONE)).strftime('%Y-%m-%d %H:%M')
+        return f"Category {self.title}: {start_local} - {end_local}"
 
     title = models.CharField(max_length=120)
     description = models.TextField()
@@ -78,7 +82,11 @@ class Role(models.Model):
     roles = models.Manager()
 
     def __str__(self):
-        return f"Role {self.title}: {self.category.start_time} - {self.category.end_time} #{self.number_of_positions}"
+        start_local = self.category.start_time.astimezone(timezone(TIME_ZONE)) if self.category.start_time else None
+        end_local = self.category.end_time.astimezone(timezone(TIME_ZONE)) if self.category.end_time else None
+        start_str = start_local.strftime('%Y-%m-%d %H:%M') if start_local else 'N/A'
+        end_str = end_local.strftime('%Y-%m-%d %H:%M') if end_local else 'N/A'
+        return f"Role {self.title}: {start_str} - {end_str} #{self.number_of_positions}"
 
     @property
     def number_of_open_positions(self):
