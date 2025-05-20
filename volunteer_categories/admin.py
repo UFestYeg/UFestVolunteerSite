@@ -84,6 +84,7 @@ class RequestAdmin(admin.ModelAdmin):
 
     list_filter = [
         "status",
+        ("role__category__start_time", admin.DateFieldListFilter),
     ]
 
     change_list_template = "admin/request_changelist.html"
