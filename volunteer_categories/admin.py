@@ -183,7 +183,7 @@ class RequestAdmin(admin.ModelAdmin):
         writer = csv.writer(response)
         writer.writerow(["email", "role_start_time", "status"])
         for email, start_time, status in rows:
-            writer.writerow([email, start_time, status])
+            writer.writerow([email, start_time.astimezone(timezone(TIME_ZONE)).time(), status])
         return response
 
     export_selected_emails.short_description = "Export emails of selected requests to CSV"
