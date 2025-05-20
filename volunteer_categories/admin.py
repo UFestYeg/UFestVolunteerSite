@@ -175,13 +175,15 @@ class RequestAdmin(admin.ModelAdmin):
         return render(request, "admin/export_daily_checkin_form.html", payload)
 
     def export_selected_emails(self, request, queryset):
-        emails = queryset.values_list("user__email", flat=True).distinct()
+        rows = queryset.select_related("role__category", "user").values_list(
+            "user__email", "role__category__start_time", "status"
+        ).distinct()
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=selected-request-emails.csv"
         writer = csv.writer(response)
-        writer.writerow(["email"])
-        for email in emails:
-            writer.writerow([email])
+        writer.writerow(["email", "role_start_time", "status"])
+        for email, start_time, status in rows:
+            writer.writerow([email, start_time, status])
         return response
 
     export_selected_emails.short_description = "Export emails of selected requests to CSV"
