@@ -30,9 +30,11 @@ class CategoryType(models.Model):
 class VolunteerCategory(models.Model):
     class Meta:
         verbose_name_plural = "volunteer categories"
-
+    
     def __str__(self):
-        return f"{self.title} {self.start_time} - {self.end_time}"
+        start_local = self.start_time.astimezone(timezone(TIME_ZONE)).strftime('%Y-%m-%d %H:%M')
+        end_local = self.end_time.astimezone(timezone(TIME_ZONE)).strftime('%Y-%m-%d %H:%M')
+        return f"Category {self.title}: {start_local} - {end_local}"
 
     title = models.CharField(max_length=120)
     description = models.TextField()
