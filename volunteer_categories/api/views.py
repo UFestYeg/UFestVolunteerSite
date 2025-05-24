@@ -15,6 +15,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from backend import settings
 from post_office import mail
 
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
@@ -140,10 +141,12 @@ class RequestViewSet(viewsets.ModelViewSet):
         return queryset
     
     def perform_create(self, serializer):
+        print("perform create")
         super().perform_create(serializer)
         self._log_on_create(serializer)
 
     def perform_update(self, serializer):
+        print("perform update")
         old_data = self.serializer_class(self.get_object()).data
         super().perform_update(serializer)
         self._log_on_update(serializer, old_data)
@@ -152,7 +155,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         # Log the creation of the object
         LogEntry.objects.log_action(
             user_id=self.request.user.pk,
-            content_type_id=serializer.instance._meta.pk,
+            content_type_id=ContentType.objects.get_for_model(Request).pk,
             object_id=serializer.instance.pk,
             object_repr=str(serializer.instance),
             action_flag=ADDITION,  # 1 for add
@@ -163,7 +166,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         # Log the update of the object
         LogEntry.objects.log_action(
             user_id=self.request.user.pk,
-            content_type_id=serializer.instance._meta.pk,
+            content_type_id=ContentType.objects.get_for_model(Request).pk,
             object_id=serializer.instance.pk,
             object_repr=str(serializer.instance),
             action_flag=CHANGE,  # 2 for change
@@ -174,7 +177,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         # Log the deletion of the object
         LogEntry.objects.log_action(
             user_id=self.request.user.pk,
-            content_type_id=instance._meta.pk,
+            content_type_id=ContentType.objects.get_for_model(Request).pk,
             object_id=instance.pk,
             object_repr=str(instance),
             action_flag=DELETION,  # 3 for delete
