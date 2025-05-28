@@ -340,7 +340,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             date_roles = filter_roles_for_day(date.year, date.month, date.day)
 
             start_day = date.day
-            end_day = (date + datetime.timedelta(days=1)).day
+            end_date = (date + datetime.timedelta(days=1))
             print(f"Processing schedule for {label} with {len(date_roles)} roles on date range {start_day} to {end_day}")
 
             date_times = time_range_for_day(
@@ -349,9 +349,9 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                 start_day=start_day,
                 start_hour=date.hour,
                 start_minute=date.minute,
-                end_year=date.year,
-                end_month=date.month,
-                end_day=end_day,
+                end_year=end_date.year,
+                end_month=end_date.month,
+                end_day=end_date.day,
                 end_hour=0,
                 end_minute=0,
             )
