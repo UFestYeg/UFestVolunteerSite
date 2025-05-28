@@ -341,7 +341,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
 
             start_day = date.day
             end_date = (date + datetime.timedelta(days=1))
-            print(f"Processing schedule for {label} with {len(date_roles)} roles on date range {start_day} to {end_date.day}")
+            print(f"Processing schedule for {label} with {len(date_roles)} roles on date range {start_day} to {end_date.strftime('%Y-%m-%d')}")
 
             date_times = time_range_for_day(
                 start_year=date.year,
