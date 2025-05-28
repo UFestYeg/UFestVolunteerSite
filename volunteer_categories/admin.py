@@ -75,7 +75,17 @@ class RoleAdmin(admin.ModelAdmin):
         "number_of_open_positions",
         "number_of_positions",
         "category",
+        "category_start_time",
     ]
+    list_filter = [
+        ("category__start_time", admin.DateFieldListFilter),
+    ]
+
+    def category_start_time(self, obj):
+        return obj.category.start_time
+
+    category_start_time.admin_order_field = "category__start_time"
+    category_start_time.short_description = "Category Start Date"
 
 
 @admin.register(Request)
@@ -329,15 +339,19 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
             date, label = event_tuple
             date_roles = filter_roles_for_day(date.year, date.month, date.day)
 
+            start_day = date.day
+            end_day = (date + datetime.timedelta(days=1)).day
+            print(f"Processing schedule for {label} with {len(date_roles)} roles on date range {start_day} to {end_day}")
+
             date_times = time_range_for_day(
                 start_year=date.year,
                 start_month=date.month,
-                start_day=date.day,
+                start_day=start_day,
                 start_hour=date.hour,
                 start_minute=date.minute,
                 end_year=date.year,
                 end_month=date.month,
-                end_day=(date + datetime.timedelta(days=1)).day,
+                end_day=end_day,
                 end_hour=0,
                 end_minute=0,
             )
@@ -347,6 +361,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
 
             writer.writerow([label])
             writer.writerow(new_heading)
+            print(f"Writing schedule for {label} with {len(date_roles)} roles in {len(new_heading)} slots")
             write_day_schedule_to_csv(writer, date_roles, new_heading)
 
         LogEntry.objects.log_action(
