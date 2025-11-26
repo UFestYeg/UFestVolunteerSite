@@ -383,12 +383,78 @@ export const getMappedVolunteerRoles = (cookies: any) => {
                 "X-CSRFToken": cookies,
             };
             axios
-                .get(VolunteerUrls.CATEGORY_LIST)
+                .get(VolunteerUrls.CATEGORY_LIST_WITH_REQUESTS)
                 .then((res) => {
                     const data = res.data;
                     const mappedData: EventCategoryType[] = [];
-                    data.forEach((d: any, idx: number, arr: any[]) => {
+                    
+                    // Transform the optimized backend response into the format expected by the frontend
+                    data.forEach((category: any) => {
+                        category.roles.forEach((role: any) => {
+                            mappedData.push({
+                                roleID: role.id,
+                                title: role.title,
+                                description: role.description,
+                                start_time: new Date(category.start_time),
+                                end_time: new Date(category.end_time),
+                                category: category.category_type.tag,
+                                number_of_positions: role.number_of_positions,
+                                number_of_open_positions: role.number_of_open_positions,
+                                resourceId: category.category_type.id,
+                                eventID: category.id,
+                                requests: role.requests || [], // Requests with user_profile already included
+                            });
+                        });
+                    });
+                    
+                    dispatch(getMappedVolunteerRolesSuccess(mappedData));
+                })
+                .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
+        } else {
+            console.log("Unable to get mapped roles without token");
+        }
+    };
+};
+
+// Legacy version with parallel requests (fallback option)
+export const getMappedVolunteerRolesLegacy = (cookies: any) => {
+    const token = localStorage.getItem("token");
+    return (dispatch: DispatchType) => {
+        if (token) {
+            dispatch(getMappedVolunteerRolesStart());
+            axios.defaults.headers = {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+                "X-CSRFToken": cookies,
+            };
+            
+            // Make all three requests in parallel instead of sequentially
+            Promise.all([
+                axios.get(VolunteerUrls.CATEGORY_LIST),
+                axios.get(VolunteerUrls.REQUESTS),
+                axios.get(UserUrls.USER_PROFILE_LIST),
+            ])
+                .then(([categoriesRes, requestsRes, usersRes]) => {
+                    const data = categoriesRes.data;
+                    const requests = requestsRes.data;
+                    const userProfiles = usersRes.data;
+                    
+                    const mappedData: EventCategoryType[] = [];
+                    
+                    // Map categories to events
+                    data.forEach((d: any) => {
                         d.roles.forEach((role: any) => {
+                            const roleRequests = requests.filter(
+                                (r: any) => r.role.id === role.id
+                            );
+                            
+                            // Add user profiles to requests
+                            roleRequests.forEach((r: any) => {
+                                r.user_profile = userProfiles.find(
+                                    (user: any) => user.pk === r.user
+                                );
+                            });
+                            
                             mappedData.push({
                                 roleID: role.id,
                                 title: role.title,
@@ -397,20 +463,15 @@ export const getMappedVolunteerRoles = (cookies: any) => {
                                 end_time: new Date(d.end_time),
                                 category: d.category_type.tag,
                                 number_of_positions: role.number_of_positions,
-                                number_of_open_positions:
-                                    role.number_of_open_positions,
-                                resourceId: d.category_type.id, // attribute_id
+                                number_of_open_positions: role.number_of_open_positions,
+                                resourceId: d.category_type.id,
                                 eventID: d.id,
+                                requests: roleRequests,
                             });
                         });
-                        return mappedData;
                     });
-                    return mappedData;
-                })
-                .then((partialData) => addRequests(partialData))
-                .then((partialData) => addUsers(partialData))
-                .then((mappedEvents) => {
-                    dispatch(getMappedVolunteerRolesSuccess(mappedEvents));
+                    
+                    dispatch(getMappedVolunteerRolesSuccess(mappedData));
                 })
                 .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
         } else {

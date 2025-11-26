@@ -5,6 +5,7 @@ from .serializers import (
     CategoryTypeSerializer,
     RoleSerializer,
     EventDateSerializer,
+    VolunteerCategoryWithRequestsSerializer,
 )
 from .permissions import IsAdminOrAuthenticatedReadOnly
 
@@ -50,6 +51,24 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(f"Issue {e}")
         return queryset
+
+    @action(detail=False, methods=['get'], url_path='with-requests')
+    def with_requests(self, request):
+        """
+        Optimized endpoint that returns categories with roles, requests, and user profiles
+        in a single query. This reduces the need for multiple round trips to the server.
+        """
+        queryset = self.get_queryset()
+        
+        # Optimize database queries using select_related and prefetch_related
+        queryset = queryset.select_related('category_type').prefetch_related(
+            'roles',
+            'roles__requests',
+            'roles__requests__user'
+        )
+        
+        serializer = VolunteerCategoryWithRequestsSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class RequestViewSet(viewsets.ModelViewSet):

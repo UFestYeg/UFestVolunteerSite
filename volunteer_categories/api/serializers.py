@@ -268,3 +268,83 @@ class EventDateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "id": {"read_only": False, "required": False,},
         }
+
+
+class UserProfileMinimalSerializer(serializers.Serializer):
+    """Minimal user profile serializer for requests"""
+    pk = serializers.IntegerField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.EmailField()
+
+
+class RequestWithUserSerializer(serializers.ModelSerializer):
+    """Request serializer that includes user profile data"""
+    role = RoleSerializer()
+    user_profile = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Request
+        fields = ("id", "user", "status", "role", "user_profile")
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
+
+    def get_user_profile(self, obj):
+        user = obj.user
+        return {
+            "pk": user.pk,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+        }
+
+
+class RoleWithRequestsSerializer(serializers.ModelSerializer):
+    """Role serializer that includes requests with user profiles"""
+    number_of_open_positions = serializers.ReadOnlyField()
+    requests = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Role
+        fields = (
+            "id",
+            "title",
+            "description",
+            "number_of_positions",
+            "number_of_open_positions",
+            "category",
+            "requests",
+        )
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
+
+    def get_requests(self, obj):
+        requests = obj.requests.select_related('user').all()
+        return RequestWithUserSerializer(requests, many=True).data
+
+
+class VolunteerCategoryWithRequestsSerializer(serializers.ModelSerializer):
+    """Optimized serializer that includes roles with requests and user profiles"""
+    roles = RoleWithRequestsSerializer(many=True, read_only=True)
+    category_type = CategoryTypeSerializer()
+    number_of_positions = serializers.ReadOnlyField()
+    number_of_open_positions = serializers.ReadOnlyField()
+
+    class Meta:
+        model = VolunteerCategory
+        fields = (
+            "id",
+            "title",
+            "description",
+            "start_time",
+            "end_time",
+            "category_type",
+            "roles",
+            "number_of_positions",
+            "number_of_open_positions",
+        )
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
