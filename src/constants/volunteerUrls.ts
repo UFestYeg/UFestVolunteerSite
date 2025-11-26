@@ -7,6 +7,7 @@ const VolunteerUrls = {
     CATEGORY_DETAILS: (categoryID: number) =>
         `${ROOT_URL}api/positions/${categoryID}/`,
     CATEGORY_LIST: `${ROOT_URL}api/positions/?use_event_dates=true`,
+    CATEGORY_LIST_WITH_REQUESTS: `${ROOT_URL}api/positions/with-requests/?use_event_dates=true`,
     CATEGORIES_OF_TYPE_LIST: (categoryTypeID: number) =>
         `${ROOT_URL}api/positions/category/${categoryTypeID}/?use_event_dates=true`,
     CATEGORIES_WITH_ROLE_LIST: (categoryTypeID: number, roleID: number) =>
