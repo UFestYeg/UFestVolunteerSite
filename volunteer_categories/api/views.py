@@ -18,6 +18,7 @@ from post_office import mail
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+from django.db.models import Prefetch, Count, Q
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -60,12 +61,23 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         
-        # Optimize database queries using select_related and prefetch_related
-        queryset = queryset.select_related('category_type').prefetch_related(
-            'roles',
-            'roles__requests',
-            'roles__requests__user'
+        # Use Prefetch objects for maximum query optimization
+        # Prefetch requests with their users to avoid N+1 queries
+        requests_prefetch = Prefetch(
+            'requests',
+            queryset=Request.requests.select_related('user')
         )
+        
+        # Prefetch roles with their requests, and annotate the open positions count
+        roles_prefetch = Prefetch(
+            'roles',
+            queryset=Role.roles.prefetch_related(requests_prefetch).annotate(
+                filled_positions=Count('requests', filter=Q(requests__status=Request.ACCEPTED))
+            )
+        )
+        
+        # Optimize the main queryset
+        queryset = queryset.select_related('category_type').prefetch_related(roles_prefetch)
         
         serializer = VolunteerCategoryWithRequestsSerializer(queryset, many=True)
         return Response(serializer.data)

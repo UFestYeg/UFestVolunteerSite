@@ -30,6 +30,10 @@ class CategoryType(models.Model):
 class VolunteerCategory(models.Model):
     class Meta:
         verbose_name_plural = "volunteer categories"
+        indexes = [
+            models.Index(fields=['start_time', 'end_time']),
+            models.Index(fields=['category_type']),
+        ]
     
     def __str__(self):
         start_local = self.start_time.astimezone(timezone(TIME_ZONE)).strftime('%Y-%m-%d %H:%M')
@@ -100,6 +104,11 @@ class Request(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["user", "role"], name="unique appversion")
+        ]
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['role', 'status']),
         ]
 
     # category = models.ManyToManyField(VolunteerCategory, through="Role")
