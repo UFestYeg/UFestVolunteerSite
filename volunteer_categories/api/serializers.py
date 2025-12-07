@@ -291,8 +291,8 @@ class RequestWithUserSerializer(serializers.ModelSerializer):
         }
 
     def get_user_profile(self, obj):
-            user = obj.user
-            return UserProfileMinimalSerializer(user).data
+        user = obj.user
+        return UserProfileMinimalSerializer(user).data
 
 
 class RoleWithRequestsSerializer(serializers.ModelSerializer):
