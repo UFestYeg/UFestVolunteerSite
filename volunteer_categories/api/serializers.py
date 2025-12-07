@@ -292,17 +292,12 @@ class RequestWithUserSerializer(serializers.ModelSerializer):
 
     def get_user_profile(self, obj):
         user = obj.user
-        return {
-            "pk": user.pk,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-        }
+        return UserProfileMinimalSerializer(user).data
 
 
 class RoleWithRequestsSerializer(serializers.ModelSerializer):
     """Role serializer that includes requests with user profiles"""
-    number_of_open_positions = serializers.ReadOnlyField()
+    number_of_open_positions = serializers.SerializerMethodField()
     requests = serializers.SerializerMethodField()
 
     class Meta:
@@ -320,8 +315,16 @@ class RoleWithRequestsSerializer(serializers.ModelSerializer):
             "id": {"read_only": False, "required": False,},
         }
 
+    def get_number_of_open_positions(self, obj):
+        # Use the annotated value from the queryset if available
+        if hasattr(obj, 'filled_positions'):
+            return obj.number_of_positions - obj.filled_positions
+        # Fallback to the property (slower)
+        return obj.number_of_open_positions
+
     def get_requests(self, obj):
-        requests = obj.requests.select_related('user').all()
+        # Prefetch has already loaded requests with users, just access them
+        requests = obj.requests.all()
         return RequestWithUserSerializer(requests, many=True).data
 
 
