@@ -62,13 +62,15 @@ class VolunteerCategory(models.Model):
 
     @property
     def number_of_open_positions(self):
+        # Use annotated fields if both are available
         if hasattr(self, 'annotated_number_of_positions') and hasattr(self, 'annotated_filled_positions'):
             total = self.annotated_number_of_positions
             filled = self.annotated_filled_positions
             if total is not None and filled is not None:
                 return total - filled
             return None
-
+        
+        # Fall back to database queries
         aggregate = self.roles.filter(requests__status=Request.ACCEPTED).aggregate(
             filled_positions=Count("requests")
         )
