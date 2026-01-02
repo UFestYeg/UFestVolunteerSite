@@ -69,7 +69,7 @@ const PasswordReset: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const { uid, token } = useParams();
+    const { uid, token } = useParams<{ uid: string; token: string }>();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [showPassword1, setShowPassword1] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);

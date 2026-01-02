@@ -12,7 +12,7 @@ import {
 // tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import axios from "axios";
-import * as chroma from "chroma-js";
+import chroma from "chroma-js";
 import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -91,6 +91,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const token = StateHooks.useToken();
     const [volunteerCategories, loading, error] = StateHooks.useVolunteerInfo();
+    const eventDatesLoading = StateHooks.useEventDatesLoading();
     const volunteerCategoryTypes = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeTags = volunteerCategoryTypes.map(
         (categoryType) => {
@@ -105,7 +106,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     };
 
     const colours = chroma
-        .scale(["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"])
+        .scale(["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"])
         .colors(volunteerCategoryTypeTags.length);
     const colourMap = new Map<string, any>();
     volunteerCategoryTypeTags.map((c: string, i: number) => {
@@ -250,7 +251,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const DnDCalendar = withDragAndDrop(Calendar);
     return (
         <>
-            {loading ? (
+            {loading || eventDatesLoading ? (
                 <Loading />
             ) : (
                 <>

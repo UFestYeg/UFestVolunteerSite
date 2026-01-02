@@ -19,6 +19,7 @@ export interface IVolunteerState {
     eventDates: IEventDate[];
     error: any | null;
     loading: boolean;
+    eventDatesLoading: boolean;
 }
 
 const initialState: IVolunteerState = {
@@ -28,6 +29,7 @@ const initialState: IVolunteerState = {
     eventDates: [],
     loading: false,
     error: null,
+    eventDatesLoading: false,
 };
 
 const getVolunteerCategoryTypes = (state: IVolunteerState, action: any) => {
@@ -155,7 +157,7 @@ const getVolunteerCategoriesOfType = (state: IVolunteerState, action: any) => {
 const getEventDatesStart = (state: IVolunteerState, action: any) => {
     return updateObject(state, {
         error: null,
-        loading: true,
+        eventDatesLoading: true,
     });
 };
 
@@ -163,14 +165,14 @@ const getEventDatesSuccess = (state: IVolunteerState, action: any) => {
     return updateObject(state, {
         eventDates: action.payload,
         error: null,
-        loading: false,
+        eventDatesLoading: false,
     });
 };
 
 const getEventDatesFail = (state: IVolunteerState, action: any) => {
     return updateObject(state, {
         error: action.error,
-        loading: false,
+        eventDatesLoading: false,
     });
 };
 

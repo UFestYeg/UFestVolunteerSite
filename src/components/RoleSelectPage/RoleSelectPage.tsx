@@ -90,7 +90,8 @@ const RoleSelectPage: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const { url } = useRouteMatch();
-    const { categoryTypeID } = useParams();
+    const { categoryTypeID: categoryTypeIDStr } = useParams<{ categoryTypeID: string }>();
+    const categoryTypeID = parseInt(categoryTypeIDStr);
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [view, setView] = React.useState("list");
     const volunteerCategories = StateHooks.useVolunteerCategories();
@@ -115,12 +116,14 @@ const RoleSelectPage: React.FC = () => {
     });
 
     useEffect(() => {
-        dispatch(
-            volunteerActions.getVolunteerCategoryOfType(
-                categoryTypeID,
-                cookies.csrftoken
-            )
-        );
+        if (!isNaN(categoryTypeID)) {
+            dispatch(
+                volunteerActions.getVolunteerCategoryOfType(
+                    categoryTypeID,
+                    cookies.csrftoken
+                )
+            );
+        }
     }, [cookies.csrftoken, dispatch, categoryTypeID]);
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {

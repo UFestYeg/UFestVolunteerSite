@@ -30,6 +30,10 @@ DEBUG = os.getenv("DEBUG") != "False"
 
 ALLOWED_HOSTS = ["127.0.0.1", "www.volunteer.ufest.ca"]
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 
 # Application definition
 
@@ -56,11 +60,13 @@ INSTALLED_APPS = [
     "post_office",
     "django_crontab",
     "django_extensions",
+    "debug_toolbar",
 ]
 
 SITE_ID = 1
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
