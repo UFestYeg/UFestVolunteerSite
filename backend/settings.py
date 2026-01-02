@@ -60,13 +60,14 @@ INSTALLED_APPS = [
     "post_office",
     "django_crontab",
     "django_extensions",
-    "debug_toolbar",
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
 
 SITE_ID = 1
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -77,6 +78,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "backend.urls"
 

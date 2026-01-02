@@ -94,12 +94,14 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
     const mobile = !useMediaQuery("(min-width:400px)");
     const flexDirection = mobile ? "column" : "row";
     useEffect(() => {
-        dispatch(
-            userActions.getUserProfile(
-                cookies.csrftoken,
-                profileID
-            )
-        );
+        if (typeof profileID === "number" && !Number.isNaN(profileID)) {
+            dispatch(
+                userActions.getUserProfile(
+                    cookies.csrftoken,
+                    profileID
+                )
+            );
+        }
     }, [cookies.csrftoken, dispatch, profileID]);
 
     const userProfile = profileID
