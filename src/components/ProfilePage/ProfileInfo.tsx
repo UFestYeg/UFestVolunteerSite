@@ -88,19 +88,14 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const { profileID: profileIDStr } = useParams<{ profileID: string }>();
-    const profileID = profileIDStr ? parseInt(profileIDStr) : undefined;
+    const { profileID: profileIDStr } = useParams<{ profileID?: string }>();
+    const profileID = profileIDStr ? parseInt(profileIDStr, 10) : undefined;
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const mobile = !useMediaQuery("(min-width:400px)");
     const flexDirection = mobile ? "column" : "row";
     useEffect(() => {
         if (typeof profileID === "number" && !Number.isNaN(profileID)) {
-            dispatch(
-                userActions.getUserProfile(
-                    cookies.csrftoken,
-                    profileID
-                )
-            );
+            dispatch(userActions.getUserProfile(cookies.csrftoken, profileID));
         }
     }, [cookies.csrftoken, dispatch, profileID]);
 

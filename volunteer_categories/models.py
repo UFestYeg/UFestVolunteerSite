@@ -55,7 +55,7 @@ class VolunteerCategory(models.Model):
 
     @property
     def number_of_positions(self):
-        if hasattr(self, 'annotated_number_of_positions'):
+        if hasattr(self, 'annotated_number_of_positions') and self.annotated_number_of_positions is not None:
             return self.annotated_number_of_positions
         aggregate = self.roles.aggregate(number_of_positions=Sum("number_of_positions"))
         return aggregate["number_of_positions"]
@@ -105,7 +105,7 @@ class Role(models.Model):
 
     @property
     def number_of_open_positions(self):
-        if hasattr(self, 'filled_positions'):
+        if hasattr(self, 'filled_positions') and self.filled_positions is not None:
             return self.number_of_positions - self.filled_positions
         return (
             self.number_of_positions

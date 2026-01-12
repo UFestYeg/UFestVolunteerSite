@@ -35,8 +35,8 @@ type VolunteerCategoryType = {
 const VolunteerCategoryDetails: React.FC<any> = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
-    const { positionID: positionIDStr } = useParams<{ positionID: string }>();
-    const positionID = parseInt(positionIDStr);
+    const { positionID: positionIDStr } = useParams<{ positionID?: string }>();
+    const positionID = positionIDStr ? parseInt(positionIDStr, 10) : NaN;
     const dispatch = useDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
