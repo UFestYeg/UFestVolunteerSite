@@ -18,7 +18,7 @@ from post_office import mail
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
-from django.db.models import Prefetch, Count, Q, Sum
+from django.db.models import Prefetch, Count, Q
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
