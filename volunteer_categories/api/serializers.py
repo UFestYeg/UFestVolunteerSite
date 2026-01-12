@@ -287,15 +287,6 @@ class EventDateSerializer(serializers.ModelSerializer):
             "id": {"read_only": False, "required": False,},
         }
 
-
-class UserProfileMinimalSerializer(serializers.Serializer):
-    """Minimal user profile serializer for requests"""
-    pk = serializers.IntegerField()
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    email = serializers.EmailField()
-
-
 class RequestWithUserSerializer(serializers.ModelSerializer):
     """Request serializer that includes user profile data"""
     role = RoleSummarySerializer()
@@ -310,7 +301,12 @@ class RequestWithUserSerializer(serializers.ModelSerializer):
 
     def get_user_profile(self, obj):
         user = obj.user
-        return UserProfileMinimalSerializer(user).data
+        return {
+            "pk": user.pk,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email
+        }
 
 
 class RoleWithRequestsSerializer(serializers.ModelSerializer):
