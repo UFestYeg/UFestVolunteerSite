@@ -57,6 +57,8 @@ class VolunteerCategory(models.Model):
     def number_of_positions(self):
         if hasattr(self, 'annotated_number_of_positions'):
             return self.annotated_number_of_positions
+        if hasattr(self, '_prefetched_objects_cache') and 'roles' in self._prefetched_objects_cache:
+            return sum(r.number_of_positions for r in self.roles.all())
         aggregate = self.roles.aggregate(number_of_positions=Sum("number_of_positions"))
         return aggregate["number_of_positions"]
 
@@ -69,6 +71,9 @@ class VolunteerCategory(models.Model):
             if total is not None and filled is not None:
                 return total - filled
             return None
+        
+        if hasattr(self, '_prefetched_objects_cache') and 'roles' in self._prefetched_objects_cache:
+            return sum((r.number_of_open_positions or 0) for r in self.roles.all())
         
         # Fall back to database queries
         aggregate = self.roles.filter(requests__status=Request.ACCEPTED).aggregate(

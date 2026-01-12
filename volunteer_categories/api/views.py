@@ -18,7 +18,7 @@ from post_office import mail
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
-from django.db.models import Prefetch, Count, Q
+from django.db.models import Prefetch, Count, Q, Sum
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -35,6 +35,14 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         by filtering against a `date` query parameter in the URL.
         """
         queryset = VolunteerCategory.categories.all()
+
+        roles_qs = Role.roles.annotate(
+            filled_positions=Count('requests', filter=Q(requests__status=Request.ACCEPTED))
+        )
+        queryset = queryset.select_related('category_type').prefetch_related(
+            Prefetch('roles', queryset=roles_qs)
+        )
+
         use_event_dates = self.request.query_params.get("use_event_dates")
         try:
             if (
@@ -60,6 +68,7 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         in a single query. This reduces the need for multiple round trips to the server.
         """
         queryset = self.get_queryset()
+        queryset = queryset.prefetch_related(None)
         
         # Use Prefetch objects for maximum query optimization
         # Prefetch requests with their users to avoid N+1 queries

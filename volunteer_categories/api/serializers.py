@@ -206,8 +206,26 @@ class RequestSerializer(serializers.ModelSerializer):
             raise e
 
 
+class RoleSummarySerializer(serializers.ModelSerializer):
+    number_of_open_positions = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Role
+        fields = (
+            "id",
+            "title",
+            "description",
+            "number_of_positions",
+            "number_of_open_positions",
+            "category",
+        )
+        extra_kwargs = {
+            "id": {"read_only": False, "required": False,},
+        }
+
+
 class VolunteerCategorySerializer(serializers.ModelSerializer):
-    roles = RoleSerializer(many=True, read_only=True)
+    roles = RoleSummarySerializer(many=True, read_only=True)
     category_type = CategoryTypeSerializer()
     number_of_positions = serializers.ReadOnlyField()
     number_of_open_positions = serializers.ReadOnlyField()
