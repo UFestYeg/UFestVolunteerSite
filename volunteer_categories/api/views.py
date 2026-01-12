@@ -81,7 +81,7 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         # Prefetch requests with their users to avoid N+1 queries
         requests_prefetch = Prefetch(
             'requests',
-            queryset=Request.requests.select_related('user')
+            queryset=Request.requests.select_related('user', 'role__category')
         )
         
         # Prefetch roles with their requests, and annotate the open positions count

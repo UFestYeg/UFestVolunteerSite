@@ -298,7 +298,7 @@ class UserProfileMinimalSerializer(serializers.Serializer):
 
 class RequestWithUserSerializer(serializers.ModelSerializer):
     """Request serializer that includes user profile data"""
-    role = RoleSerializer()
+    role = RoleSummarySerializer()
     user_profile = serializers.SerializerMethodField()
 
     class Meta:
