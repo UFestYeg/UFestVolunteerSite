@@ -29,6 +29,13 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
 
     serializer_class = VolunteerCategorySerializer
 
+    @staticmethod
+    def _get_roles_with_filled_positions():
+        """Helper method to get roles queryset annotated with filled_positions count."""
+        return Role.roles.annotate(
+            filled_positions=Count('requests', filter=Q(requests__status=Request.ACCEPTED))
+        )
+
     def get_queryset(self):
         """
         Optionally restricts the returned categories to a given user,
@@ -36,12 +43,13 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         """
         queryset = VolunteerCategory.categories.all()
 
-        roles_qs = Role.roles.annotate(
-            filled_positions=Count('requests', filter=Q(requests__status=Request.ACCEPTED))
-        )
-        queryset = queryset.select_related('category_type').prefetch_related(
-            Prefetch('roles', queryset=roles_qs)
-        )
+        # Only add prefetch_related if not calling with_requests action
+        # The with_requests action sets up its own optimized prefetch operations
+        if self.action != 'with_requests':
+            roles_qs = self._get_roles_with_filled_positions()
+            queryset = queryset.select_related('category_type').prefetch_related(
+                Prefetch('roles', queryset=roles_qs)
+            )
 
         use_event_dates = self.request.query_params.get("use_event_dates")
         try:
@@ -68,7 +76,6 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
         in a single query. This reduces the need for multiple round trips to the server.
         """
         queryset = self.get_queryset()
-        queryset = queryset.prefetch_related(None)
         
         # Use Prefetch objects for maximum query optimization
         # Prefetch requests with their users to avoid N+1 queries
