@@ -81,13 +81,14 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     const token = StateHooks.useToken();
     const mappedRoles = StateHooks.useMappedRoles();
     const [_categories, loading, error] = StateHooks.useVolunteerInfo();
+    const eventDatesLoading = StateHooks.useEventDatesLoading();
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
         return categoryType.tag;
     });
 
     const colours = chroma
-        .scale(["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"])
+        .scale(["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"])
         .colors(volunteerCategoryTypes.length);
     const colourMap = new Map<string, any>();
     volunteerCategoryTypes.map((c: string, i: number) => {
@@ -211,7 +212,7 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
 
     return (
         <Container maxWidth="lg">
-            {loading ? (
+            {loading || eventDatesLoading ? (
                 <Loading />
             ) : (
                 <>

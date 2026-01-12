@@ -30,6 +30,10 @@ DEBUG = os.getenv("DEBUG") != "False"
 
 ALLOWED_HOSTS = ["127.0.0.1", "www.volunteer.ufest.ca"]
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 
 # Application definition
 
@@ -58,6 +62,9 @@ INSTALLED_APPS = [
     "django_extensions",
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+
 SITE_ID = 1
 
 MIDDLEWARE = [
@@ -71,6 +78,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "backend.urls"
 

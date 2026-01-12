@@ -106,7 +106,14 @@ const PositionRequestPage: React.FC = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const history = useHistory();
-    const { categoryTypeID, roleID } = useParams();
+    const { categoryTypeID: categoryTypeIDStr, roleID: roleIDStr } = useParams<{
+        categoryTypeID?: string;
+        roleID?: string;
+    }>();
+    const categoryTypeID = categoryTypeIDStr
+        ? parseInt(categoryTypeIDStr, 10)
+        : NaN;
+    const roleID = roleIDStr ? parseInt(roleIDStr, 10) : undefined;
     const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
     const userProfile = StateHooks.useUserProfile();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
@@ -118,7 +125,7 @@ const PositionRequestPage: React.FC = () => {
     console.log(`early ${earliest}`);
 
     useEffect(() => {
-        if (token) {
+        if (token && !isNaN(categoryTypeID)) {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );

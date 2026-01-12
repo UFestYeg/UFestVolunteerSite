@@ -35,6 +35,7 @@ bleach = "*"
 django-crontab = "*"
 django-extensions = "*"
 graphviz = "*"
+django-debug-toolbar = "*"
 
 [requires]
 python_version = "3.8"

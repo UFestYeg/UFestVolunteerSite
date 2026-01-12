@@ -35,7 +35,8 @@ type VolunteerCategoryType = {
 const VolunteerCategoryDetails: React.FC<any> = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
-    const { positionID } = useParams();
+    const { positionID: positionIDStr } = useParams<{ positionID?: string }>();
+    const positionID = positionIDStr ? parseInt(positionIDStr, 10) : NaN;
     const dispatch = useDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
@@ -43,7 +44,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
     const history = useHistory();
 
     useEffect(() => {
-        if (token && positionID) {
+        if (token && !isNaN(positionID)) {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
@@ -62,7 +63,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
     }, [cookies.csrftoken, dispatch, positionID, token]);
 
     const handleDelete = () => {
-        if (token && positionID) {
+        if (token && !isNaN(positionID)) {
             axios.delete(VolunteerUrls.CATEGORY_DETAILS(positionID));
             history.push("/positions");
         }

@@ -55,7 +55,7 @@ const AccountActivation: React.FC = () => {
     const theme = useTheme();
     const classes = useStyles(theme);
     const dispatch = useDispatch();
-    const { key } = useParams();
+    const { key } = useParams<{ key: string }>();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
 

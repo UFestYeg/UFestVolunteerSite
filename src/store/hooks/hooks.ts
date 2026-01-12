@@ -64,3 +64,7 @@ export const useNotifications = () => {
 export const useEventDates = () => {
     return useSelector((state: State) => state.volunteer.eventDates);
 };
+
+export const useEventDatesLoading = () => {
+    return useSelector((state: State) => state.volunteer.eventDatesLoading);
+};

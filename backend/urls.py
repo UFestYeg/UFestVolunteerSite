@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.conf import settings
 
 from .views import index
 
@@ -29,5 +30,13 @@ urlpatterns = [
     path("rest-auth/registration/", include("rest_auth.registration.urls")),
     path("api/", include("volunteer_categories.api.urls")),
     path("api/users/", include("user_profile.urls")),
-    re_path(r".*", index, name="index"),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
+
+urlpatterns += [re_path(r".*", index, name="index")]
+
