@@ -19,6 +19,9 @@ from post_office import mail
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.db.models import Prefetch, Count, Q
+import logging
+
+logger = logging.getLogger(__name__)
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -66,7 +69,7 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
                 )
                 queryset = queryset.filter(start_time__range=[start_date, end_date])
         except Exception as e:
-            print(f"Issue {e}")
+            logger.error(f"Issue {e}")
         return queryset
 
     @action(detail=False, methods=['get'], url_path='with-requests')
@@ -118,7 +121,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         from django.db.models import Q
         from django.contrib.auth.models import User
 
-        print("perform destroy")
+        logger.info("perform destroy")
 
         deleting_user = User.objects.get(pk=instance.user.pk)
         category_type = CategoryType.types.get(
@@ -184,16 +187,16 @@ class RequestViewSet(viewsets.ModelViewSet):
                 )
                 queryset = queryset.filter(role__category__start_time__range=[start_date, end_date])
         except Exception as e:
-            print(f"Issue {e}")
+            logger.error(f"Issue {e}")
         return queryset
     
     def perform_create(self, serializer):
-        print("perform create")
+        logger.info("perform create")
         super().perform_create(serializer)
         self._log_on_create(serializer)
 
     def perform_update(self, serializer):
-        print("perform update")
+        logger.info("perform update")
         old_data = self.serializer_class(self.get_object()).data
         super().perform_update(serializer)
         self._log_on_update(serializer, old_data)
@@ -321,7 +324,6 @@ class CategoriesWithRolesViewSet(viewsets.ViewSet):
 
         serializer = VolunteerCategorySerializer(queryset, many=True)
         role_dict = serializer.data
-        # print(role_dict)
         role_dict.append({"role_title": role.title})
         return Response(role_dict)
 

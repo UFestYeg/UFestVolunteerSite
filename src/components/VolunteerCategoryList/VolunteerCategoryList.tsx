@@ -11,6 +11,7 @@ import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
+import logger from "../../logger";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
@@ -55,7 +56,7 @@ const VolunteerCategoryList: React.FC = () => {
 
             axios.get(VolunteerUrls.CATEGORY_LIST).then((res) => {
                 setList(res.data);
-                console.log(res.data);
+                logger.debug(res.data);
             });
         }
     }, [token, cookies.csrftoken, dispatch]);

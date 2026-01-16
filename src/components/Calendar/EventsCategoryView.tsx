@@ -22,6 +22,7 @@ import {
     momentLocalizer,
     ToolbarProps,
 } from "react-big-calendar";
+import logger from "../../logger";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -139,17 +140,17 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                     start_time: start,
                 })
                 .then((res) => {
-                    console.log(res);
+                    logger.debug(res);
                     history.replace(url, browserState);
                     history.go(0);
                 })
-                .catch((err) => console.error(err));
+                .catch((err) => logger.error(err));
         }
     };
 
     const onEventResize = (data: DragAndDropData) => {
         const { start, end, event } = data;
-        console.log(start, end);
+        logger.debug(start, end);
         const nextEvents = currentList.map((existingEvent) => {
             return existingEvent.eventID === event.eventID
                 ? { ...existingEvent, start_time: start, end_time: end }

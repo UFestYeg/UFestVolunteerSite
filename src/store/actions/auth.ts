@@ -3,6 +3,7 @@ import { Notification } from "react-notification-system";
 import { error, success } from "react-notification-system-redux";
 import { AuthUrls } from "../../constants";
 import history from "../../history";
+import logger from "../../logger";
 import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
 
@@ -162,7 +163,7 @@ export const authSignup = (
                 username,
             })
             .then((res) => {
-                console.log(res);
+                logger.debug(res);
                 dispatch(authEmailSent());
                 history.push("/signup_done");
             })
@@ -218,7 +219,7 @@ export const changePassword = (
                     new_password2: newPassword2,
                 })
                 .then((response) => {
-                    console.log(response);
+                    logger.debug(response);
                     const notificationOpts: Notification = {
                         title: "Success!",
                         message: "Your password was changed.",
@@ -256,7 +257,7 @@ export const resetPassword = (email: string, csrftoken: string) => {
             .post(AuthUrls.RESET_PASSWORD, { email })
             .then((response) => {
                 // redirect to reset done page
-                console.log(response);
+                logger.debug(response);
                 dispatch(resetPasswordEmailSent());
                 const notificationOpts: Notification = {
                     title: "Success!",
@@ -294,7 +295,7 @@ export const confirmPasswordChange = (
                 new_password2: confirmPassword,
             })
             .then((response) => {
-                console.log(response);
+                logger.debug(response);
                 dispatch(resetPasswordSuccess());
                 const notificationOpts: Notification = {
                     title: "Success!",
@@ -321,7 +322,7 @@ export const activateUserAccount = (key: string, csrftoken: string) => {
         axios
             .post(AuthUrls.USER_ACTIVATION, { key })
             .then((response) => {
-                console.log(response);
+                logger.debug(response);
                 dispatch(authActivationSent());
                 const notificationOpts: Notification = {
                     title: "You're all set!",

@@ -1,3 +1,4 @@
+import logger from "./logger";
 import { IEventDate } from "./store/types";
 
 export const compareArrays = (a: any[], b: any[], sort: boolean = true) => {
@@ -21,7 +22,7 @@ export const getEarliestDate = (dates: IEventDate[]) => {
               )
             : null;
     } catch (err) {
-        console.warn(err);
+        logger.warn(err);
         return null;
     }
 };
