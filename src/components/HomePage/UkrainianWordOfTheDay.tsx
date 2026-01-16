@@ -48,6 +48,16 @@ const words: Word[] = [
     { ukrainian: "Вареники", english: "Dumplings (Varenyky)", pronunciation: "Va-re-ny-ky" },
     { ukrainian: "Борщ", english: "Borscht", pronunciation: "Borshch" },
     { ukrainian: "Вишиванка", english: "Embroidered shirt", pronunciation: "Vy-shy-van-ka" },
+    { ukrainian: "Волонтер", english: "Volunteer", pronunciation: "Vo-lon-ter" },
+    { ukrainian: "Фестиваль", english: "Festival", pronunciation: "Fes-ty-val" },
+    { ukrainian: "Допомога", english: "Help", pronunciation: "Do-po-mo-ha" },
+    { ukrainian: "Громада", english: "Community", pronunciation: "Hro-ma-da" },
+    { ukrainian: "Культура", english: "Culture", pronunciation: "Kul-tu-ra" },
+    { ukrainian: "Традиція", english: "Tradition", pronunciation: "Tra-dy-tsi-ya" },
+    { ukrainian: "Команда", english: "Team", pronunciation: "Ko-man-da" },
+    { ukrainian: "Гість", english: "Guest", pronunciation: "Hist" },
+    { ukrainian: "Сцена", english: "Stage", pronunciation: "Stse-na" },
+    { ukrainian: "Їжа", english: "Food", pronunciation: "Yi-zha" },
 ];
 
 const UkrainianWordOfTheDay: React.FC = () => {
