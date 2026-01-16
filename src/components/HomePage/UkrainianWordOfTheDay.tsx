@@ -55,15 +55,28 @@ const UkrainianWordOfTheDay: React.FC = () => {
     const [word, setWord] = useState<Word>(words[0]);
 
     useEffect(() => {
-        // Use the day of the year to pick a word
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 0);
-        const diff = now.getTime() - start.getTime();
-        const oneDay = 1000 * 60 * 60 * 24;
-        const dayOfYear = Math.floor(diff / oneDay);
-        
-        const index = dayOfYear % words.length;
-        setWord(words[index]);
+        const updateWord = () => {
+            // Use the day of the year to pick a word, based on "America/Edmonton" time
+            const now = new Date();
+            const timeZone = "America/Edmonton";
+            const edmontonDateString = now.toLocaleString("en-US", { timeZone });
+            const edmontonDate = new Date(edmontonDateString);
+
+            const start = new Date(edmontonDate.getFullYear(), 0, 0);
+            const diff = edmontonDate.getTime() - start.getTime();
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+
+            const index = dayOfYear % words.length;
+            setWord(words[index]);
+        };
+
+        updateWord();
+
+        // Check regularly if the day has changed
+        const interval = setInterval(updateWord, 60000); // 1 minute
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
