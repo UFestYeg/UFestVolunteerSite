@@ -48,6 +48,16 @@ const words: Word[] = [
     { ukrainian: "Вареники", english: "Dumplings (Varenyky)", pronunciation: "Va-re-ny-ky" },
     { ukrainian: "Борщ", english: "Borscht", pronunciation: "Borshch" },
     { ukrainian: "Вишиванка", english: "Embroidered shirt", pronunciation: "Vy-shy-van-ka" },
+    { ukrainian: "Волонтер", english: "Volunteer", pronunciation: "Vo-lon-ter" },
+    { ukrainian: "Фестиваль", english: "Festival", pronunciation: "Fes-ty-val" },
+    { ukrainian: "Допомога", english: "Help", pronunciation: "Do-po-mo-ha" },
+    { ukrainian: "Громада", english: "Community", pronunciation: "Hro-ma-da" },
+    { ukrainian: "Культура", english: "Culture", pronunciation: "Kul-tu-ra" },
+    { ukrainian: "Традиція", english: "Tradition", pronunciation: "Tra-dy-tsi-ya" },
+    { ukrainian: "Команда", english: "Team", pronunciation: "Ko-man-da" },
+    { ukrainian: "Гість", english: "Guest", pronunciation: "Hist" },
+    { ukrainian: "Сцена", english: "Stage", pronunciation: "Stse-na" },
+    { ukrainian: "Їжа", english: "Food", pronunciation: "Yi-zha" },
 ];
 
 const UkrainianWordOfTheDay: React.FC = () => {
@@ -55,15 +65,28 @@ const UkrainianWordOfTheDay: React.FC = () => {
     const [word, setWord] = useState<Word>(words[0]);
 
     useEffect(() => {
-        // Use the day of the year to pick a word
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 0);
-        const diff = now.getTime() - start.getTime();
-        const oneDay = 1000 * 60 * 60 * 24;
-        const dayOfYear = Math.floor(diff / oneDay);
-        
-        const index = dayOfYear % words.length;
-        setWord(words[index]);
+        const updateWord = () => {
+            // Use the day of the year to pick a word, based on "America/Edmonton" time
+            const now = new Date();
+            const timeZone = "America/Edmonton";
+            const edmontonDateString = now.toLocaleString("en-US", { timeZone });
+            const edmontonDate = new Date(edmontonDateString);
+
+            const start = new Date(edmontonDate.getFullYear(), 0, 0);
+            const diff = edmontonDate.getTime() - start.getTime();
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+
+            const index = dayOfYear % words.length;
+            setWord(words[index]);
+        };
+
+        updateWord();
+
+        // Check regularly if the day has changed
+        const interval = setInterval(updateWord, 60000); // 1 minute
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
