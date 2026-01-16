@@ -4,6 +4,7 @@ import { error, success } from "react-notification-system-redux";
 import { EventCategoryType } from "../../components/Calendar/EventCategory";
 import { UserUrls, VolunteerUrls } from "../../constants";
 import history from "../../history";
+import logger from "../../logger";
 import {
     IEventDate,
     IVolunteerCategory,
@@ -164,7 +165,7 @@ export const getVolunteerCategoryTypes = (cookies: any) => {
             axios
                 .get(VolunteerUrls.CATEGORY_TYPE_LIST)
                 .then((response) => {
-                    console.log(response.data);
+                    logger.debug(response.data);
                     dispatch(setCategoryTypes(response.data));
                 })
                 .catch((error) => {
@@ -174,23 +175,23 @@ export const getVolunteerCategoryTypes = (cookies: any) => {
                     if (error.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
+                        logger.error(error.response.data);
+                        logger.error(error.response.status);
+                        logger.error(error.response.headers);
                     } else if (error.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(error.request);
+                        logger.error(error.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
+                        logger.error("Error", error.message);
                     }
-                    console.log(error.config);
-                    console.error(error);
+                    logger.debug(error.config);
+                    logger.error(error);
                 });
         } else {
-            console.log("Unable to get category without token");
+            logger.warn("Unable to get category without token");
         }
     };
 };
@@ -208,7 +209,7 @@ export const getVolunteerCategories = (cookies: any) => {
             axios
                 .get(VolunteerUrls.CATEGORY_LIST)
                 .then((response) => {
-                    console.log(response.data);
+                    logger.debug(response.data);
                     dispatch(getVolunteerCategoriesSuccess(response.data));
                 })
                 .catch((error) => {
@@ -217,25 +218,25 @@ export const getVolunteerCategories = (cookies: any) => {
                     if (error.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
+                        logger.error(error.response.data);
+                        logger.error(error.response.status);
+                        logger.error(error.response.headers);
                     } else if (error.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(error.request);
+                        logger.error(error.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
+                        logger.error("Error", error.message);
                     }
-                    console.log(error.config);
-                    console.error(error);
+                    logger.debug(error.config);
+                    logger.error(error);
                     dispatch(getVolunteerCategoriesFail(error));
                     // TODO: send notification and redirect
                 });
         } else {
-            console.log("Unable to get categories without token");
+            logger.warn("Unable to get categories without token");
         }
     };
 };
@@ -255,7 +256,7 @@ export const getVolunteerCategoryOfType = (
             axios
                 .get(VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID))
                 .then((response) => {
-                    console.log(response.data);
+                    logger.debug(response.data);
                     dispatch(setVolunteerCategoriesOfType(response.data));
                 })
                 .catch((error) => {
@@ -264,24 +265,24 @@ export const getVolunteerCategoryOfType = (
                     if (error.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
+                        logger.error(error.response.data);
+                        logger.error(error.response.status);
+                        logger.error(error.response.headers);
                     } else if (error.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(error.request);
+                        logger.error(error.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
+                        logger.error("Error", error.message);
                     }
-                    console.log(error.config);
-                    console.error(error);
+                    logger.debug(error.config);
+                    logger.error(error);
                     // TODO: send notification and redirect
                 });
         } else {
-            console.log("Unable to get category without token");
+            logger.warn("Unable to get category without token");
         }
     };
 };
@@ -299,7 +300,7 @@ export const getEventDates = (cookies: any) => {
             axios
                 .get(VolunteerUrls.EVENT_DATES_LIST)
                 .then((response) => {
-                    console.log(response.data);
+                    logger.debug(response.data);
                     dispatch(getEventDatesSuccess(response.data));
                 })
                 .catch((error) => {
@@ -309,25 +310,25 @@ export const getEventDates = (cookies: any) => {
                     if (error.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.error("Error");
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
+                        logger.error("Error");
+                        logger.error(error.response.data);
+                        logger.error(error.response.status);
+                        logger.error(error.response.headers);
                     } else if (error.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log("Error", error.request);
+                        logger.error("Error", error.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
+                        logger.error("Error", error.message);
                     }
-                    console.log(error.config);
-                    console.error(error);
+                    logger.debug(error.config);
+                    logger.error(error);
                     dispatch(getEventDatesSuccess(error));
                 });
         } else {
-            console.log("Unable to get eventdates without token");
+            logger.warn("Unable to get eventdates without token");
         }
     };
 };
@@ -411,7 +412,7 @@ export const getMappedVolunteerRoles = (cookies: any) => {
                 })
                 .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
         } else {
-            console.log("Unable to get mapped roles without token");
+            logger.warn("Unable to get mapped roles without token");
         }
     };
 };
@@ -475,7 +476,7 @@ export const getMappedVolunteerRolesLegacy = (cookies: any) => {
                 })
                 .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
         } else {
-            console.log("Unable to get mapped roles without token");
+            logger.warn("Unable to get mapped roles without token");
         }
     };
 };
@@ -486,7 +487,7 @@ export const acceptRequest = (
     browserState: any,
     cookies: any
 ) => {
-    console.log("request", request);
+    logger.debug("request", request);
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
@@ -513,27 +514,27 @@ export const acceptRequest = (
                     // redirect to the route '/profile'
                     history.replace(redirectUrl, browserState);
                     history.go(0);
-                    console.log(res);
+                    logger.debug(res);
                 })
                 .catch((err) => {
                     dispatch(acceptRequestFail(err));
                     if (err.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
+                        logger.error(err.response.data);
+                        logger.error(err.response.status);
+                        logger.error(err.response.headers);
                     } else if (err.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(err.request);
+                        logger.error(err.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
+                        logger.error("Error", err.message);
                     }
-                    console.log(err.config);
-                    console.error(err);
+                    logger.debug(err.config);
+                    logger.error(err);
                 });
         }
     };
@@ -570,27 +571,27 @@ export const denyRequest = (
                     dispatch(denyRequestSuccess());
                     history.replace(redirectUrl, browserState);
                     history.go(0);
-                    console.log("res", res);
+                    logger.debug("res", res);
                 })
                 .catch((err) => {
                     dispatch(denyRequestFail(err));
                     if (err.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
+                        logger.error(err.response.data);
+                        logger.error(err.response.status);
+                        logger.error(err.response.headers);
                     } else if (err.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(err.request);
+                        logger.error(err.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
+                        logger.error("Error", err.message);
                     }
-                    console.log(err.config);
-                    console.error(err);
+                    logger.debug(err.config);
+                    logger.error(err);
                 });
         }
     };
@@ -628,7 +629,7 @@ export const changeRequestRole = (
                     };
                     dispatch(success(notificationOpts));
                     dispatch(changeRequestRoleSuccess());
-                    console.log(res);
+                    logger.debug(res);
                     history.replace(redirectUrl, browserState);
                     history.go(0);
                 })
@@ -650,20 +651,20 @@ export const changeRequestRole = (
                     if (err.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
+                        logger.error(err.response.data);
+                        logger.error(err.response.status);
+                        logger.error(err.response.headers);
                     } else if (err.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(err.request);
+                        logger.error(err.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
+                        logger.error("Error", err.message);
                     }
-                    console.log(err.config);
-                    console.error(err);
+                    logger.debug(err.config);
+                    logger.error(err);
                 });
         }
     };

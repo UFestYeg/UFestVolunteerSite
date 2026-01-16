@@ -5,6 +5,7 @@ import React from "react";
 import { NavigateAction, TitleOptions } from "react-big-calendar";
 import TimeGrid from "react-big-calendar/lib/TimeGrid";
 import { connect } from "react-redux";
+import logger from "../../logger";
 import { IEventDate, State } from "../../store/types";
 import { getEarliestDate, getLatestDate } from "../../utils";
 
@@ -28,14 +29,14 @@ class UFestDay extends React.Component<{
         switch (action) {
             case "PREV":
                 if (moment(date).isAfter(UFEST_VOLUNTEERING_START_DATE)) {
-                    console.log("prev");
+                    logger.debug("prev");
                     return moment(date).subtract(1, "d").toDate();
                 } else {
                     return date;
                 }
             case "NEXT":
                 if (moment(date).isBefore(UFEST_VOLUNTEERING_END_DATE)) {
-                    console.log("next");
+                    logger.debug("next");
                     return moment(date).add(1, "d").toDate();
                 } else {
                     return date;

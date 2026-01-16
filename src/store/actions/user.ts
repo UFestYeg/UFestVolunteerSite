@@ -3,6 +3,7 @@ import { Notification } from "react-notification-system";
 import { error, success } from "react-notification-system-redux";
 import { AuthUrls, UserUrls } from "../../constants";
 import history from "../../history";
+import logger from "../../logger";
 import { IProfileEditFormValues } from "../../store/types";
 import {
     DefaultUser,
@@ -84,7 +85,7 @@ export const getUserProfile = (cookies: any, userID?: number) => {
             axios
                 .get(userProfileUrl)
                 .then((response) => {
-                    console.log(response.data);
+                    logger.debug(response.data);
                     userID
                         ? dispatch(getViewedUserProfileSucces(response.data))
                         : dispatch(getUserProfileSucces(response.data));
@@ -92,7 +93,7 @@ export const getUserProfile = (cookies: any, userID?: number) => {
                 .catch((reqError) => {
                     // If request is bad...
                     // Show an error to the user
-                    console.error(reqError);
+                    logger.error(reqError);
                     dispatch(getUserProfileFail(reqError));
                     // TODO: send notification and redirect
                     const notificationOpts: Notification = {
@@ -104,7 +105,7 @@ export const getUserProfile = (cookies: any, userID?: number) => {
                     dispatch(error(notificationOpts));
                 });
         } else {
-            console.log("Unable to get user without token");
+            logger.warn("Unable to get user without token");
         }
     };
 };
@@ -125,7 +126,7 @@ export const updateUserProfile = (
         axios
             .patch(AuthUrls.USER_PROFILE, formValues)
             .then((response) => {
-                console.log(response);
+                logger.debug(response);
                 const notificationOpts: Notification = {
                     title: "Success!",
                     message: "Your profile was updated.",

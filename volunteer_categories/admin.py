@@ -11,6 +11,9 @@ from backend.settings import TIME_ZONE
 from pytz import timezone
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
+import logging
+
+logger = logging.getLogger(__name__)
 
 _today = datetime.datetime.now()
 datetime_one = datetime.datetime(_today.year, 5, 25, 8)
@@ -326,9 +329,9 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                             if dt in day_heading:
                                 row[day_heading.index(dt)] = volunteers[i]
                             else:
-                                print(f"Event not within event range {dt}")
+                                logger.warning(f"Event not within event range {dt}")
                         except:
-                            print(f"invalid date {day_heading.index(dt)}")
+                            logger.error(f"invalid date {day_heading.index(dt)}")
                     csv_writer.writerow(row)
 
         response = HttpResponse(content_type="text/csv")
@@ -341,7 +344,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
 
             start_day = date.day
             end_date = (date + datetime.timedelta(days=1))
-            print(f"Processing schedule for {label} with {len(date_roles)} roles on date range {start_day} to {end_date.strftime('%Y-%m-%d')}")
+            logger.info(f"Processing schedule for {label} with {len(date_roles)} roles on date range {start_day} to {end_date.strftime('%Y-%m-%d')}")
 
             date_times = time_range_for_day(
                 start_year=date.year,
@@ -361,7 +364,7 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
 
             writer.writerow([label])
             writer.writerow(new_heading)
-            print(f"Writing schedule for {label} with {len(date_roles)} roles in {len(new_heading)} slots")
+            logger.info(f"Writing schedule for {label} with {len(date_roles)} roles in {len(new_heading)} slots")
             write_day_schedule_to_csv(writer, date_roles, new_heading)
 
         LogEntry.objects.log_action(
