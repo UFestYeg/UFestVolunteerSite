@@ -18,14 +18,17 @@ from django.urls import path, include, re_path
 from django.conf import settings
 
 from .views import index
+from user_profile.views import CustomUserDetailsView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("reset/<str:uid>/<str:token>/", index, name="index"),
+    path("reset_password/", index, name="password_reset"),
+    path("reset/<str:uidb64>/<str:token>/", index, name="password_reset_confirm"),
     path("account/confirm-email/<str:key>/", index, name="index"),
-    re_path(r"^", include("django.contrib.auth.urls")),
+    # re_path(r"^", include("django.contrib.auth.urls")),
     re_path(r"^account/", include("allauth.urls")),
     path("api-auth/", include("rest_framework.urls")),
+    path("rest-auth/user/", CustomUserDetailsView.as_view(), name="rest_user_details"),
     path("rest-auth/", include("rest_auth.urls")),
     path("rest-auth/registration/", include("rest_auth.registration.urls")),
     path("api/", include("volunteer_categories.api.urls")),

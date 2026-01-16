@@ -1,7 +1,11 @@
 import React from "react";
 import { Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
 import { NotFoundPage } from "../components/NotFoundPage";
-import { ProfileCalendar, ProfileInfo } from "../components/ProfilePage";
+import {
+    ProfileCalendar,
+    ProfileInfo,
+    VolunteerScheduleSummary,
+} from "../components/ProfilePage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 
 const ProfileRoutes: React.FC = () => {
@@ -23,6 +27,11 @@ const ProfileRoutes: React.FC = () => {
                     exact
                     path={`${path}/schedule`}
                     component={ProfileCalendar}
+                />
+                <ProtectedRoute
+                    exact
+                    path={`${path}/summary`}
+                    component={VolunteerScheduleSummary}
                 />
                 <ProtectedRoute path="*" component={NotFoundPage} />
             </Switch>

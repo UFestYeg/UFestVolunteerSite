@@ -16,6 +16,10 @@ const ProfileRoutes: React.FC = () => {
             label: "My Schedule",
             target: `${url}/schedule`,
         },
+        {
+            label: "My Summary",
+            target: `${url}/summary`,
+        },
     ];
 
     return (

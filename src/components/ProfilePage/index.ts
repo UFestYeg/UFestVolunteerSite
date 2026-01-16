@@ -1,3 +1,5 @@
 import ProfileCalendar from "./ProfileCalendar";
 import ProfileInfo from "./ProfileInfo";
-export { ProfileInfo, ProfileCalendar };
+import VolunteerScheduleSummary from "./VolunteerScheduleSummary";
+
+export { ProfileInfo, ProfileCalendar, VolunteerScheduleSummary };
