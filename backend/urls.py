@@ -28,6 +28,7 @@ urlpatterns = [
     # re_path(r"^", include("django.contrib.auth.urls")),
     re_path(r"^account/", include("allauth.urls")),
     path("api-auth/", include("rest_framework.urls")),
+    # Override the default `rest-auth/user/` endpoint from `rest_auth.urls` with a custom view
     path("rest-auth/user/", CustomUserDetailsView.as_view(), name="rest_user_details"),
     path("rest-auth/", include("rest_auth.urls")),
     path("rest-auth/registration/", include("rest_auth.registration.urls")),

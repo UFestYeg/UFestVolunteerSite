@@ -120,7 +120,7 @@ const VolunteerScheduleSummary: React.FC = () => {
                 <Table className={classes.table} aria-label="schedule table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Actvity</TableCell>
+                            <TableCell>Activity</TableCell>
                             <TableCell>Role</TableCell>
                             <TableCell>Start Time</TableCell>
                             <TableCell>End Time</TableCell>
@@ -162,6 +162,5 @@ const VolunteerScheduleSummary: React.FC = () => {
         </Container>
     );
 };
-
 
 export default VolunteerScheduleSummary;

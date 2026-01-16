@@ -160,11 +160,10 @@ const PositionRequestPage: React.FC = () => {
                                     category.role_title.toLowerCase()
                             );
                             d.role = JSON.parse(JSON.stringify(role));
-                            if (d.role) {
-                                d.role.category = { title: d.title };
-                            }
+                            d.role.category = d.role.category
+                                    ? { ...d.role.category, title: d.title }
+                                    : { title: d.title };
                             d.start_time = new Date(d.start_time);
-
                             d.end_time = new Date(d.end_time);
                             return d;
                         });
