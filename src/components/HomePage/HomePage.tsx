@@ -12,6 +12,7 @@ import { KeyboardArrowDown as KeyboardArrowDownIcon } from "@material-ui/icons";
 import clsx from "clsx";
 import React from "react";
 import { StateHooks } from "../../store/hooks";
+import UkrainianWordOfTheDay from "./UkrainianWordOfTheDay";
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -144,6 +145,9 @@ const HomePage: React.FC = () => {
                     alignItems="center"
                     spacing={8}
                 >
+                    <Grid item xs={12}>
+                        <UkrainianWordOfTheDay />
+                    </Grid>
                     <Grid item xs={12}>
                         <Typography variant="h2">To begin:</Typography>
                     </Grid>

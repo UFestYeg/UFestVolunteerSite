@@ -28,7 +28,7 @@ import {
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
 import { Notification } from "react-notification-system";
-import { error, success } from "react-notification-system-redux";
+import { error, success, warning } from "react-notification-system-redux";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
@@ -115,6 +115,7 @@ const PositionRequestPage: React.FC = () => {
         : NaN;
     const roleID = roleIDStr ? parseInt(roleIDStr, 10) : undefined;
     const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
+    const eventDatesLoading = StateHooks.useEventDatesLoading();
     const userProfile = StateHooks.useUserProfile();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
@@ -159,6 +160,9 @@ const PositionRequestPage: React.FC = () => {
                                     category.role_title.toLowerCase()
                             );
                             d.role = JSON.parse(JSON.stringify(role));
+                            d.role.category = d.role.category
+                                    ? { ...d.role.category, title: d.title }
+                                    : { title: d.title };
                             d.start_time = new Date(d.start_time);
                             d.end_time = new Date(d.end_time);
                             return d;
@@ -211,6 +215,17 @@ const PositionRequestPage: React.FC = () => {
         };
 
         const handleSubmit = (role: any) => {
+            if (moment(event.start_time).year() < moment().year()) {
+                const warningOpts: Notification = {
+                    title: "Warning!",
+                    message:
+                        "This event is from a previous year. The website might not be updated yet. Send an email to volunteerufest@gmail.com to confirm availability.",
+                    position: "tr",
+                    autoDismiss: 10,
+                };
+                dispatch(warning(warningOpts));
+            }
+
             axios
                 .post(VolunteerUrls.REQUESTS, {
                     status: "PENDING",
@@ -372,7 +387,7 @@ const PositionRequestPage: React.FC = () => {
 
     return (
         <Container>
-            {loading ? (
+            {loading || eventDatesLoading ? (
                 <Loading />
             ) : (
                 <Calendar
