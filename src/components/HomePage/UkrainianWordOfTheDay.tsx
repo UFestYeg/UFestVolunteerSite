@@ -27,6 +27,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+const TIMEZONE = "America/Edmonton";
+
 type Word = {
     ukrainian: string;
     english: string;
@@ -65,29 +67,60 @@ const UkrainianWordOfTheDay: React.FC = () => {
     const [word, setWord] = useState<Word>(words[0]);
 
     useEffect(() => {
-        const updateWord = () => {
-            // Use the day of the year to pick a word, based on "America/Edmonton" time
-            const now = new Date();
-            const timeZone = "America/Edmonton";
-            const edmontonDateString = now.toLocaleString("en-US", { timeZone });
-            const edmontonDate = new Date(edmontonDateString);
+        let timeoutId: any;
 
-            const start = new Date(edmontonDate.getFullYear(), 0, 0);
+        const updateWord = () => {
+            // Use the day of the year to pick a word, calculated in a fixed "America/Edmonton"
+            // timezone instead of the user's local timezone. This ensures that all users see
+            // the same "word of the day" rollover moment globally, using Edmonton time as the
+            // canonical reference for this project.
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat("en-CA", {
+                timeZone: TIMEZONE,
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+            });
+            const parts = formatter.formatToParts(now);
+            const year = Number(parts.find((p) => p.type === "year")?.value);
+            const month = Number(parts.find((p) => p.type === "month")?.value);
+            const day = Number(parts.find((p) => p.type === "day")?.value);
+            const edmontonDate = new Date(year, month - 1, day);
+
+            const start = new Date(edmontonDate.getFullYear(), 0, 1);
             const diff = edmontonDate.getTime() - start.getTime();
             const oneDay = 1000 * 60 * 60 * 24;
             const dayOfYear = Math.floor(diff / oneDay);
 
             const index = dayOfYear % words.length;
             setWord(words[index]);
+
+            // Calculate time until next midnight in "America/Edmonton"
+            const timeFormatter = new Intl.DateTimeFormat("en-US", {
+                timeZone: TIMEZONE,
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                hour12: false,
+            });
+            const timeParts = timeFormatter.formatToParts(now);
+            const h = Number(timeParts.find((p) => p.type === "hour")?.value);
+            const m = Number(timeParts.find((p) => p.type === "minute")?.value);
+            const s = Number(timeParts.find((p) => p.type === "second")?.value);
+
+            // Handle potential 24-hour clock issues
+            const hour = h === 24 ? 0 : h;
+            const msPassed = (hour * 3600 + m * 60 + s) * 1000 + now.getMilliseconds();
+            const msUntilMidnight = 86400000 - msPassed;
+
+            // Schedule the next update
+            timeoutId = setTimeout(updateWord, msUntilMidnight + 1000);
         };
 
         updateWord();
 
-        // Check regularly if the day has changed
-        const interval = setInterval(updateWord, 60000); // 1 minute
-
-        return () => clearInterval(interval);
-    }, []);
+        return () => clearTimeout(timeoutId);
+    }, [words]);
 
     return (
         <Card className={classes.root}>
