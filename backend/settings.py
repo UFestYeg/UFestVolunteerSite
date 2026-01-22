@@ -232,3 +232,17 @@ CRONJOBS = [
 ]
 
 POST_OFFICE = {"MAX_RETRIES": 4, "RETRY_INTERVAL": datetime.timedelta(minutes=15)}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

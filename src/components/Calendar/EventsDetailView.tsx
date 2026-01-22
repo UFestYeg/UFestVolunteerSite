@@ -22,6 +22,7 @@ import {
     momentLocalizer,
     ToolbarProps,
 } from "react-big-calendar";
+import logger from "../../logger";
 // tslint:disable-next-line: no-submodule-imports
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 // tslint:disable-next-line: no-submodule-imports
@@ -163,7 +164,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                     start_time: start,
                 })
                 .then((res) => {
-                    console.log(res);
+                    logger.debug(res);
                     history.replace(url, browserState);
                     history.go(0);
                 })
@@ -171,27 +172,27 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                     if (err.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
+                        logger.error(err.response.data);
+                        logger.error(err.response.status);
+                        logger.error(err.response.headers);
                     } else if (err.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(err.request);
+                        logger.error(err.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
+                        logger.error("Error", err.message);
                     }
-                    console.log(err.config);
-                    console.error(err);
+                    logger.debug(err.config);
+                    logger.error(err);
                 });
         }
     };
 
     const onEventResize = (data: DragAndDropData) => {
         const { start, end, event } = data;
-        console.log(start, end);
+        logger.debug(start, end);
         const nextEvents = currentList.map((existingEvent) => {
             return existingEvent.id === event.id
                 ? { ...existingEvent, start_time: start, end_time: end }

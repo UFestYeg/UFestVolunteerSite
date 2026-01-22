@@ -7,6 +7,9 @@ from django.contrib.admin.models import LogEntry, CHANGE
 from user_profile.models import UserProfile
 from volunteer_categories.models import Request
 from django.contrib.contenttypes.models import ContentType
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Register your models here.
 
@@ -32,7 +35,7 @@ class UserAdmin(BaseUserAdmin):
     def export_emails_as_csv(self, request, queryset):
         meta = self.model._meta
 
-        print(meta.fields)
+        logger.debug(meta.fields)
         field_names = ["first_name", "last_name", "email"]
 
         response = HttpResponse(content_type="text/csv")
@@ -62,8 +65,8 @@ class UserAdmin(BaseUserAdmin):
         # queryset is users so get the profiles instead
         profile_queryset = UserProfile.profiles.filter(user__in=queryset)
 
-        print(meta.fields)
-        print(queryset)
+        logger.debug(meta.fields)
+        logger.debug(queryset)
         user_field_names = [
             "first_name",
             "last_name",

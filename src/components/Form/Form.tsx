@@ -18,6 +18,7 @@ import {
     KeyboardDateTimePicker,
     MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import logger from "../../logger";
 import axios from "axios";
 import clsx from "clsx";
 import { Form, Formik } from "formik";
@@ -115,10 +116,10 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                             end_time: endTime,
                         })
                         .then((res) => {
-                            console.log(res);
+                            logger.debug(res);
                             history.push("/volunteer/calendar");
                         })
-                        .catch((err) => console.error(err));
+                        .catch((err) => logger.error(err));
                     break;
                 case "PUT":
                     if (positionID) {
@@ -131,12 +132,12 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                 end_time: endTime,
                             })
                             .then((res) => {
-                                console.log(res);
+                                logger.debug(res);
                                 history.push("/volunteer/calendar");
                             })
-                            .catch((err) => console.error(err));
+                            .catch((err) => logger.error(err));
                     } else {
-                        console.log("cannot update without `positionID`");
+                        logger.error("cannot update without `positionID`");
                     }
                     break;
             }
@@ -266,7 +267,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                         id="start-time"
                                         label="Start time picker"
                                         onChange={(value) => {
-                                            console.log(
+                                            logger.debug(
                                                 "setting value to",
                                                 value
                                             );
@@ -297,7 +298,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                         id="end-time"
                                         label="End time picker"
                                         onChange={(value) => {
-                                            console.log(
+                                            logger.debug(
                                                 "setting value to",
                                                 value
                                             );

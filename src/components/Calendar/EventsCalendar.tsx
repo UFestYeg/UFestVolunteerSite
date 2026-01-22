@@ -11,6 +11,7 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import EventsCategoryView from "./EventsCategoryView";
 import EventsDetailView from "./EventsDetailView";
 import { useCookies } from "react-cookie";
+import logger from "../../logger";
 
 export type VolunteerCategoryType = {
     id: number;
@@ -38,7 +39,7 @@ const EventsCalendar: React.FC = () => {
     const dispatch = useDispatch();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
-    console.log(`earliest ${earliest}`);
+    logger.debug(`earliest ${earliest}`);
 
     const defaultIsCategoryView =
         state && state.oldCategoryView !== undefined

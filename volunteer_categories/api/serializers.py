@@ -10,7 +10,9 @@ from django.db.utils import IntegrityError
 from django.contrib.auth.models import User
 from backend import settings
 from post_office import mail
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CategoryTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -121,7 +123,7 @@ class RequestSerializer(serializers.ModelSerializer):
                 {"detail": "Duplicate requests not allowed."}
             )
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            logger.error(f"Unexpected error: {e}")
             raise e
 
     def update(self, instance, validated_data):
@@ -202,7 +204,7 @@ class RequestSerializer(serializers.ModelSerializer):
                 {"detail": "Duplicate requests not allowed."}
             )
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            logger.error(f"Unexpected error: {e}")
             raise e
 
 

@@ -21,6 +21,8 @@ import {
 } from "@material-ui/core";
 // tslint:disable-next-line: no-submodule-imports
 import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import logger from "../../logger";
+
 import {
     Cancel,
     CancelPresentation,
@@ -309,9 +311,9 @@ const EventCategory = ({
 
         const handleOkClick = (submitRoleID: number | string) => {
             if (submitRoleID) {
-                console.log("request", submitRequest);
-                console.log("data", data);
-                console.log("index", index);
+                logger.debug("request", submitRequest);
+                logger.debug("data", data);
+                logger.debug("index", index);
                 const submitMappedRole = mappedRoles.find((role: any) => {
                     return role.roleID === submitRoleID;
                 });

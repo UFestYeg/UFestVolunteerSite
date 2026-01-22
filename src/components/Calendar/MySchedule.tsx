@@ -23,6 +23,7 @@ import { getEarliestDate } from "../../utils";
 import UFestWeek from "./UFestWeek";
 import UFestDay from "./UFestDay";
 import { Loading } from "../Loading";
+import logger from "../../logger";
 
 type UserRequestType = {
     id: number;
@@ -132,9 +133,9 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     const localizer = momentLocalizer(moment);
 
     const earliest = getEarliestDate(eventDates) ?? new Date();
-    console.log(`event dates ${eventDates}`);
+    logger.debug(`event dates ${eventDates}`);
 
-    console.log(`Earliest date ${earliest}`);
+    logger.debug(`Earliest date ${earliest}`);
     return (
         <Container maxWidth="lg">
             {loading ? (

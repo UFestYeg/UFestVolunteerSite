@@ -37,6 +37,7 @@ import { StateHooks } from "../../store/hooks";
 import { getEarliestDate } from "../../utils";
 import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
 import { Loading } from "../Loading";
+import logger from "../../logger";
 
 type ScheduleEventType = {
     id: number;
@@ -123,7 +124,7 @@ const PositionRequestPage: React.FC = () => {
     const token = StateHooks.useToken();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
-    console.log(`early ${earliest}`);
+    logger.debug(`early ${earliest}`);
 
     useEffect(() => {
         if (token && !isNaN(categoryTypeID)) {
@@ -183,11 +184,11 @@ const PositionRequestPage: React.FC = () => {
                             []
                         );
                     }
-                    console.log("mappedData");
-                    console.log(mappedData);
+                    logger.debug("mappedData");
+                    logger.debug(mappedData);
                     setList(mappedData);
                 })
-                .catch((err) => console.error(err));
+                .catch((err) => logger.error(err));
         }
     }, [categoryTypeID, dispatch, roleID, token, cookies.csrftoken]);
 
@@ -233,7 +234,7 @@ const PositionRequestPage: React.FC = () => {
                     role,
                 })
                 .then((res) => {
-                    console.log(res);
+                    logger.debug(res);
                     history.push("/volunteer", {
                         fromRequestPage: true,
                         title: role.title,
@@ -252,21 +253,21 @@ const PositionRequestPage: React.FC = () => {
                     if (err.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
+                        logger.error(err.response.data);
+                        logger.error(err.response.status);
+                        logger.error(err.response.headers);
                         errDetail = err.response.data.detail;
                     } else if (err.request) {
                         // The request was made but no response was received
                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
                         // http.ClientRequest in node.js
-                        console.log(err.request);
+                        logger.error(err.request);
                     } else {
                         // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
+                        logger.error("Error", err.message);
                     }
-                    console.log(err.config);
-                    console.error(err);
+                    logger.debug(err.config);
+                    logger.error(err);
                     const notificationOpts: Notification = {
                         title: "Oops, something went wrong!",
                         message: `Could not submit request. ${errDetail}`,
