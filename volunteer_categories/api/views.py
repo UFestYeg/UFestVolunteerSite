@@ -69,7 +69,11 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
                 )
                 queryset = queryset.filter(start_time__range=[start_date, end_date])
         except Exception as e:
-            logger.error(f"Issue {e}")
+            logger.error(
+                "Error filtering VolunteerCategory queryset by event dates: %s",
+                e,
+                exc_info=True,
+            )
         return queryset
 
     @action(detail=False, methods=['get'], url_path='with-requests')
@@ -187,7 +191,10 @@ class RequestViewSet(viewsets.ModelViewSet):
                 )
                 queryset = queryset.filter(role__category__start_time__range=[start_date, end_date])
         except Exception as e:
-            logger.error(f"Issue {e}")
+            logger.error(
+                f"Error filtering request queryset by event dates with use_event_dates={use_event_dates}: {e}",
+                exc_info=True,
+            )
         return queryset
     
     def perform_create(self, serializer):
