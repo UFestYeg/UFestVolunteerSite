@@ -1,8 +1,8 @@
-import { Card, CardContent, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Card, CardContent, Typography } from "@mui/material";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect, useState } from "react";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     root: {
         marginTop: theme.spacing(2),
         marginBottom: theme.spacing(2),
@@ -51,7 +51,7 @@ const words: Word[] = [
 ];
 
 const UkrainianWordOfTheDay: React.FC = () => {
-    const classes = useStyles();
+    const { classes } = useStyles();
     const [word, setWord] = useState<Word>(words[0]);
 
     useEffect(() => {

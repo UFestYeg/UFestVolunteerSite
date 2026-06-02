@@ -17,24 +17,25 @@ import {
     MenuItem,
     Popover,
     Select,
+    SelectChangeEvent,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import {
     Cancel,
     CancelPresentation,
     CheckBox,
     FiberManualRecord,
     SwapVert,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import moment from "moment";
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { useHistory, useRouteMatch } from "react-router-dom";
-import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { useLocation, useNavigate } from "react-router-dom";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { Loading } from "../Loading";
 
 export type EventCategoryType = {
@@ -89,8 +90,8 @@ interface IEventCategory {
     defaultDate: Date | null;
 }
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         card: {
             transition: "0.3s",
             boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
@@ -163,8 +164,8 @@ const RoleSelect: React.FC<IRoleSelectProps> = ({
     setRoleId,
 }) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const { classes } = useStyles();
+    const handleChange = (event: SelectChangeEvent<string | number>) => {
         setRoleId(Number(event.target.value) || "");
     };
 
@@ -191,7 +192,6 @@ const RoleSelect: React.FC<IRoleSelectProps> = ({
                                         ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
                                 },
                             },
-                            getContentAnchorEl: null,
                             variant: "menu",
                         }}
                     >
@@ -227,11 +227,11 @@ const EventCategory = ({
     selectedCategories,
     defaultDate,
 }: IEventCategory) => {
-    const history = useHistory();
-    const { url } = useRouteMatch();
+    const navigate = useNavigate();
+    const { pathname: url } = useLocation();
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [_categories, loading, error] = StateHooks.useVolunteerInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -343,179 +343,172 @@ const EventCategory = ({
         };
 
         const handleProfileClick = () => {
-            history.replace(url, browserState);
-            history.push(`/volunteer/users/${request.user_profile.pk}`);
+            navigate(url, { state: browserState, replace: true });
+            navigate(`/volunteer/users/${request.user_profile.pk}`);
         };
 
-        return (
-            <>
-                {request && request.user_profile ? (
-                    <>
-                        <ListItem key={index} divider={useDivider} button>
-                            <ListItemIcon>
-                                <FiberManualRecord />
-                            </ListItemIcon>
-                            <ListItemText
-                                secondary={`Status: ${request.status}`}
-                                secondaryTypographyProps={{
-                                    color: "textPrimary",
-                                }}
-                            >
-                                <Typography>
-                                    <Button
-                                        onClick={handleProfileClick}
-                                        size="medium"
-                                        color="primary"
-                                    >
-                                        {`${request.user_profile.first_name} ${request.user_profile.last_name}`}
-                                    </Button>
-                                </Typography>
-                            </ListItemText>
+        return <>
+            {request && request.user_profile ? (
+                <>
+                    <ListItem key={index} divider={useDivider} button>
+                        <ListItemIcon>
+                            <FiberManualRecord />
+                        </ListItemIcon>
+                        <ListItemText
+                            secondary={`Status: ${request.status}`}
+                            secondaryTypographyProps={{
+                                color: "textPrimary",
+                            }}
+                        >
+                            <Typography>
+                                <Button
+                                    onClick={handleProfileClick}
+                                    size="medium"
+                                    color="primary"
+                                >
+                                    {`${request.user_profile.first_name} ${request.user_profile.last_name}`}
+                                </Button>
+                            </Typography>
+                        </ListItemText>
 
+                        <IconButton
+                            edge="end"
+                            className={classes.accept}
+                            aria-label="accept"
+                            onMouseDown={handleClickOpen}
+                            size="large">
+                            <SwapVert />
+                        </IconButton>
+                        <form>
                             <IconButton
                                 edge="end"
                                 className={classes.accept}
                                 aria-label="accept"
-                                onMouseDown={handleClickOpen}
-                            >
-                                <SwapVert />
+                                onMouseDown={handleAcceptClick}
+                                disabled={isPositionFull()}
+                                size="large">
+                                <CheckBox />
                             </IconButton>
-                            <form>
-                                <IconButton
-                                    edge="end"
-                                    className={classes.accept}
-                                    aria-label="accept"
-                                    onMouseDown={handleAcceptClick}
-                                    disabled={isPositionFull()}
-                                >
-                                    <CheckBox />
-                                </IconButton>
+                        </form>
+                        <form>
+                            <IconButton
+                                edge="end"
+                                className={classes.deny}
+                                aria-label="deny"
+                                onMouseDown={handleDenyClick}
+                                size="large">
+                                <CancelPresentation />
+                            </IconButton>
+                        </form>
+                    </ListItem>
+                    <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+                        <DialogTitle>Choose a New Position</DialogTitle>
+                        <DialogContent>
+                            <form
+                                id="change-request-role"
+                                className={classes.container}
+                                onSubmit={handleSubmit}
+                            >
+                                <RoleSelect
+                                    roleID={roleID}
+                                    setRoleId={setRoleId}
+                                    options={mappedRoles}
+                                />
                             </form>
-                            <form>
-                                <IconButton
-                                    edge="end"
-                                    className={classes.deny}
-                                    aria-label="deny"
-                                    onMouseDown={handleDenyClick}
-                                >
-                                    <CancelPresentation />
-                                </IconButton>
-                            </form>
-                        </ListItem>
-                        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-                            <DialogTitle>Choose a New Position</DialogTitle>
-                            <DialogContent>
-                                <form
-                                    id="change-request-role"
-                                    className={classes.container}
-                                    onSubmit={handleSubmit}
-                                >
-                                    <RoleSelect
-                                        roleID={roleID}
-                                        setRoleId={setRoleId}
-                                        options={mappedRoles}
-                                    />
-                                </form>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button
-                                    onMouseDown={handleCloseDialog}
-                                    color="primary"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    form="change-request-role"
-                                    color="primary"
-                                >
-                                    Ok
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
-                    </>
-                ) : null}
-            </>
-        );
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                onMouseDown={handleCloseDialog}
+                                color="primary"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                form="change-request-role"
+                                color="primary"
+                            >
+                                Ok
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                </>
+            ) : null}
+        </>;
     };
 
     const popoverOpen = Boolean(anchorEl);
     const id = popoverOpen ? "simple-popover" : undefined;
 
-    return (
-        <>
-            <Container onClick={handleClick} className={classes.eventRoot}>
-                <strong>{event.title}</strong>
-                <br />
-                Available Positions:{" "}
-                {event.number_of_positions !== null &&
-                event.number_of_open_positions !== null
-                    ? `${event.number_of_open_positions}/${event.number_of_positions}`
-                    : "N/A"}
-            </Container>
-            <Popover
-                id={id}
-                open={popoverOpen}
-                anchorEl={anchorEl}
-                onClose={handleClosePopover}
-                anchorOrigin={{
-                    horizontal: "center",
-                    vertical: "top",
-                }}
-                transformOrigin={{
-                    horizontal: "center",
-                    vertical: "bottom",
-                }}
-            >
-                <Card className={classes.card}>
-                    {loading ? (
-                        <Loading />
-                    ) : (
-                        <>
-                            <CardHeader
-                                className={classes.cardHeader}
-                                action={
-                                    <IconButton
-                                        aria-label="close"
-                                        onClick={handleClosePopover}
-                                    >
-                                        <Cancel />
-                                    </IconButton>
-                                }
-                                title="Requests"
-                                subheader={`${event.category}: ${event.title}`}
-                            />
-                            <CardContent className={classes.cardContent}>
-                                <Typography color="error">
-                                    {error && error.reponse
-                                        ? error.reponse.data
-                                        : null}
-                                </Typography>
-                                {requests && requests.length > 0 ? (
-                                    <List className={classes.list}>
-                                        {requests.map(
-                                            (
-                                                r: any,
-                                                index: number,
-                                                arr: any[]
-                                            ) =>
-                                                renderRow({
-                                                    request: r,
-                                                    data: arr,
-                                                    index,
-                                                })
-                                        )}
-                                    </List>
-                                ) : (
-                                    <Typography>No Requests</Typography>
-                                )}
-                            </CardContent>
-                        </>
-                    )}
-                </Card>
-            </Popover>
-        </>
-    );
+    return <>
+        <Container onClick={handleClick} className={classes.eventRoot}>
+            <strong>{event.title}</strong>
+            <br />
+            Available Positions:{" "}
+            {event.number_of_positions !== null &&
+            event.number_of_open_positions !== null
+                ? `${event.number_of_open_positions}/${event.number_of_positions}`
+                : "N/A"}
+        </Container>
+        <Popover
+            id={id}
+            open={popoverOpen}
+            anchorEl={anchorEl}
+            onClose={handleClosePopover}
+            anchorOrigin={{
+                horizontal: "center",
+                vertical: "top",
+            }}
+            transformOrigin={{
+                horizontal: "center",
+                vertical: "bottom",
+            }}
+        >
+            <Card className={classes.card}>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        <CardHeader
+                            className={classes.cardHeader}
+                            action={
+                                <IconButton aria-label="close" onClick={handleClosePopover} size="large">
+                                    <Cancel />
+                                </IconButton>
+                            }
+                            title="Requests"
+                            subheader={`${event.category}: ${event.title}`}
+                        />
+                        <CardContent className={classes.cardContent}>
+                            <Typography color="error">
+                                {error && error.reponse
+                                    ? error.reponse.data
+                                    : null}
+                            </Typography>
+                            {requests && requests.length > 0 ? (
+                                <List className={classes.list}>
+                                    {requests.map(
+                                        (
+                                            r: any,
+                                            index: number,
+                                            arr: any[]
+                                        ) =>
+                                            renderRow({
+                                                request: r,
+                                                data: arr,
+                                                index,
+                                            })
+                                    )}
+                                </List>
+                            ) : (
+                                <Typography>No Requests</Typography>
+                            )}
+                        </CardContent>
+                    </>
+                )}
+            </Card>
+        </Popover>
+    </>;
 };
 
 export default EventCategory;

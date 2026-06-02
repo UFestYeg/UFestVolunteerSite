@@ -9,7 +9,7 @@ Installation instructions
 
 ```bash
 npm i
-pipenv install
+uv sync
 ```
 
 ## Dev Usage
@@ -17,9 +17,8 @@ pipenv install
 To run the backend
 
 ```python
-pipenv shell
-python manage.py migrate
-python manage.py runserver
+uv run python manage.py migrate
+uv run python manage.py runserver
 
 ```
 

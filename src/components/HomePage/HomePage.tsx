@@ -5,17 +5,18 @@ import {
     useMediaQuery,
     useScrollTrigger,
     Zoom,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
-import { KeyboardArrowDown as KeyboardArrowDownIcon } from "@material-ui/icons";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { KeyboardArrowDown as KeyboardArrowDownIcon } from "@mui/icons-material";
 import clsx from "clsx";
 import React from "react";
 import { StateHooks } from "../../store/hooks";
 import UkrainianWordOfTheDay from "./UkrainianWordOfTheDay";
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         home: {
             minHeight: "60vh",
             width: "100%",
@@ -75,9 +76,9 @@ const useStyles = makeStyles((theme) =>
     })
 );
 
-const ScrollTop: React.FC = ({ children }) => {
+const ScrollTop: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     const trigger = useScrollTrigger({
         disableHysteresis: true,
         threshold: 100,
@@ -108,7 +109,7 @@ const ScrollTop: React.FC = ({ children }) => {
 
 const HomePage: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     const userProfile = StateHooks.useUserProfile();
     const { is_staff } = userProfile;
     const mobile = !useMediaQuery("(min-width:400px)");
@@ -141,7 +142,7 @@ const HomePage: React.FC = () => {
                 <Grid
                     container
                     direction="column"
-                    justify="space-between"
+                    justifyContent="space-between"
                     alignItems="center"
                     spacing={8}
                 >

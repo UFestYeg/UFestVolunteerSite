@@ -1,8 +1,7 @@
 import axios from "axios";
-import { Notification } from "react-notification-system";
-import { error, success } from "react-notification-system-redux";
+import { enqueueSnackbar } from "notistack";
 import { AuthUrls } from "../../constants";
-import history from "../../history";
+import { navigate } from "../../navigation";
 import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
 
@@ -110,9 +109,7 @@ export const authLogin = (
 ) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
-        axios.defaults.headers = {
-            "X-CSRFToken": csrftoken,
-        };
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.LOGIN, {
                 password,
@@ -149,9 +146,7 @@ export const authSignup = (
 ) => {
     return (dispatch: DispatchType) => {
         dispatch(authStart());
-        axios.defaults.headers = {
-            "X-CSRFToken": csrftoken,
-        };
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.SIGNUP, {
                 first_name: firstName,
@@ -164,7 +159,7 @@ export const authSignup = (
             .then((res) => {
                 console.log(res);
                 dispatch(authEmailSent());
-                history.push("/signup_done");
+                navigate("/signup_done");
             })
             .catch((err) => {
                 dispatch(authFail(err));
@@ -203,69 +198,55 @@ export const changePassword = (
     newPassword2: string,
     csrftoken: string
 ) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        axios.defaults.headers = {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-        };
-        return (dispatch: DispatchType) => {
-            axios
-                .post(AuthUrls.CHANGE_PASSWORD, {
-                    old_password: oldPassword,
-                    new_password1: newPassword1,
-                    new_password2: newPassword2,
-                })
-                .then((response) => {
-                    console.log(response);
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: "Your password was changed.",
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    // redirect to the route '/profile'
-                    dispatch(changePasswordSuccess());
-                    dispatch(success(notificationOpts));
-                    dispatch(logout());
-                })
-                .catch((reqError) => {
-                    // If request is bad...
-                    // Show an error to the user
-                    dispatch(changePasswordFail(reqError));
-                    const notificationOpts: Notification = {
-                        title: "Oops, something went wrong!",
-                        message: "Unable to change password. Please try again.",
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(error(notificationOpts));
+    return (dispatch: DispatchType) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            return;
+        }
+        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+        axios.defaults.headers.common["Content-Type"] = "application/json";
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+        axios
+            .post(AuthUrls.CHANGE_PASSWORD, {
+                old_password: oldPassword,
+                new_password1: newPassword1,
+                new_password2: newPassword2,
+            })
+            .then((response) => {
+                console.log(response);
+                // redirect to the route '/profile'
+                dispatch(changePasswordSuccess());
+                enqueueSnackbar("Your password was changed.", {
+                    variant: "success",
                 });
-        };
-    }
+                dispatch(logout());
+            })
+            .catch((reqError) => {
+                // If request is bad...
+                // Show an error to the user
+                dispatch(changePasswordFail(reqError));
+                enqueueSnackbar(
+                    "Unable to change password. Please try again.",
+                    { variant: "error" }
+                );
+            });
+    };
 };
 
 export const resetPassword = (email: string, csrftoken: string) => {
     return (dispatch: DispatchType) => {
         dispatch(resetPasswordStart());
-        axios.defaults.headers = {
-            "X-CSRFToken": csrftoken,
-        };
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.RESET_PASSWORD, { email })
             .then((response) => {
                 // redirect to reset done page
                 console.log(response);
                 dispatch(resetPasswordEmailSent());
-                const notificationOpts: Notification = {
-                    title: "Success!",
-                    message: "Password reset email sent.",
-                    position: "tr",
-                    autoDismiss: 5,
-                };
-                dispatch(success(notificationOpts));
-                history.push("/reset_password_done");
+                enqueueSnackbar("Password reset email sent.", {
+                    variant: "success",
+                });
+                navigate("/reset_password_done");
             })
             .catch((reqError) => {
                 // If request is bad...
@@ -283,9 +264,7 @@ export const confirmPasswordChange = (
     csrftoken: string
 ) => {
     return (dispatch: DispatchType) => {
-        axios.defaults.headers = {
-            "X-CSRFToken": csrftoken,
-        };
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.RESET_PASSWORD_CONFIRM, {
                 uid,
@@ -296,14 +275,10 @@ export const confirmPasswordChange = (
             .then((response) => {
                 console.log(response);
                 dispatch(resetPasswordSuccess());
-                const notificationOpts: Notification = {
-                    title: "Success!",
-                    message: "Your password has been reset, please log in.",
-                    position: "tr",
-                    autoDismiss: 5,
-                };
-                dispatch(success(notificationOpts));
-                history.push("/login");
+                enqueueSnackbar("Your password has been reset, please log in.", {
+                    variant: "success",
+                });
+                navigate("/login");
             })
             .catch((reqError) => {
                 // If request is bad...
@@ -315,23 +290,17 @@ export const confirmPasswordChange = (
 
 export const activateUserAccount = (key: string, csrftoken: string) => {
     return (dispatch: DispatchType) => {
-        axios.defaults.headers = {
-            "X-CSRFToken": csrftoken,
-        };
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.USER_ACTIVATION, { key })
             .then((response) => {
                 console.log(response);
                 dispatch(authActivationSent());
-                const notificationOpts: Notification = {
-                    title: "You're all set!",
-                    message:
-                        "Your account has been activated successfully, please log in.",
-                    position: "tr",
-                    autoDismiss: 5,
-                };
-                dispatch(success(notificationOpts));
-                history.push("/login");
+                enqueueSnackbar(
+                    "Your account has been activated successfully, please log in.",
+                    { variant: "success" }
+                );
+                navigate("/login");
             })
             .catch((reqError) => {
                 // If request is bad...

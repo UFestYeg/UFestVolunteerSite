@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "ES2020",
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
@@ -8,15 +8,17 @@
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "esnext",
-        "moduleResolution": "node",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "resolveJsonModule": true,
         "isolatedModules": true,
+        "useDefineForClassFields": true,
         "noEmit": true,
         "strictNullChecks": true,
         "sourceMap": true,
         "rootDir": "src",
         "typeRoots": ["./types", "./node_modules/@types"],
+        "types": ["node", "vite/client"],
         "jsx": "react"
     },
     "include": ["src"]

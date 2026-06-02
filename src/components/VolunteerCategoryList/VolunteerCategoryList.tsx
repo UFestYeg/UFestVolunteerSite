@@ -1,22 +1,17 @@
-import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
-import {
-    createStyles,
-    makeStyles,
-    Theme,
-    useTheme,
-} from "@material-ui/core/styles";
+import { List, ListItem, ListItemText, Typography } from "@mui/material";
+import { Theme, useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { Link } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+    ({
         root: {
             width: "100%",
             // maxWidth: 360,
@@ -36,8 +31,8 @@ type VolunteerCategoryType = {
 
 const VolunteerCategoryList: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const token = StateHooks.useToken();
@@ -47,11 +42,9 @@ const VolunteerCategoryList: React.FC = () => {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies.csrftoken,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] = "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
 
             axios.get(VolunteerUrls.CATEGORY_LIST).then((res) => {
                 setList(res.data);

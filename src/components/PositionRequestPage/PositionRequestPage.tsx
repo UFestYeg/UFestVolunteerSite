@@ -10,10 +10,11 @@ import {
     ListItem,
     Popover,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
-import { Cancel } from "@material-ui/icons";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { Cancel } from "@mui/icons-material";
 import axios from "axios";
 import clsx from "clsx";
 import moment from "moment";
@@ -27,13 +28,11 @@ import {
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
-import { Notification } from "react-notification-system";
-import { error, success, warning } from "react-notification-system-redux";
-import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { enqueueSnackbar } from "notistack";
+import { StateHooks } from "../../store/hooks";
+import { useNavigate, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { getEarliestDate } from "../../utils";
 import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
 import { Loading } from "../Loading";
@@ -62,8 +61,27 @@ type DragStartArgs = {
     direction: "UP" | "DOWN" | "LEFT" | "RIGHT";
 };
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
+        calendarWrapper: {
+            // RBC hides the day header in single-day (day) view by default,
+            // which leaves an empty bar. Show it instead.
+            "& .rbc-time-header-cell-single-day": {
+                display: "flex",
+            },
+            "& .rbc-header": {
+                height: "auto",
+                minHeight: "fit-content",
+                lineHeight: "normal",
+                overflow: "visible",
+                padding: theme.spacing(0.75, 0.5),
+                whiteSpace: "normal",
+            },
+            "& .rbc-header .rbc-button-link, & .rbc-header span": {
+                fontSize: "1rem",
+                fontWeight: 500,
+            },
+        },
         card: {
             transition: "0.3s",
             boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
@@ -103,9 +121,9 @@ const useStyles = makeStyles((theme) =>
 
 const PositionRequestPage: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const history = useHistory();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const navigate = useNavigate();
     const { categoryTypeID: categoryTypeIDStr, roleID: roleIDStr } = useParams<{
         categoryTypeID?: string;
         roleID?: string;
@@ -131,11 +149,10 @@ const PositionRequestPage: React.FC = () => {
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
             dispatch(volunteerActions.getEventDates(cookies.csrftoken));
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies.csrftoken,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
 
             axios
                 .get(
@@ -216,14 +233,10 @@ const PositionRequestPage: React.FC = () => {
 
         const handleSubmit = (role: any) => {
             if (moment(event.start_time).year() < moment().year()) {
-                const warningOpts: Notification = {
-                    title: "Warning!",
-                    message:
-                        "This event is from a previous year. The website might not be updated yet. Send an email to volunteerufest@gmail.com to confirm availability.",
-                    position: "tr",
-                    autoDismiss: 10,
-                };
-                dispatch(warning(warningOpts));
+                enqueueSnackbar(
+                    "This event is from a previous year. The website might not be updated yet. Send an email to volunteerufest@gmail.com to confirm availability.",
+                    { variant: "warning", autoHideDuration: 10000 }
+                );
             }
 
             axios
@@ -234,17 +247,15 @@ const PositionRequestPage: React.FC = () => {
                 })
                 .then((res) => {
                     console.log(res);
-                    history.push("/volunteer", {
-                        fromRequestPage: true,
-                        title: role.title,
+                    navigate("/volunteer", {
+                        state: {
+                            fromRequestPage: true,
+                            title: role.title,
+                        },
                     });
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `Request submitted for ${role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                    enqueueSnackbar(`Request submitted for ${role.title}`, {
+                        variant: "success",
+                    });
                 })
                 .catch((err) => {
                     let errDetail = "Please try again.";
@@ -267,13 +278,10 @@ const PositionRequestPage: React.FC = () => {
                     }
                     console.log(err.config);
                     console.error(err);
-                    const notificationOpts: Notification = {
-                        title: "Oops, something went wrong!",
-                        message: `Could not submit request. ${errDetail}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(error(notificationOpts));
+                    enqueueSnackbar(
+                        `Could not submit request. ${errDetail}`,
+                        { variant: "error" }
+                    );
                 });
         };
 
@@ -296,91 +304,86 @@ const PositionRequestPage: React.FC = () => {
             selectedRole === undefined ||
             selectedRole?.number_of_open_positions === 0;
 
-        return (
-            <>
-                <Container onClick={handleClick} className={classes.eventRoot}>
-                    {errorMessage}
-                    <strong>{event.title}</strong> : {event.role.title}
-                    <br />
-                    Available Positions:{" "}
-                    {selectedRole?.number_of_positions != null &&
-                    selectedRole?.number_of_open_positions != null
-                        ? `${selectedRole.number_of_open_positions}/${selectedRole.number_of_positions}`
-                        : "N/A"}
-                </Container>
-                <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        horizontal: "right",
-                        vertical: "top",
-                    }}
-                    transformOrigin={{
-                        horizontal: "center",
-                        vertical: "bottom",
-                    }}
-                >
-                    <Card className={classes.card}>
-                        <CardContent className={classes.cardContent}>
-                            <CardHeader
-                                className={classes.cardHeader}
-                                action={
-                                    <IconButton
-                                        aria-label="settings"
-                                        onClick={handleClose}
-                                    >
-                                        <Cancel />
-                                    </IconButton>
-                                }
-                                title="Submit Request"
-                            />
-                            <List dense>
-                                <ListItem>
-                                    category:{" "}
-                                    {selectedRole.category
-                                        ? selectedRole.category.title
-                                        : ""}
-                                </ListItem>
-                                <ListItem>
-                                    position: {selectedRole.title}
-                                </ListItem>
-                                <ListItem>
-                                    start date:{" "}
-                                    {moment(event.start_time.getTime()).format(
-                                        "YYYY-MM-DD hh:mm a"
-                                    )}
-                                </ListItem>
-                                <ListItem>
-                                    end date:{" "}
-                                    {moment(event.end_time.getTime()).format(
-                                        "YYYY-MM-DD hh:mm a"
-                                    )}
-                                </ListItem>
-                            </List>
-                            <CardActions disableSpacing>
-                                <Button
-                                    aria-label="add to favorites"
-                                    onClick={handleSubmitClick}
-                                    disabled={noPositionsLeft}
-                                >
-                                    {noPositionsLeft
-                                        ? "No positions left"
-                                        : "Submit"}
-                                </Button>
-                                <Button
-                                    aria-label="share"
-                                    onClick={handleClose}
-                                >
-                                    Cancel
-                                </Button>
-                            </CardActions>
-                        </CardContent>
-                    </Card>
-                </Popover>
-            </>
-        );
+        return <>
+            <Container onClick={handleClick} className={classes.eventRoot}>
+                {errorMessage}
+                <strong>{event.title}</strong> : {event.role.title}
+                <br />
+                Available Positions:{" "}
+                {selectedRole?.number_of_positions != null &&
+                selectedRole?.number_of_open_positions != null
+                    ? `${selectedRole.number_of_open_positions}/${selectedRole.number_of_positions}`
+                    : "N/A"}
+            </Container>
+            <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                    horizontal: "right",
+                    vertical: "top",
+                }}
+                transformOrigin={{
+                    horizontal: "center",
+                    vertical: "bottom",
+                }}
+            >
+                <Card className={classes.card}>
+                    <CardContent className={classes.cardContent}>
+                        <CardHeader
+                            className={classes.cardHeader}
+                            action={
+                                <IconButton aria-label="settings" onClick={handleClose} size="large">
+                                    <Cancel />
+                                </IconButton>
+                            }
+                            title="Submit Request"
+                        />
+                        <List dense>
+                            <ListItem>
+                                category:{" "}
+                                {selectedRole.category
+                                    ? selectedRole.category.title
+                                    : ""}
+                            </ListItem>
+                            <ListItem>
+                                position: {selectedRole.title}
+                            </ListItem>
+                            <ListItem>
+                                start date:{" "}
+                                {moment(event.start_time.getTime()).format(
+                                    "YYYY-MM-DD hh:mm a"
+                                )}
+                            </ListItem>
+                            <ListItem>
+                                end date:{" "}
+                                {moment(event.end_time.getTime()).format(
+                                    "YYYY-MM-DD hh:mm a"
+                                )}
+                            </ListItem>
+                        </List>
+                        <CardActions disableSpacing>
+                            <Button
+                                aria-label="add to favorites"
+                                onClick={handleSubmitClick}
+                                disabled={noPositionsLeft}
+                            >
+                                {noPositionsLeft
+                                    ? "No positions left"
+                                    : "Submit"}
+                            </Button>
+                            <Button
+                                aria-label="share"
+                                onClick={handleClose}
+                            >
+                                Cancel
+                            </Button>
+                        </CardActions>
+                    </CardContent>
+                </Card>
+            </Popover>
+        </>;
     };
 
     const localizer = momentLocalizer(moment);
@@ -390,18 +393,20 @@ const PositionRequestPage: React.FC = () => {
             {loading || eventDatesLoading ? (
                 <Loading />
             ) : (
-                <Calendar
+                <Calendar<ScheduleEventType, object>
+                    className={classes.calendarWrapper}
                     localizer={localizer}
                     events={currentList}
                     startAccessor="start_time"
                     endAccessor="end_time"
                     style={{ height: 600 }}
-                    defaultView={roleID != undefined ? "week" : "day"}
-                    defaultDate={earliest ?? new Date()}
+                    defaultView={roleID != undefined ? "week" : "day"}                    defaultDate={earliest ?? new Date()}
                     views={{ day: UFestDay, week: UFestWeek }}
                     components={{
                         event: Event,
-                        toolbar: (props: ToolbarProps) => (
+                        toolbar: (
+                            props: ToolbarProps<ScheduleEventType, object>
+                        ) => (
                             <CalendarToolbar
                                 {...props}
                                 addButton={false}

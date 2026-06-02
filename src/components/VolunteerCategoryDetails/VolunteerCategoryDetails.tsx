@@ -1,22 +1,17 @@
-import { Button, Grid, Typography } from "@material-ui/core";
-import {
-    createStyles,
-    makeStyles,
-    Theme,
-    useTheme,
-} from "@material-ui/core/styles";
+import { Button, Grid, Typography } from "@mui/material";
+import { Theme, useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { StateHooks } from "../../store/hooks";
+import { useNavigate, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+    ({
         root: {
             backgroundColor: theme.palette.background.paper,
             width: "100%",
@@ -34,25 +29,24 @@ type VolunteerCategoryType = {
 
 const VolunteerCategoryDetails: React.FC<any> = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     const { positionID: positionIDStr } = useParams<{ positionID?: string }>();
     const positionID = positionIDStr ? parseInt(positionIDStr, 10) : NaN;
-    const dispatch = useDispatch();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentEvent, setEvent] = useState<VolunteerCategoryType>();
     const token = StateHooks.useToken();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (token && !isNaN(positionID)) {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies.csrftoken,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
             axios
                 .get(VolunteerUrls.CATEGORY_DETAILS(positionID))
                 .then((res) => {
@@ -65,7 +59,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
     const handleDelete = () => {
         if (token && !isNaN(positionID)) {
             axios.delete(VolunteerUrls.CATEGORY_DETAILS(positionID));
-            history.push("/positions");
+            navigate("/positions");
         }
     };
 
@@ -76,7 +70,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                 <Grid
                     container
                     direction="column"
-                    justify="flex-start"
+                    justifyContent="flex-start"
                     alignItems="flex-start"
                 >
                     <Grid item>
@@ -88,7 +82,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                         item
                         container
                         direction="row"
-                        justify="flex-start"
+                        justifyContent="flex-start"
                         alignItems="flex-start"
                     >
                         <Grid
@@ -96,16 +90,16 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                             container
                             direction="column"
                             xs={5}
-                            justify="flex-start"
+                            justifyContent="flex-start"
                             alignItems="flex-start"
                         >
                             <Typography variant="subtitle1">Start:</Typography>
                             <Typography variant="body1">
-                                {currentEvent.start_time}
+                                {String(currentEvent.start_time)}
                             </Typography>
                             <Typography variant="subtitle1">End:</Typography>
                             <Typography variant="body1">
-                                {currentEvent.end_time}
+                                {String(currentEvent.end_time)}
                             </Typography>
                         </Grid>
                         <Grid item xs={7}>
@@ -120,7 +114,7 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
                     <Grid
                         item
                         xs={12}
-                        justify="flex-start"
+                        justifyContent="flex-start"
                         alignItems="flex-start"
                     >
                         <Typography variant="body1">

@@ -51,8 +51,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.facebook",
     "allauth.socialaccount.providers.twitter",
     "corsheaders",
-    "rest_auth",
-    "rest_auth.registration",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
     "rest_framework",
     "rest_framework.authtoken",
     "volunteer_categories",
@@ -77,6 +77,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 if DEBUG:
@@ -95,6 +96,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "backend.context_processors.frontend_url",
             ],
         },
     },
@@ -136,9 +138,9 @@ TIME_ZONE = "America/Edmonton"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Static files (CSS, JavaScript, Images)
@@ -150,12 +152,27 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "build/static"),
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # The frontend will be served here
 
-# CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Base URL of the frontend. In production Django serves the built SPA from the
+# same origin, so relative links work (empty prefix). In development the
+# frontend runs on a separate dev-server port, so admin links back to the SPA
+# need an absolute URL.
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL", "http://localhost:3000" if DEBUG else ""
+)
 
 CSRF_COOKIE_NAME = "csrftoken"
 
@@ -182,21 +199,18 @@ REST_FRAMEWORK = {
 
 ACCOUNT_ADAPTER = "user_profile.adapter.MyAccountAdapter"
 
-REST_AUTH_SERIALIZERS = {
-    "USER_DETAILS_SERIALIZER": "user_profile.serializers.UserSerializer"
+REST_AUTH = {
+    "USER_DETAILS_SERIALIZER": "user_profile.serializers.UserSerializer",
+    "REGISTER_SERIALIZER": "backend.serializers.NameRegistrationSerializer",
 }
 
 # all auth
 
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_LOGIN_METHODS = {"username"}
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
 LOGOUT_ON_PASSWORD_CHANGE = True
-
-REST_AUTH_REGISTER_SERIALIZERS = {
-    "REGISTER_SERIALIZER": "backend.serializers.NameRegistrationSerializer",
-}
 
 # emails
 

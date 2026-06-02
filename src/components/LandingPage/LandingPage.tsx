@@ -5,22 +5,17 @@ import {
     Grid,
     Typography,
     useMediaQuery,
-} from "@material-ui/core";
-import {
-    createStyles,
-    makeStyles,
-    Theme,
-    useTheme,
-} from "@material-ui/core/styles";
+} from "@mui/material";
+import { Theme, useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import clsx from "clsx";
 import React from "react";
 import { Link } from "react-router-dom";
 // import "./Home.css";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+    ({
         button: {
-            background: theme.palette.primary.main,
             border: 0,
             borderRadius: theme.spacing(2),
             // color: "white",
@@ -44,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
             marginTop: 16,
         },
         image: {
-            [theme.breakpoints.down("xs")]: {
+            [theme.breakpoints.down('sm')]: {
                 width: "90%",
                 maxHeight: 125,
             },
@@ -69,7 +64,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 const LandingPage: React.FC = () => {
     const theme = useTheme();
-    const styles = useStyles(theme);
+    const { classes: styles } = useStyles();
     const mobile = !useMediaQuery("(min-width:400px)");
     const tablet = !useMediaQuery("(min-width:600px)");
 
@@ -77,7 +72,7 @@ const LandingPage: React.FC = () => {
         <Grid
             container
             direction="row"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
             className={mobile ? styles.mobileContainer : styles.container}
             spacing={mobile ? 0 : tablet ? 3 : 6}
@@ -89,7 +84,7 @@ const LandingPage: React.FC = () => {
                 sm={9}
                 className={styles.item}
                 direction="column"
-                justify="center"
+                justifyContent="center"
                 alignItems="flex-end"
             >
                 <Typography align="right" variant={mobile ? "h4" : "h2"}>
@@ -113,7 +108,7 @@ const LandingPage: React.FC = () => {
             <Grid
                 container
                 direction="row"
-                justify="center"
+                justifyContent="center"
                 alignItems="flex-start"
                 spacing={1}
             >

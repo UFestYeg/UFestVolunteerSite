@@ -14,22 +14,22 @@ import {
     Link,
     TextField,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import {
     LockOutlined as LockOutlinedIcon,
     Visibility,
     VisibilityOff,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Redirect, useLocation } from "react-router-dom";
+import { StateHooks } from "../../store/hooks";
+import { Navigate, useLocation } from "react-router-dom";
 import * as Yup from "yup";
 import { auth as actions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { buildErrorMessage } from "../../store/utils";
 import Copyright from "../Copyright";
 
@@ -38,7 +38,7 @@ interface ILoginFormValues {
     password: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     avatar: {
         backgroundColor: theme.palette.secondary.main,
         margin: theme.spacing(1),
@@ -74,8 +74,8 @@ const useStyles = makeStyles((theme) => ({
 
 const SignIn: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const location = useLocation();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
@@ -103,13 +103,12 @@ const SignIn: React.FC = () => {
     return (
         <Container component="main" maxWidth="xs">
             {isAuthenticated ? (
-                <Redirect
-                    to={{
-                        pathname: "/volunteer/profile/edit",
-                        state: {
-                            from: location,
-                            fromLoginPage: true,
-                        },
+                <Navigate
+                    to="/volunteer/profile/edit"
+                    replace
+                    state={{
+                        from: location,
+                        fromLoginPage: true,
                     }}
                 />
             ) : (
@@ -210,7 +209,7 @@ const SignIn: React.FC = () => {
                                                             handleMouseDownPassword
                                                         }
                                                         edge="end"
-                                                    >
+                                                        size="large">
                                                         {showPassword ? (
                                                             <Visibility />
                                                         ) : (
@@ -243,7 +242,7 @@ const SignIn: React.FC = () => {
                                     <Grid
                                         container
                                         direction="column"
-                                        justify="center"
+                                        justifyContent="center"
                                         alignItems="center"
                                     >
                                         <Grid item xs={12}>

@@ -8,9 +8,10 @@ import {
     DialogContent,
     DialogTitle,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import axios from "axios";
 import chroma from "chroma-js";
 import clsx from "clsx";
@@ -29,11 +30,10 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { StateHooks } from "../../store/hooks";
+import { useLocation, useNavigate } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { CustomForm } from "../Form";
 import { Loading } from "../Loading";
 import CalendarToolbar from "./CalendarToolbar";
@@ -58,11 +58,30 @@ type DragAndDropData = {
     event: VolunteerCategoryType;
     start: string | Date;
     end: string | Date;
-    allDay: boolean;
+    allDay?: boolean;
 };
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
+        calendarWrapper: {
+            // RBC hides the day header in single-day (day) view by default,
+            // which leaves an empty bar. Show it instead.
+            "& .rbc-time-header-cell-single-day": {
+                display: "flex",
+            },
+            "& .rbc-header": {
+                height: "auto",
+                minHeight: "fit-content",
+                lineHeight: "normal",
+                overflow: "visible",
+                padding: theme.spacing(0.75, 0.5),
+                whiteSpace: "normal",
+            },
+            "& .rbc-header .rbc-button-link, & .rbc-header span": {
+                fontSize: "1rem",
+                fontWeight: 500,
+            },
+        },
         myEvent: { "&:hover": { zIndex: 1000, minWidth: "fit-content" } },
     })
 );
@@ -79,10 +98,10 @@ interface IEventsDetailView {
 
 const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const history = useHistory();
-    const { url } = useRouteMatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const navigate = useNavigate();
+    const { pathname: url } = useLocation();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
         []
@@ -150,12 +169,10 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         start: string | Date,
         end: string | Date
     ) => {
-        axios.defaults.headers = {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": cookies.csrftoken,
-        };
-        if (token && process.env.REACT_APP_API_URI !== undefined) {
+        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+        axios.defaults.headers.common["Content-Type"] = "application/json";
+        axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
+        if (token && import.meta.env.VITE_API_URI !== undefined) {
             axios
                 .put(VolunteerUrls.CATEGORY_DETAILS(event.id), {
                     ...event,
@@ -164,8 +181,8 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                 })
                 .then((res) => {
                     console.log(res);
-                    history.replace(url, browserState);
-                    history.go(0);
+                    navigate(url, { state: browserState, replace: true });
+                    navigate(0);
                 })
                 .catch((err) => {
                     if (err.response) {
@@ -248,7 +265,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     };
 
     const localizer = momentLocalizer(moment);
-    const DnDCalendar = withDragAndDrop(Calendar);
+    const DnDCalendar = withDragAndDrop<VolunteerCategoryType, object>(Calendar);
     return (
         <>
             {loading || eventDatesLoading ? (
@@ -259,6 +276,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                         {error && error.reponse ? error.reponse.data : null}
                     </Typography>
                     <DnDCalendar
+                        className={classes.calendarWrapper}
                         localizer={localizer}
                         events={currentList}
                         startAccessor="start_time"
@@ -269,7 +287,12 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                         views={{ day: UFestDay, week: UFestWeek }}
                         components={{
                             event: WrappedEventDetail,
-                            toolbar: (tbarProps: ToolbarProps) => (
+                            toolbar: (
+                                tbarProps: ToolbarProps<
+                                    VolunteerCategoryType,
+                                    object
+                                >
+                            ) => (
                                 <CalendarToolbar
                                     {...tbarProps}
                                     openModal={() => setModalOpen(true)}

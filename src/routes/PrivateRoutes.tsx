@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, useRouteMatch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { EventsCalendar } from "../components/Calendar";
 import { CategorySelectPage } from "../components/CategorySelectPage";
 import { HomePage } from "../components/HomePage";
@@ -12,49 +12,47 @@ import ProfileRoutes from "./ProfileRoutes";
 import UserRoutes from "./UserRoutes";
 
 const PrivateRoutes: React.FC = () => {
-    const { path } = useRouteMatch();
-
     return (
-        <React.Fragment>
-            <Switch>
-                <ProtectedRoute exact path={`${path}`} component={HomePage} />
-                <ProtectedRoute
-                    exact
-                    staffOnly
-                    path={`${path}/calendar`}
-                    component={EventsCalendar}
-                />
-                <ProtectedRoute
-                    staffOnly
-                    path={`${path}/positions/:positionID(\\d+)`}
-                    component={VolunteerCategoryDetails}
-                />
-                <ProtectedRoute
-                    exact
-                    path={`${path}/categories`}
-                    component={CategorySelectPage}
-                />
-                <ProtectedRoute
-                    exact
-                    path={`${path}/categories/:categoryTypeID(\\d+)`}
-                    component={RoleSelectPage}
-                />
-                <ProtectedRoute
-                    path={`${path}/categories/:categoryTypeID(\\d+)/roles/:roleID(\\d+)`}
-                    component={PositionRequestPage}
-                />
-                <ProtectedRoute
-                    path={`${path}/profile`}
-                    component={ProfileRoutes}
-                />
-                <ProtectedRoute
-                    staffOnly
-                    path={`${path}/users`}
-                    component={UserRoutes}
-                />
-                <ProtectedRoute path="*" component={NotFoundPage} />
-            </Switch>
-        </React.Fragment>
+        <Routes>
+            <Route index element={<ProtectedRoute component={HomePage} />} />
+            <Route
+                path="calendar"
+                element={<ProtectedRoute staffOnly component={EventsCalendar} />}
+            />
+            <Route
+                path="positions/:positionID"
+                element={
+                    <ProtectedRoute
+                        staffOnly
+                        component={VolunteerCategoryDetails}
+                    />
+                }
+            />
+            <Route
+                path="categories"
+                element={<ProtectedRoute component={CategorySelectPage} />}
+            />
+            <Route
+                path="categories/:categoryTypeID"
+                element={<ProtectedRoute component={RoleSelectPage} />}
+            />
+            <Route
+                path="categories/:categoryTypeID/roles/:roleID"
+                element={<ProtectedRoute component={PositionRequestPage} />}
+            />
+            <Route
+                path="profile/*"
+                element={<ProtectedRoute component={ProfileRoutes} />}
+            />
+            <Route
+                path="users/*"
+                element={<ProtectedRoute staffOnly component={UserRoutes} />}
+            />
+            <Route
+                path="*"
+                element={<ProtectedRoute component={NotFoundPage} />}
+            />
+        </Routes>
     );
 };
 

@@ -4,22 +4,21 @@ import {
     CardActions,
     CardContent,
     CardHeader,
-    Grid,
     IconButton,
     Popover,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
-import { Cancel } from "@material-ui/icons";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { Cancel } from "@mui/icons-material";
 import axios from "axios";
 import moment from "moment";
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
-import { Notification } from "react-notification-system";
-import { error, success } from "react-notification-system-redux";
-import { useDispatch } from "react-redux";
+import { enqueueSnackbar } from "notistack";
+import { StateHooks } from "../../store/hooks";
 
 type UserRequestType = {
     id: number;
@@ -34,8 +33,8 @@ type UserRequestType = {
     category: number;
 };
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         card: {
             alignItems: "center",
             boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
@@ -68,13 +67,13 @@ const useStyles = makeStyles((theme) =>
 
 const RequestEvent = ({ event }: { event: any }) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     const [requestError, setRequestError] = useState<any>();
-    const history = useHistory();
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
         null
     );
-    const dispatch = useDispatch();
+    const dispatch = StateHooks.useAppDispatch();
     const handleClick = (
         clickEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
@@ -89,24 +88,18 @@ const RequestEvent = ({ event }: { event: any }) => {
             .delete(VolunteerUrls.REQUESTS_DETAILS(role.id))
             .then((res) => {
                 console.log(res);
-                const notificationOpts: Notification = {
-                    title: "Succcess!",
-                    message: `Request for ${role.title} has been deleted.`,
-                    position: "tr",
-                    autoDismiss: 5,
-                };
-                dispatch(success(notificationOpts));
-                history.go(0);
+                enqueueSnackbar(
+                    `Request for ${role.title} has been deleted.`,
+                    { variant: "success" }
+                );
+                navigate(0);
             })
             .catch((err) => {
                 setRequestError(err);
-                const notificationOpts: Notification = {
-                    title: "Oops, something went wrong!",
-                    message: "Could not delete request, please try again.",
-                    position: "tr",
-                    autoDismiss: 5,
-                };
-                dispatch(error(notificationOpts));
+                enqueueSnackbar(
+                    "Could not delete request, please try again.",
+                    { variant: "error" }
+                );
                 if (err.response) {
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
@@ -137,89 +130,89 @@ const RequestEvent = ({ event }: { event: any }) => {
 
         return moment(new Date()).isAfter(weekBeforeStart);
     };
-    return (
-        <>
-            <Grid
-                container
-                direction="row-reverse"
-                alignItems="flex-start"
-                justify="space-between"
-            >
-                <Grid item>
-                    <IconButton
-                        aria-label="open delete popover"
-                        onClick={handleClick}
-                    >
-                        <Cancel />
-                    </IconButton>
-                </Grid>
-                <Grid item>
-                    <Typography variant="subtitle2">{event.title}</Typography>
-                    <p>Request Status: {event.status}</p>
-                </Grid>
-            </Grid>
-            <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                    horizontal: "right",
-                    vertical: "top",
-                }}
-                transformOrigin={{
-                    horizontal: "center",
-                    vertical: "bottom",
+    return <>
+        <div style={{ position: "relative", width: "100%" }}>
+            <IconButton
+                aria-label="open delete popover"
+                onClick={handleClick}
+                size="small"
+                sx={{
+                    position: "absolute",
+                    top: -20,
+                    right: 4,
+                    padding: "2px",
+                    color: "inherit",
+                    "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.3)",
+                        boxShadow: "0px 0px 0px 4px rgba(0, 0, 0, 0.3)",
+                    },
                 }}
             >
-                <Card className={classes.card}>
-                    <CardContent className={classes.cardContent}>
-                        <CardHeader
-                            className={classes.cardHeader}
-                            action={
-                                <IconButton
-                                    aria-label="settings"
-                                    onClick={handleClose}
-                                >
-                                    <Cancel />
-                                </IconButton>
-                            }
-                            title="Delete Request"
-                        />
-                        {requestError &&
-                        requestError.response &&
-                        requestError.response.data ? (
-                            <Typography color="error">
-                                {requestError.response.data}
-                            </Typography>
-                        ) : (
-                            ""
-                        )}
-                        <Typography>
-                            You are only able to delete requests through the
-                            site up until a week before the event. After this
-                            you must phone the volunteer coordinator directly.{" "}
-                            {tooLateToDelete()
-                                ? "Please phone the coordinator"
-                                : "Are you sure you want to delete your request?"}
+                <Cancel fontSize="small" />
+            </IconButton>
+            <div style={{ paddingRight: 22, overflowWrap: "anywhere" }}>
+                <Typography variant="subtitle2">{event.title}</Typography>
+                <p style={{ margin: 0 }}>Request Status: {event.status}</p>
+            </div>
+        </div>
+        <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+                horizontal: "right",
+                vertical: "top",
+            }}
+            transformOrigin={{
+                horizontal: "center",
+                vertical: "bottom",
+            }}
+        >
+            <Card className={classes.card}>
+                <CardContent className={classes.cardContent}>
+                    <CardHeader
+                        className={classes.cardHeader}
+                        action={
+                            <IconButton aria-label="settings" onClick={handleClose} size="large">
+                                <Cancel />
+                            </IconButton>
+                        }
+                        title="Delete Request"
+                    />
+                    {requestError &&
+                    requestError.response &&
+                    requestError.response.data ? (
+                        <Typography color="error">
+                            {requestError.response.data}
                         </Typography>
-                        <CardActions disableSpacing>
-                            <Button
-                                aria-label="delete request"
-                                onClick={handleDeleteClick}
-                                disabled={tooLateToDelete()}
-                            >
-                                Delete
-                            </Button>
-                            <Button aria-label="cancel" onClick={handleClose}>
-                                Cancel
-                            </Button>
-                        </CardActions>
-                    </CardContent>
-                </Card>
-            </Popover>
-        </>
-    );
+                    ) : (
+                        ""
+                    )}
+                    <Typography>
+                        You are only able to delete requests through the
+                        site up until a week before the event. After this
+                        you must phone the volunteer coordinator directly.{" "}
+                        {tooLateToDelete()
+                            ? "Please phone the coordinator"
+                            : "Are you sure you want to delete your request?"}
+                    </Typography>
+                    <CardActions disableSpacing>
+                        <Button
+                            aria-label="delete request"
+                            onClick={handleDeleteClick}
+                            disabled={tooLateToDelete()}
+                        >
+                            Delete
+                        </Button>
+                        <Button aria-label="cancel" onClick={handleClose}>
+                            Cancel
+                        </Button>
+                    </CardActions>
+                </CardContent>
+            </Card>
+        </Popover>
+    </>;
 };
 
 export { RequestEvent };

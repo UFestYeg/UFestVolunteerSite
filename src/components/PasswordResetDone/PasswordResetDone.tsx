@@ -1,8 +1,9 @@
-import { Container, Typography } from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { Container, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import React from "react";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     paper: {
         marginTop: theme.spacing(8),
         display: "flex",
@@ -14,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 const PasswordResetDone: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     return (
         <Container component="main" maxWidth="xs" className={classes.paper}>
             <Typography variant="subtitle1">

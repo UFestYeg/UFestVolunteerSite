@@ -1,8 +1,7 @@
 import axios from "axios";
-import { Notification } from "react-notification-system";
-import { error, success } from "react-notification-system-redux";
+import { enqueueSnackbar } from "notistack";
 import { AuthUrls, UserUrls } from "../../constants";
-import history from "../../history";
+import { navigate } from "../../navigation";
 import { IProfileEditFormValues } from "../../store/types";
 import {
     DefaultUser,
@@ -76,11 +75,10 @@ export const getUserProfile = (cookies: any, userID?: number) => {
             const userProfileUrl = userID
                 ? UserUrls.USER_PROFILE_DETAILS(userID)
                 : AuthUrls.USER_PROFILE;
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .get(userProfileUrl)
                 .then((response) => {
@@ -95,13 +93,9 @@ export const getUserProfile = (cookies: any, userID?: number) => {
                     console.error(reqError);
                     dispatch(getUserProfileFail(reqError));
                     // TODO: send notification and redirect
-                    const notificationOpts: Notification = {
-                        title: "Oops, something went wrong!",
-                        message: "Unable to get user profile.",
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(error(notificationOpts));
+                    enqueueSnackbar("Unable to get user profile.", {
+                        variant: "error",
+                    });
                 });
         } else {
             console.log("Unable to get user without token");
@@ -117,36 +111,27 @@ export const updateUserProfile = (
 
     return (dispatch: DispatchType) => {
         dispatch(updateProfileStart());
-        axios.defaults.headers = {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": cookies,
-        };
+        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+        axios.defaults.headers.common["Content-Type"] = "application/json";
+        axios.defaults.headers.common["X-CSRFToken"] = cookies;
         axios
             .patch(AuthUrls.USER_PROFILE, formValues)
             .then((response) => {
                 console.log(response);
-                const notificationOpts: Notification = {
-                    title: "Success!",
-                    message: "Your profile was updated.",
-                    position: "tr",
-                    autoDismiss: 5,
-                };
                 dispatch(updateProfileSuccess());
-                dispatch(success(notificationOpts));
-                history.push("/volunteer");
+                enqueueSnackbar("Your profile was updated.", {
+                    variant: "success",
+                });
+                navigate("/volunteer");
             })
             .catch((reqError) => {
                 // If request is bad...
                 // Show an error to the user
                 dispatch(updateProfileFail(reqError));
-                const notificationOpts: Notification = {
-                    title: "Oops, something went wrong!",
-                    message: "Unable to update profile. Please try again.",
-                    position: "tr",
-                    autoDismiss: 5,
-                };
-                dispatch(error(notificationOpts));
+                enqueueSnackbar(
+                    "Unable to update profile. Please try again.",
+                    { variant: "error" }
+                );
             });
     };
 };

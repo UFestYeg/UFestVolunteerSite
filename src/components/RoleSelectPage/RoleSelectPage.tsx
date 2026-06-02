@@ -9,20 +9,21 @@ import {
     ListItemText,
     MenuItem,
     Select,
+    SelectChangeEvent,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Link, useParams, useRouteMatch } from "react-router-dom";
-import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { PositionRequestPage } from "../PositionRequestPage";
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         button: {
             background: theme.palette.secondary.main,
             border: 0,
@@ -55,7 +56,7 @@ const useStyles = makeStyles((theme) =>
             textAlign: "start",
             justifyContent: "space-between",
             width: "80vw",
-            [theme.breakpoints.down("md")]: {
+            [theme.breakpoints.down('lg')]: {
                 flexDirection: "column",
             },
             [theme.breakpoints.up("md")]: {
@@ -87,9 +88,9 @@ const useStyles = makeStyles((theme) =>
 
 const RoleSelectPage: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const { url } = useRouteMatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const { pathname: url } = useLocation();
     const { categoryTypeID: categoryTypeIDStr } = useParams<{
         categoryTypeID?: string;
     }>();
@@ -130,7 +131,7 @@ const RoleSelectPage: React.FC = () => {
         }
     }, [cookies.csrftoken, dispatch, categoryTypeID]);
 
-    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const handleChange = (event: SelectChangeEvent<string>) => {
         setView(event.target.value as string);
     };
 
@@ -149,7 +150,7 @@ const RoleSelectPage: React.FC = () => {
                                   <Grid
                                       container
                                       spacing={2}
-                                      justify="space-between"
+                                      justifyContent="space-between"
                                       alignItems="baseline"
                                   >
                                       <Grid item xs={12} md={3}>
@@ -216,14 +217,17 @@ const RoleSelectPage: React.FC = () => {
             container
             spacing={3}
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
             className={classes.grid}
         >
             <Grid item>
                 <Typography variant="h2">Request to Volunteer</Typography>
                 <FormControl fullWidth>
-                    <InputLabel id="volunter-view-select-label">
+                    <InputLabel
+                        id="volunter-view-select-label"
+                        sx={{ color: "text.primary" }}
+                    >
                         View
                     </InputLabel>
                     <Select

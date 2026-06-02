@@ -1,6 +1,7 @@
-import { Container } from "@material-ui/core";
+import { Container } from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import React from "react";
 import { VolunteerCategoryType } from "./EventsCalendar";
 
@@ -11,8 +12,8 @@ interface IEventDetails {
     setDefaultDate: React.Dispatch<React.SetStateAction<Date | null>>;
 }
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         eventRoot: {
             height: "inherit",
         },
@@ -26,7 +27,7 @@ const EventDetail = ({
     setDefaultDate,
 }: IEventDetails) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     const handleClick = (_event: React.MouseEvent<HTMLDivElement>) => {
         setCategoryView(true);
         setSelectedCategories([event.category]);

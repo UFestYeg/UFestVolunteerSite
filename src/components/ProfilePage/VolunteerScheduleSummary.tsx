@@ -9,18 +9,17 @@ import {
     TableHead,
     TableRow,
     Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { makeStyles } from "tss-react/mui";
 import moment from "moment";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { user as userActions } from "../../store/actions";
 import { IUserProfile, IUserRequest } from "../../store/types";
 import { Loading } from "../Loading";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     root: {
         width: "100%",
         marginTop: theme.spacing(3),
@@ -52,8 +51,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const VolunteerScheduleSummary: React.FC = () => {
-    const classes = useStyles();
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies] = useCookies(["csrftoken"]);
 
     useEffect(() => {

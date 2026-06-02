@@ -2,7 +2,6 @@
 // tslint:disable: react-this-binding-issue
 // tslint:disable: use-simple-attributes
 
-import DateFnsUtils from "@date-io/date-fns";
 import {
     Button,
     Container,
@@ -12,18 +11,18 @@ import {
     MenuItem,
     Select,
     TextField,
-} from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import {
-    KeyboardDateTimePicker,
-    MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import axios from "axios";
 import clsx from "clsx";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useCookies } from "react-cookie";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { VolunteerUrls } from "../../constants";
 import { StateHooks } from "../../store/hooks";
@@ -44,7 +43,7 @@ interface ICustomFormProps {
     buttonText: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     paper: {
         marginTop: theme.spacing(8),
         display: "flex",
@@ -75,9 +74,9 @@ const CustomForm: React.FC<ICustomFormProps> = ({
     buttonText,
 }) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
+    const { classes } = useStyles();
     const token = StateHooks.useToken();
-    const history = useHistory();
+    const navigate = useNavigate();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypes = volunteerCategories.map((categoryType) => {
@@ -98,11 +97,9 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         const startTime = values.startTime;
         const endTime = values.endTime;
 
-        axios.defaults.headers = {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": cookies.csrftoken,
-        };
+        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+        axios.defaults.headers.common["Content-Type"] = "application/json";
+        axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
         if (token) {
             switch (requestType) {
                 case "POST":
@@ -116,7 +113,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                         })
                         .then((res) => {
                             console.log(res);
-                            history.push("/volunteer/calendar");
+                            navigate("/volunteer/calendar");
                         })
                         .catch((err) => console.error(err));
                     break;
@@ -132,7 +129,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                             })
                             .then((res) => {
                                 console.log(res);
-                                history.push("/volunteer/calendar");
+                                navigate("/volunteer/calendar");
                             })
                             .catch((err) => console.error(err));
                     } else {
@@ -255,71 +252,60 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                     Boolean(errors.description)
                                 }
                             />
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <Grid container justify="space-around">
-                                    <KeyboardDateTimePicker
-                                        disableToolbar
-                                        variant="inline"
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <Grid container justifyContent="space-around">
+                                    <DateTimePicker
                                         format="MM/dd/yyyy hh:mm a"
-                                        margin="normal"
                                         name="startTime"
-                                        id="start-time"
                                         label="Start time picker"
                                         onChange={(value) => {
-                                            console.log(
-                                                "setting value to",
-                                                value
-                                            );
                                             setFieldValue("startTime", value);
                                         }}
-                                        onBlur={handleBlur}
                                         value={values.startTime}
-                                        KeyboardButtonProps={{
-                                            "aria-label": "change date",
+                                        slotProps={{
+                                            textField: {
+                                                id: "start-time",
+                                                margin: "normal",
+                                                onBlur: handleBlur,
+                                                helperText:
+                                                    typeof errors.startTime ===
+                                                        "string" &&
+                                                    touched.startTime
+                                                        ? errors.startTime
+                                                        : "",
+                                                error:
+                                                    touched.startTime &&
+                                                    Boolean(errors.startTime),
+                                            },
                                         }}
-                                        helperText={
-                                            errors.startTime &&
-                                            touched.startTime
-                                                ? errors.startTime
-                                                : ""
-                                        }
-                                        error={
-                                            touched.startTime &&
-                                            Boolean(errors.startTime)
-                                        }
                                     />
-                                    <KeyboardDateTimePicker
-                                        disableToolbar
-                                        variant="inline"
+                                    <DateTimePicker
                                         format="MM/dd/yyyy hh:mm a"
-                                        margin="normal"
                                         name="endTime"
-                                        id="end-time"
                                         label="End time picker"
                                         onChange={(value) => {
-                                            console.log(
-                                                "setting value to",
-                                                value
-                                            );
                                             setFieldValue("endTime", value);
                                         }}
-                                        onBlur={handleBlur}
                                         value={values.endTime}
-                                        KeyboardButtonProps={{
-                                            "aria-label": "change date",
+                                        slotProps={{
+                                            textField: {
+                                                id: "end-time",
+                                                margin: "normal",
+                                                onBlur: handleBlur,
+                                                helperText:
+                                                    typeof errors.endTime ===
+                                                        "string" &&
+                                                    touched.endTime
+                                                        ? errors.endTime
+                                                        : "",
+                                                error:
+                                                    touched.endTime &&
+                                                    Boolean(errors.endTime),
+                                            },
                                         }}
-                                        helperText={
-                                            errors.endTime && touched.endTime
-                                                ? errors.endTime
-                                                : ""
-                                        }
-                                        error={
-                                            touched.endTime &&
-                                            Boolean(errors.endTime)
-                                        }
                                     />
                                 </Grid>
-                            </MuiPickersUtilsProvider>
+                            </LocalizationProvider>
                             <Button
                                 type="submit"
                                 disabled={isSubmitting || !isValid || !token}

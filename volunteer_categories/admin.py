@@ -8,7 +8,7 @@ import datetime
 from django.http import HttpResponse
 import csv
 from backend.settings import TIME_ZONE
-from pytz import timezone
+from zoneinfo import ZoneInfo as timezone
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 

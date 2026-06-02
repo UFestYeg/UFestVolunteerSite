@@ -1,14 +1,10 @@
-import * as Moment from "moment";
-import { extendMoment } from "moment-range";
-
 import React from "react";
 import { NavigateAction, TitleOptions } from "react-big-calendar";
 import TimeGrid from "react-big-calendar/lib/TimeGrid";
 import { connect } from "react-redux";
 import { IEventDate, State } from "../../store/types";
 import { getEarliestDate, getLatestDate } from "../../utils";
-
-const moment = extendMoment(Moment);
+import moment from "./extendedMoment";
 
 let UFEST_VOLUNTEERING_START_DATE = new Date(new Date().getFullYear(), 4, 25);
 let UFEST_VOLUNTEERING_END_DATE = new Date(new Date().getFullYear(), 4, 29);
@@ -21,6 +17,10 @@ function mapStateToProps(state: State) {
 class UFestDay extends React.Component<{
     date: Date;
     eventDates: IEventDate[];
+    localizer?: any;
+    min?: Date;
+    max?: Date;
+    scrollToTime?: Date;
 }> {
     range = (date: Date) => [date];
 
@@ -49,7 +49,7 @@ class UFestDay extends React.Component<{
     };
 
     render() {
-        let { date, eventDates } = this.props;
+        let { date, eventDates, localizer } = this.props;
         let range = this.range(date);
 
         const earliest = getEarliestDate(eventDates);
@@ -61,11 +61,23 @@ class UFestDay extends React.Component<{
         if (latest) {
             UFEST_VOLUNTEERING_END_DATE = latest;
         }
+
+        // react-big-calendar 1.x no longer defaults min/max on TimeGrid; its
+        // own Day/Week views compute them from the localizer before rendering.
+        // Replicate that here, otherwise the time grid renders zero slots.
+        const min = this.props.min ?? localizer.startOf(new Date(), "day");
+        const max = this.props.max ?? localizer.endOf(new Date(), "day");
+        const scrollToTime =
+            this.props.scrollToTime ?? localizer.startOf(new Date(), "day");
+
         return (
             <TimeGrid
                 {...this.props}
                 range={range}
                 onNavigate={UFestDay.navigate}
+                min={min}
+                max={max}
+                scrollToTime={scrollToTime}
             />
         );
     }

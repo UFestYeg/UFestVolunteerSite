@@ -10,10 +10,9 @@ import {
     IconButton,
     Switch,
     Typography,
-} from "@material-ui/core";
-// tslint:disable-next-line: no-submodule-imports
-import { makeStyles } from "@material-ui/core/styles";
-import { AddCircle as AddCircleIcon } from "@material-ui/icons";
+} from "@mui/material";
+import { makeStyles } from "tss-react/mui";
+import { AddCircle as AddCircleIcon } from "@mui/icons-material";
 import React from "react";
 import {
     Messages,
@@ -23,7 +22,7 @@ import {
 } from "react-big-calendar";
 import CategoryFilter from "./CategoryFilter";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
@@ -65,13 +64,13 @@ type ConfigProps = {
 };
 
 const CustomToolbar: React.FC<
-    ToolbarProps &
+    ToolbarProps<any, object> &
         AddPositionProps &
         CategoryViewProps &
         FilterProps &
         ConfigProps
 > = (props) => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     function navigate(action: NavigateAction) {
         props.onNavigate(action);
@@ -102,7 +101,7 @@ const CustomToolbar: React.FC<
         <Grid
             container
             direction="row"
-            justify="space-between"
+            justifyContent="space-between"
             alignItems="center"
             className={classes.grid}
         >
@@ -117,7 +116,7 @@ const CustomToolbar: React.FC<
             </ButtonGroup>
 
             <Typography variant="subtitle1">{props.label}</Typography>
-            <Grid item direction="row" justify="flex-end" alignItems="center">
+            <Grid item direction="row" justifyContent="flex-end" alignItems="center">
                 {props.filter &&
                 props.selectAll !== undefined &&
                 props.setSelectAll &&
@@ -168,7 +167,7 @@ const CustomToolbar: React.FC<
                         aria-label="add-event"
                         color="primary"
                         onClick={props.openModal}
-                    >
+                        size="large">
                         <AddCircleIcon fontSize="large" />
                     </IconButton>
                 ) : null}

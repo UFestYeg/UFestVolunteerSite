@@ -1,9 +1,8 @@
 import axios from "axios";
-import { Notification } from "react-notification-system";
-import { error, success } from "react-notification-system-redux";
+import { enqueueSnackbar } from "notistack";
 import { EventCategoryType } from "../../components/Calendar/EventCategory";
 import { UserUrls, VolunteerUrls } from "../../constants";
-import history from "../../history";
+import { navigate } from "../../navigation";
 import {
     IEventDate,
     IVolunteerCategory,
@@ -156,11 +155,10 @@ export const getVolunteerCategoryTypes = (cookies: any) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .get(VolunteerUrls.CATEGORY_TYPE_LIST)
                 .then((response) => {
@@ -200,11 +198,10 @@ export const getVolunteerCategories = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getVolunteerCategoriesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .get(VolunteerUrls.CATEGORY_LIST)
                 .then((response) => {
@@ -247,11 +244,10 @@ export const getVolunteerCategoryOfType = (
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .get(VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID))
                 .then((response) => {
@@ -291,11 +287,10 @@ export const getEventDates = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getEventDatesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .get(VolunteerUrls.EVENT_DATES_LIST)
                 .then((response) => {
@@ -377,11 +372,10 @@ export const getMappedVolunteerRoles = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getMappedVolunteerRolesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .get(VolunteerUrls.CATEGORY_LIST_WITH_REQUESTS)
                 .then((res) => {
@@ -422,11 +416,10 @@ export const getMappedVolunteerRolesLegacy = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getMappedVolunteerRolesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             
             // Make all three requests in parallel instead of sequentially
             Promise.all([
@@ -491,28 +484,27 @@ export const acceptRequest = (
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(acceptRequestStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), {
                     ...request,
                     status: "ACCEPTED",
                 })
                 .then((res) => {
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                    enqueueSnackbar(
+                        `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
+                        { variant: "success" }
+                    );
                     dispatch(acceptRequestSuccess());
                     // redirect to the route '/profile'
-                    history.replace(redirectUrl, browserState);
-                    history.go(0);
+                    navigate(redirectUrl, {
+                        state: browserState,
+                        replace: true,
+                    });
+                    navigate(0);
                     console.log(res);
                 })
                 .catch((err) => {
@@ -549,27 +541,26 @@ export const denyRequest = (
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(denyRequestStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), {
                     ...request,
                     status: "DENIED",
                 })
                 .then((res) => {
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                    enqueueSnackbar(
+                        `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
+                        { variant: "success" }
+                    );
                     dispatch(denyRequestSuccess());
-                    history.replace(redirectUrl, browserState);
-                    history.go(0);
+                    navigate(redirectUrl, {
+                        state: browserState,
+                        replace: true,
+                    });
+                    navigate(0);
                     console.log("res", res);
                 })
                 .catch((err) => {
@@ -612,40 +603,35 @@ export const changeRequestRole = (
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(changeRequestRoleStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+            axios.defaults.headers.common["Content-Type"] =
+                "application/json";
+            axios.defaults.headers.common["X-CSRFToken"] = cookies;
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), payload)
                 .then((res) => {
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role to ${role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                    enqueueSnackbar(
+                        `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role to ${role.title}`,
+                        { variant: "success" }
+                    );
                     dispatch(changeRequestRoleSuccess());
                     console.log(res);
-                    history.replace(redirectUrl, browserState);
-                    history.go(0);
+                    navigate(redirectUrl, {
+                        state: browserState,
+                        replace: true,
+                    });
+                    navigate(0);
                 })
                 .catch((err) => {
-                    const notificationOpts: Notification = {
-                        title: "Oops, something went wrong!",
-                        message:
-                            `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role` +
+                    enqueueSnackbar(
+                        `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role` +
                             `${
                                 err?.response?.data
                                     ? `:${err.response.data.detail}`
                                     : ""
                             }`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(error(notificationOpts));
+                        { variant: "error" }
+                    );
                     dispatch(changeRequestRoleFail(err));
                     if (err.response) {
                         // The request was made and the server responded with a status code

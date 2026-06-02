@@ -8,9 +8,8 @@ import {
     Tabs as TabsContainer,
     Typography,
     useMediaQuery,
-} from "@material-ui/core";
-// tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -22,8 +21,8 @@ export interface TabProps {
     target: string;
 }
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         menu: {
             backgroundColor: theme.palette.secondary.light,
             textAlign: "center",
@@ -48,7 +47,7 @@ const useStyles = makeStyles((theme) =>
 const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
     const mobile = !useMediaQuery("(min-width:450px)");
     const location = useLocation();
-    const styles = useStyles();
+    const { classes: styles } = useStyles();
 
     const initialValue = tabValues
         .map((t) => t.target)
@@ -93,9 +92,13 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                         key={index}
                         label={tab.label}
                         component={NavLink}
-                        activeClassName="active"
                         to={tab.target}
-                        className={styles.tab}
+                        className={
+                            (({ isActive }: { isActive: boolean }) =>
+                                isActive
+                                    ? `active ${styles.tab}`
+                                    : styles.tab) as unknown as string
+                        }
                     />
                 ))}
             </TabsContainer>

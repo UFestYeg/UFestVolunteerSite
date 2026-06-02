@@ -11,22 +11,22 @@ import {
     InputAdornment,
     TextField,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import {
     Lock as LockIcon,
     Visibility,
     VisibilityOff,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { auth } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { buildErrorMessage } from "../../store/utils";
 
 interface IResetPasswordFormValues {
@@ -34,7 +34,7 @@ interface IResetPasswordFormValues {
     confirmPassword: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     avatar: {
         backgroundColor: theme.palette.secondary.main,
         margin: theme.spacing(1),
@@ -67,8 +67,8 @@ const useStyles = makeStyles((theme) => ({
 
 const PasswordReset: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const { uid, token } = useParams<{ uid: string; token: string }>();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [showPassword1, setShowPassword1] = useState(false);
@@ -96,8 +96,8 @@ const PasswordReset: React.FC = () => {
 
         dispatch(
             auth.confirmPasswordChange(
-                uid,
-                token,
+                uid ?? "",
+                token ?? "",
                 password,
                 confirmPassword,
                 cookies.csrftoken
@@ -184,7 +184,7 @@ const PasswordReset: React.FC = () => {
                                                         handleMouseDownPassword
                                                     }
                                                     edge="end"
-                                                >
+                                                    size="large">
                                                     {showPassword1 ? (
                                                         <Visibility />
                                                     ) : (
@@ -230,7 +230,7 @@ const PasswordReset: React.FC = () => {
                                                         handleMouseDownPassword
                                                     }
                                                     edge="end"
-                                                >
+                                                    size="large">
                                                     {showPassword2 ? (
                                                         <Visibility />
                                                     ) : (

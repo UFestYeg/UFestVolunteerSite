@@ -1,6 +1,7 @@
-import { Container } from "@material-ui/core";
+import { Container } from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -13,9 +14,8 @@ import {
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { IUserRequest } from "../../store/types";
 import CalendarToolbar from "./CalendarToolbar";
 import { RequestEvent } from "./RequestEvent";
@@ -62,13 +62,43 @@ const styles = {
     },
 };
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
+        calendarWrapper: {
+            // RBC hides the day header in single-day (day) view by default,
+            // which leaves an empty bar. Show it instead.
+            "& .rbc-time-header-cell-single-day": {
+                display: "flex",
+            },
+            "& .rbc-header": {
+                height: "auto",
+                minHeight: "fit-content",
+                lineHeight: "normal",
+                overflow: "visible",
+                padding: theme.spacing(0.75, 0.5),
+                whiteSpace: "normal",
+            },
+            "& .rbc-header .rbc-button-link, & .rbc-header span": {
+                fontSize: "1rem",
+                fontWeight: 500,
+            },
+        },
         myEvent: {
+            "& .rbc-event-label": {
+                whiteSpace: "normal",
+                paddingRight: theme.spacing(2.5),
+            },
             "&:hover": {
-                minHeight: "20%",
                 minWidth: "fit-content",
+                minHeight: "max-content !important",
+                overflow: "visible !important",
                 zIndex: 1000,
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+            },
+            "&:hover .rbc-event-content": {
+                flex: "0 0 auto !important",
+                overflow: "visible",
+                whiteSpace: "normal",
             },
         },
     })
@@ -76,8 +106,8 @@ const useStyles = makeStyles((theme) =>
 
 const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [currentList, setList] = useState<UserRequestType[]>([]);
     const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
@@ -136,11 +166,11 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
 
     console.log(`Earliest date ${earliest}`);
     return (
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" className={classes.calendarWrapper}>
             {loading ? (
                 <Loading />
             ) : (
-                <Calendar
+                <Calendar<UserRequestType, object>
                     localizer={localizer}
                     events={currentList}
                     startAccessor="start_time"
@@ -151,7 +181,9 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                     views={{ day: UFestDay, week: UFestWeek }}
                     components={{
                         event: RequestEvent,
-                        toolbar: (props: ToolbarProps) => (
+                        toolbar: (
+                            props: ToolbarProps<UserRequestType, object>
+                        ) => (
                             <CalendarToolbar
                                 {...props}
                                 categoryView={false}

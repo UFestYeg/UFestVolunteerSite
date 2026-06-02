@@ -14,22 +14,22 @@ import {
     Link,
     TextField,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import {
     LockOutlined as LockOutlinedIcon,
     Visibility,
     VisibilityOff,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Redirect, useLocation } from "react-router-dom";
+import { StateHooks } from "../../store/hooks";
+import { Navigate, useLocation } from "react-router-dom";
 import * as Yup from "yup";
 import { auth as actions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { buildErrorMessage } from "../../store/utils";
 import Copyright from "../Copyright";
 
@@ -42,7 +42,7 @@ interface ISignupFormValues {
     confirmPassword: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     avatar: {
         margin: theme.spacing(1),
         backgroundColor: theme.palette.secondary.main,
@@ -75,8 +75,8 @@ const useStyles = makeStyles((theme) => ({
 
 const SignUp: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [showPassword1, setShowPassword1] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
@@ -123,12 +123,11 @@ const SignUp: React.FC = () => {
     return (
         <Container component="main" maxWidth="xs">
             {isAuthenticated ? (
-                <Redirect
-                    to={{
-                        pathname: "/volunteer",
-                        state: {
-                            from: location,
-                        },
+                <Navigate
+                    to="/volunteer"
+                    replace
+                    state={{
+                        from: location,
                     }}
                 />
             ) : (
@@ -332,7 +331,7 @@ const SignUp: React.FC = () => {
                                                                     handleMouseDownPassword
                                                                 }
                                                                 edge="end"
-                                                            >
+                                                                size="large">
                                                                 {showPassword1 ? (
                                                                     <Visibility />
                                                                 ) : (
@@ -385,7 +384,7 @@ const SignUp: React.FC = () => {
                                                                     handleMouseDownPassword
                                                                 }
                                                                 edge="end"
-                                                            >
+                                                                size="large">
                                                                 {showPassword2 ? (
                                                                     <Visibility />
                                                                 ) : (
@@ -423,7 +422,7 @@ const SignUp: React.FC = () => {
                                     <Grid
                                         container
                                         direction="column"
-                                        justify="flex-end"
+                                        justifyContent="flex-end"
                                     >
                                         <Grid item xs={12}>
                                             <Link href="/login" variant="body2">

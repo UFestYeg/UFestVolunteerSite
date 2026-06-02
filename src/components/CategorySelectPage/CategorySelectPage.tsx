@@ -4,12 +4,9 @@ import {
     CardContent,
     CardMedia,
     Grid,
-    GridList,
-    GridListTile,
     Typography,
-    useMediaQuery,
-} from "@material-ui/core";
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+} from "@mui/material";
+import { makeStyles } from "tss-react/mui";
 import {
     AccessibilityNew,
     AttachMoney,
@@ -22,16 +19,15 @@ import {
     Storefront,
     Traffic,
     Widgets,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Link, useRouteMatch } from "react-router-dom";
-import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { Link, useLocation } from "react-router-dom";
+import { volunteer as volunteerActions } from "../../store/actions";
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         button: {
             background: theme.palette.secondary.main,
             border: 0,
@@ -52,9 +48,13 @@ const useStyles = makeStyles((theme) =>
             flexDirection: "row",
             alignItems: "center",
             textAlign: "center",
-            margin: 8,
+            height: "100%",
             color: theme.palette.primary.dark,
             justifyContent: "center",
+            "&:hover": {
+                boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.35)",
+                transform: "translateY(-4px)",
+            },
         },
         cardContent: {
             display: "flex",
@@ -70,16 +70,18 @@ const useStyles = makeStyles((theme) =>
         },
         gridList: {
             width: "100%",
-            height: "100%",
         },
-        link: { textDecoration: "none" },
+        link: { textDecoration: "none", display: "block", height: "100%" },
         media: {
             flexShrink: 0,
-            width: "20%",
-            height: "20%",
-            marginLeft: "auto",
-            marginRight: 8,
-            padding: "2%",
+            width: theme.spacing(9),
+            height: theme.spacing(9),
+            marginLeft: theme.spacing(2),
+            marginRight: theme.spacing(2),
+            [theme.breakpoints.down("sm")]: {
+                width: theme.spacing(7),
+                height: theme.spacing(7),
+            },
         },
     })
 );
@@ -108,11 +110,9 @@ const nameToIconMapKey = (name: string) => {
 };
 
 const CategorySelectPage: React.FC = () => {
-    const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const { url } = useRouteMatch();
-    const smallWidth = useMediaQuery(theme.breakpoints.down("xs"));
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const { pathname: url } = useLocation();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeMap = volunteerCategories.reduce<any>(
@@ -130,12 +130,11 @@ const CategorySelectPage: React.FC = () => {
 
     const GridTiles = () => {
         return volunteerCategoryTypes.map((categoryType, idx, _arr) => (
-            <Link
-                to={`${url}/${volunteerCategoryTypeMap[categoryType]}`}
-                key={idx}
-                className={classes.link}
-            >
-                <GridListTile cols={1}>
+            <Grid item xs={12} sm={6} key={idx}>
+                <Link
+                    to={`${url}/${volunteerCategoryTypeMap[categoryType]}`}
+                    className={classes.link}
+                >
                     <Card className={classes.card}>
                         <CardMedia
                             className={classes.media}
@@ -147,8 +146,8 @@ const CategorySelectPage: React.FC = () => {
                             </Typography>
                         </CardContent>
                     </Card>
-                </GridListTile>
-            </Link>
+                </Link>
+            </Grid>
         ));
     };
 
@@ -158,21 +157,22 @@ const CategorySelectPage: React.FC = () => {
                 container
                 spacing={3}
                 direction="column"
-                justify="center"
+                justifyContent="center"
                 alignItems="center"
                 className={classes.grid}
             >
                 <Grid item>
                     <Typography variant="h2">Request to Volunteer</Typography>
                 </Grid>
-                <Grid item>
-                    <GridList
-                        cellHeight="auto"
-                        className={classes.gridList}
-                        cols={smallWidth ? 1 : 2}
+                <Grid item xs={12} className={classes.gridList}>
+                    <Grid
+                        container
+                        spacing={3}
+                        justifyContent="center"
+                        alignItems="stretch"
                     >
                         {GridTiles()}
-                    </GridList>
+                    </Grid>
                 </Grid>
             </Grid>
         </div>

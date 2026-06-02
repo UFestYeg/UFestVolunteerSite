@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_auth.serializers import UserDetailsSerializer
+from dj_rest_auth.serializers import UserDetailsSerializer
 from .models import UserProfile
 from volunteer_categories.api.serializers import RequestSerializer
 
@@ -56,6 +56,14 @@ class UserSerializer(UserDetailsSerializer):
             "requests",
             "is_staff",
         )
+
+    def validate_username(self, username):
+        # When updating, allauth's clean_username rejects the user's own
+        # existing username because it checks global uniqueness without
+        # excluding the current instance. Skip the check when unchanged.
+        if self.instance is not None and username == self.instance.username:
+            return username
+        return super().validate_username(username)
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop("userprofile", {})

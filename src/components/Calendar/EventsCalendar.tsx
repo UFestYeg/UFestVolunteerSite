@@ -1,12 +1,11 @@
 // tslint:disable: jsx-no-lambda
 // tslint:disable: react-this-binding-issue
 // tslint:disable: use-simple-attributes
-import { Container } from "@material-ui/core";
+import { Container } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
 import { compareArrays, getEarliestDate } from "../../utils";
-import { useDispatch } from "react-redux";
 import { volunteer as volunteerActions } from "../../store/actions";
 import EventsCategoryView from "./EventsCategoryView";
 import EventsDetailView from "./EventsDetailView";
@@ -33,9 +32,10 @@ interface ILocationState {
 }
 
 const EventsCalendar: React.FC = () => {
-    const { state } = useLocation<ILocationState>();
+    const { state: locationState } = useLocation();
+    const state = locationState as ILocationState | null;
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
-    const dispatch = useDispatch();
+    const dispatch = StateHooks.useAppDispatch();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
     console.log(`earliest ${earliest}`);

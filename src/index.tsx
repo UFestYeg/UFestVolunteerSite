@@ -1,14 +1,13 @@
 // tslint:disable: no-submodule-imports
 import React from "react";
 import { CookiesProvider } from "react-cookie";
-import ReactDOM from "react-dom";
-import { reducer as notifications } from "react-notification-system-redux";
+import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 import { persistReducer, persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
-import thunk from "redux-thunk";
+import { thunk } from "redux-thunk";
 import App from "./App";
 import { Loading } from "./components/Loading";
 import * as serviceWorker from "./serviceWorker";
@@ -27,13 +26,12 @@ const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
     volunteer: volunteerReducer,
-    notifications,
 });
 
 const persistConfig = {
     key: "root",
     storage,
-    whitelist: ["auth", "user", "notifications"],
+    whitelist: ["auth", "user"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -45,7 +43,9 @@ const store = createStore(
 
 const persistor = persistStore(store);
 
-ReactDOM.render(
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(
     <React.StrictMode>
         <Provider store={store}>
             <CookiesProvider>
@@ -54,8 +54,7 @@ ReactDOM.render(
                 </PersistGate>
             </CookiesProvider>
         </Provider>
-    </React.StrictMode>,
-    document.getElementById("root")
+    </React.StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change

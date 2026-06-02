@@ -6,21 +6,21 @@ import {
     Paper,
     Typography,
     useMediaQuery,
-} from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { Link, useParams } from "react-router-dom";
 import { user as userActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 
 interface IProfileInfo {
     canEdit: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     large: {
         width: theme.spacing(10),
         height: theme.spacing(10),
@@ -37,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
         width: "99%",
     },
     button: {
-        background: theme.palette.primary.main,
         border: 0,
         borderRadius: theme.spacing(2),
         // color: "white",
@@ -65,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.up("md")]: {
             marginLeft: theme.spacing(4),
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down('lg')]: {
             marginLeft: theme.spacing(2),
         },
     },
@@ -86,8 +85,8 @@ const useStyles = makeStyles((theme) => ({
 
 const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const { profileID: profileIDStr } = useParams<{ profileID?: string }>();
     const profileID = profileIDStr ? parseInt(profileIDStr, 10) : undefined;
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
@@ -99,9 +98,9 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
         }
     }, [cookies.csrftoken, dispatch, profileID]);
 
-    const userProfile = profileID
-        ? StateHooks.useViewedUserProfile()
-        : StateHooks.useUserProfile();
+    const viewedUserProfile = StateHooks.useViewedUserProfile();
+    const ownUserProfile = StateHooks.useUserProfile();
+    const userProfile = profileID ? viewedUserProfile : ownUserProfile;
 
     return (
         <Paper elevation={3} className={classes.fullWidth}>
@@ -110,7 +109,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction="row"
-                justify="space-between"
+                justifyContent="space-between"
                 alignItems="center"
             >
                 <Typography variant="h3">Other Info</Typography>
@@ -125,7 +124,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                             container
                             direction="column"
                             alignItems="stretch"
-                            justify="flex-start"
+                            justifyContent="flex-start"
                             xs={12}
                             sm={3}
                         >
@@ -161,7 +160,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">Email</Typography>
@@ -175,7 +174,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">Username</Typography>
@@ -190,7 +189,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                     item
                     container
                     direction={flexDirection}
-                    justify="space-between"
+                    justifyContent="space-between"
                     // xs={10}
                 >
                     <Typography variant="subtitle2">Over 18?</Typography>
@@ -220,7 +219,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">
@@ -238,7 +237,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">
@@ -256,7 +255,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">
@@ -274,7 +273,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">
@@ -292,7 +291,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">
@@ -310,7 +309,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                 item
                 container
                 direction={flexDirection}
-                justify="space-between"
+                justifyContent="space-between"
                 // xs={10}
             >
                 <Typography variant="subtitle2">T-shirt size?</Typography>
@@ -321,6 +320,51 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                     {userProfile.t_shirt_size}
                 </Typography>
             </Grid>
+            {userProfile.special_interests &&
+            userProfile.special_interests.trim() ? (
+                <Grid
+                    className={classes.grid}
+                    item
+                    container
+                    direction={flexDirection}
+                    justifyContent="space-between"
+                >
+                    <Typography variant="subtitle2">
+                        Special Interests
+                    </Typography>
+                    <Box
+                        flexGrow={1}
+                        alignItems="center"
+                        justifyContent="center"
+                    >
+                        <Divider className={classes.divider} />
+                    </Box>
+                    <Typography variant="body1">
+                        {userProfile.special_interests}
+                    </Typography>
+                </Grid>
+            ) : null}
+            {userProfile.comments && userProfile.comments.trim() ? (
+                <Grid
+                    className={classes.grid}
+                    item
+                    container
+                    direction={flexDirection}
+                    justifyContent="space-between"
+                >
+                    <Typography variant="subtitle2">Comments</Typography>
+                    <Box
+                        flexGrow={1}
+                        alignItems="center"
+                        justifyContent="center"
+                    >
+                        <Divider className={classes.divider} />
+                    </Box>
+                    <Typography variant="body1">
+                        {userProfile.comments}
+                    </Typography>
+                </Grid>
+            ) : null}
         </Paper>
     );
 };

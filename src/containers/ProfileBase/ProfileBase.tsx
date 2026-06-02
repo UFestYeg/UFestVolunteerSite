@@ -4,23 +4,24 @@ import {
     Paper,
     Typography,
     useMediaQuery,
-} from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { Tabs } from "../../components/Tabs";
 import { TabProps } from "../../components/Tabs/Tabs";
 import { user as userActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
 
 interface IProfileBase {
     useTabs: boolean;
     tabs?: TabProps[];
+    children?: React.ReactNode;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     large: {
         width: theme.spacing(10),
         height: theme.spacing(10),
@@ -80,8 +81,8 @@ const useStyles = makeStyles((theme) => ({
 
 const ProfilePage: React.FC<IProfileBase> = (props) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const { useTabs, tabs } = props;
     const mobile = !useMediaQuery("(min-width:400px)");
@@ -89,9 +90,9 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
         dispatch(userActions.getUserProfile(cookies.csrftoken));
     }, [dispatch]);
 
-    const userProfile = useTabs
-        ? StateHooks.useUserProfile()
-        : StateHooks.useViewedUserProfile();
+    const ownUserProfile = StateHooks.useUserProfile();
+    const viewedUserProfile = StateHooks.useViewedUserProfile();
+    const userProfile = useTabs ? ownUserProfile : viewedUserProfile;
 
     return (
         <Grid
@@ -99,7 +100,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
             container
             spacing={2}
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
         >
             {useTabs && tabs ? (
@@ -112,7 +113,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
                 className={classes.grid}
                 container
                 spacing={1}
-                justify="center"
+                justifyContent="center"
                 alignItems="flex-start"
                 direction="column"
                 xs={12}
@@ -122,7 +123,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
                     item
                     direction="row"
                     alignItems="center"
-                    justify="flex-start"
+                    justifyContent="flex-start"
                     className={classes.heading}
                 >
                     <Grid className={classes.grid} item>

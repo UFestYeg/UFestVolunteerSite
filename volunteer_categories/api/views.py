@@ -293,7 +293,7 @@ class CategoriesWithRolesViewSet(viewsets.ViewSet):
     @action(
         methods=["get"],
         detail=False,
-        url_path="(?P<rid>\d+)",
+        url_path=r"(?P<rid>\d+)",
         url_name="categoriesWithRoles",
     )
     def get_with_roleid(self, request, pk=None, rid=None):

@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import viewsets
 from volunteer_categories.models import EventDate, Request
 from django.db.models import Prefetch
-from rest_auth.views import UserDetailsView
+from dj_rest_auth.views import UserDetailsView
 
 # Create your views here.
 

@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import F, Sum, Count
 from django.contrib.auth.models import User
 from backend.settings import TIME_ZONE
-from pytz import timezone
+from zoneinfo import ZoneInfo as timezone
 
 # Create your models here.
 
