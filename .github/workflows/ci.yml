@@ -1,52 +1,68 @@
-# This workflow will do a clean install of node dependencies, python dependencies, build the source code and run tests
+# CI: install dependencies, type-check, build the frontend, and run the
+# frontend (Vitest) and backend (Django) test suites on every push/PR.
 
 name: CI
 
 on:
     push:
-        branches: [master]
+        branches: [master, dependency-upgrade-2026]
     pull_request:
         branches: [master]
 
-env:
-    CI: false
-
 jobs:
-    build-and-test:
-        runs-on: ${{ matrix.os }}
-
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [macos-latest, windows-latest, ubuntu-latest]
-                node-version: [13.x]
-                python-version: [3.x]
+    frontend:
+        name: Frontend (build, typecheck, test)
+        runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v2
-            - name: Use Node.js ${{ matrix.node-version }} and install npm dependencies
-              uses: actions/setup-node@v1
+            - uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
               with:
-                  node-version: ${{ matrix.node-version }}
-            - run: npm ci
-            - name: Setup Python ${{ matrix.python-version }} environment
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ matrix.python-version }}
-            - run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
-            - name: Run migrations
+                  node-version: 20
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Type-check
+              run: npm run typecheck
+
+            - name: Build
               env:
-                  SECRET_KEY: ${{ secrets.SECRET_KEY }}
-              run: |
-                  python manage.py migrate
-            - name: Use npm to compile, format-check and test
-              uses: actions/setup-node@v1
+                  CI: false
+              run: npm run build
+
+            - name: Run unit tests
+              run: npm run test:run
+
+    backend:
+        name: Backend (Django tests)
+        runs-on: ubuntu-latest
+
+        env:
+            SECRET_KEY: ${{ secrets.SECRET_KEY || 'ci-insecure-test-secret-key' }}
+            DEBUG: "False"
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
               with:
-                  node-version: ${{ matrix.node-version }}
-            - run: npm run build
+                  python-version: "3.13"
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v5
+              with:
+                  enable-cache: true
+
+            - name: Install dependencies
+              run: uv sync --dev
+
+            - name: Run migrations
+              run: uv run python manage.py migrate
+
             - name: Run tests
-              uses: GabrielBB/xvfb-action@v1.2
-              with:
-                  run: npm run test
+              run: uv run python manage.py test -v 2
