@@ -33,8 +33,10 @@ import { StateHooks } from "../../store/hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
+import { notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
 import { getEarliestDate } from "../../utils";
 import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
+import { hoverExpandStyle, useHoverShiftLeft } from "../Calendar/eventHover";
 import { Loading } from "../Loading";
 
 type ScheduleEventType = {
@@ -104,14 +106,17 @@ const useStyles = makeStyles()((theme) =>
             width: "inherit",
         },
         eventRoot: {
-            height: "inherit",
+            // Use minHeight rather than a fixed inherited height so the inner
+            // container can grow to fit its text when the card expands on hover,
+            // instead of being locked to the clipped parent height.
+            minHeight: "inherit",
         },
         myEvent: {
-            "&:hover": {
-                minHeight: "20%",
-                minWidth: "fit-content",
-                zIndex: 1000,
+            "& .rbc-event-label": {
+                whiteSpace: "normal",
+                paddingRight: theme.spacing(2.5),
             },
+            ...hoverExpandStyle,
         },
         typography: {
             padding: theme.spacing(2),
@@ -141,7 +146,6 @@ const PositionRequestPage: React.FC = () => {
     const token = StateHooks.useToken();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
-    console.log(`early ${earliest}`);
 
     useEffect(() => {
         if (token && !isNaN(categoryTypeID)) {
@@ -149,10 +153,7 @@ const PositionRequestPage: React.FC = () => {
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
             dispatch(volunteerActions.getEventDates(cookies.csrftoken));
-            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-            axios.defaults.headers.common["Content-Type"] =
-                "application/json";
-            axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
+            setAuthHeaders(token, cookies.csrftoken);
 
             axios
                 .get(
@@ -200,11 +201,11 @@ const PositionRequestPage: React.FC = () => {
                             []
                         );
                     }
-                    console.log("mappedData");
-                    console.log(mappedData);
                     setList(mappedData);
                 })
-                .catch((err) => console.error(err));
+                .catch((err) =>
+                    notifyApiError(err, "Unable to load positions.")
+                );
         }
     }, [categoryTypeID, dispatch, roleID, token, cookies.csrftoken]);
 
@@ -222,6 +223,7 @@ const PositionRequestPage: React.FC = () => {
         const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(
             null
         );
+        const containerRef = useHoverShiftLeft<HTMLDivElement>();
 
         const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
             setAnchorEl(event.currentTarget);
@@ -245,8 +247,7 @@ const PositionRequestPage: React.FC = () => {
                     user: userProfile.pk,
                     role,
                 })
-                .then((res) => {
-                    console.log(res);
+                .then(() => {
                     navigate("/volunteer", {
                         state: {
                             fromRequestPage: true,
@@ -260,24 +261,9 @@ const PositionRequestPage: React.FC = () => {
                 .catch((err) => {
                     let errDetail = "Please try again.";
                     setRequestError(err);
-                    if (err.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
+                    if (err.response?.data?.detail) {
                         errDetail = err.response.data.detail;
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(err.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
                     }
-                    console.log(err.config);
-                    console.error(err);
                     enqueueSnackbar(
                         `Could not submit request. ${errDetail}`,
                         { variant: "error" }
@@ -305,7 +291,7 @@ const PositionRequestPage: React.FC = () => {
             selectedRole?.number_of_open_positions === 0;
 
         return <>
-            <Container onClick={handleClick} className={classes.eventRoot}>
+            <Container onClick={handleClick} className={classes.eventRoot} ref={containerRef}>
                 {errorMessage}
                 <strong>{event.title}</strong> : {event.role.title}
                 <br />

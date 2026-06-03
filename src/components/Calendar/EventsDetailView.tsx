@@ -34,10 +34,12 @@ import { StateHooks } from "../../store/hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
+import { notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
 import { CustomForm } from "../Form";
 import { Loading } from "../Loading";
 import CalendarToolbar from "./CalendarToolbar";
 import EventDetail from "./EventDetail";
+import { hoverExpandStyle } from "./eventHover";
 import UFestDay from "./UFestDay";
 import UFestWeek from "./UFestWeek";
 
@@ -82,7 +84,13 @@ const useStyles = makeStyles()((theme) =>
                 fontWeight: 500,
             },
         },
-        myEvent: { "&:hover": { zIndex: 1000, minWidth: "fit-content" } },
+        myEvent: {
+            "& .rbc-event-label": {
+                whiteSpace: "normal",
+                paddingRight: theme.spacing(2.5),
+            },
+            ...hoverExpandStyle,
+        },
     })
 );
 
@@ -169,9 +177,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         start: string | Date,
         end: string | Date
     ) => {
-        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-        axios.defaults.headers.common["Content-Type"] = "application/json";
-        axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
+        setAuthHeaders(token, cookies.csrftoken);
         if (token && import.meta.env.VITE_API_URI !== undefined) {
             axios
                 .put(VolunteerUrls.CATEGORY_DETAILS(event.id), {
@@ -179,36 +185,18 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                     end_time: end,
                     start_time: start,
                 })
-                .then((res) => {
-                    console.log(res);
+                .then(() => {
                     navigate(url, { state: browserState, replace: true });
                     navigate(0);
                 })
                 .catch((err) => {
-                    if (err.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(err.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
-                    }
-                    console.log(err.config);
-                    console.error(err);
+                    notifyApiError(err, "Could not update the event.");
                 });
         }
     };
 
     const onEventResize = (data: DragAndDropData) => {
         const { start, end, event } = data;
-        console.log(start, end);
         const nextEvents = currentList.map((existingEvent) => {
             return existingEvent.id === event.id
                 ? { ...existingEvent, start_time: start, end_time: end }

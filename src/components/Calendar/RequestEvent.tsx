@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { enqueueSnackbar } from "notistack";
 import { StateHooks } from "../../store/hooks";
+import { useHoverShiftLeft } from "./eventHover";
 
 type UserRequestType = {
     id: number;
@@ -74,6 +75,7 @@ const RequestEvent = ({ event }: { event: any }) => {
         null
     );
     const dispatch = StateHooks.useAppDispatch();
+    const containerRef = useHoverShiftLeft<HTMLDivElement>();
     const handleClick = (
         clickEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
@@ -86,8 +88,7 @@ const RequestEvent = ({ event }: { event: any }) => {
     const handleDelete = (role: any) => {
         axios
             .delete(VolunteerUrls.REQUESTS_DETAILS(role.id))
-            .then((res) => {
-                console.log(res);
+            .then(() => {
                 enqueueSnackbar(
                     `Request for ${role.title} has been deleted.`,
                     { variant: "success" }
@@ -100,23 +101,6 @@ const RequestEvent = ({ event }: { event: any }) => {
                     "Could not delete request, please try again.",
                     { variant: "error" }
                 );
-                if (err.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    console.log(err.response.data);
-                    console.log(err.response.status);
-                    console.log(err.response.headers);
-                } else if (err.request) {
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    console.log(err.request);
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.log("Error", err.message);
-                }
-                console.log(err.config);
-                console.error(err);
             });
     };
 
@@ -131,7 +115,7 @@ const RequestEvent = ({ event }: { event: any }) => {
         return moment(new Date()).isAfter(weekBeforeStart);
     };
     return <>
-        <div style={{ position: "relative", width: "100%" }}>
+        <div ref={containerRef} style={{ position: "relative", width: "100%" }}>
             <IconButton
                 aria-label="open delete popover"
                 onClick={handleClick}

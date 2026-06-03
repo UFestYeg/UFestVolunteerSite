@@ -4,6 +4,7 @@ import { useTheme } from "@mui/material/styles";
 import { makeStyles } from "tss-react/mui";
 import React from "react";
 import { VolunteerCategoryType } from "./EventsCalendar";
+import { useHoverShiftLeft } from "./eventHover";
 
 interface IEventDetails {
     event: VolunteerCategoryType;
@@ -15,7 +16,7 @@ interface IEventDetails {
 const useStyles = makeStyles()((theme) =>
     ({
         eventRoot: {
-            height: "inherit",
+            minHeight: "inherit",
         },
     })
 );
@@ -28,13 +29,14 @@ const EventDetail = ({
 }: IEventDetails) => {
     const theme = useTheme();
     const { classes } = useStyles();
+    const containerRef = useHoverShiftLeft<HTMLDivElement>();
     const handleClick = (_event: React.MouseEvent<HTMLDivElement>) => {
         setCategoryView(true);
         setSelectedCategories([event.category]);
         setDefaultDate(new Date(event.start_time));
     };
     return (
-        <Container onClick={handleClick} className={classes.eventRoot}>
+        <Container onClick={handleClick} className={classes.eventRoot} ref={containerRef}>
             <strong>{event.title}</strong>
             <br />
             Available Positions:{" "}

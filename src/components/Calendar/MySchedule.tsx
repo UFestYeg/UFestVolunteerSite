@@ -19,6 +19,7 @@ import { volunteer as volunteerActions } from "../../store/actions";
 import { IUserRequest } from "../../store/types";
 import CalendarToolbar from "./CalendarToolbar";
 import { RequestEvent } from "./RequestEvent";
+import { hoverExpandStyle } from "./eventHover";
 import { getEarliestDate } from "../../utils";
 import UFestWeek from "./UFestWeek";
 import UFestDay from "./UFestDay";
@@ -88,18 +89,7 @@ const useStyles = makeStyles()((theme) =>
                 whiteSpace: "normal",
                 paddingRight: theme.spacing(2.5),
             },
-            "&:hover": {
-                minWidth: "fit-content",
-                minHeight: "max-content !important",
-                overflow: "visible !important",
-                zIndex: 1000,
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
-            },
-            "&:hover .rbc-event-content": {
-                flex: "0 0 auto !important",
-                overflow: "visible",
-                whiteSpace: "normal",
-            },
+            ...hoverExpandStyle,
         },
     })
 );
@@ -162,9 +152,6 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
     const localizer = momentLocalizer(moment);
 
     const earliest = getEarliestDate(eventDates) ?? new Date();
-    console.log(`event dates ${eventDates}`);
-
-    console.log(`Earliest date ${earliest}`);
     return (
         <Container maxWidth="lg" className={classes.calendarWrapper}>
             {loading ? (

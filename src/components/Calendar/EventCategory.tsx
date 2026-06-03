@@ -37,6 +37,7 @@ import { StateHooks } from "../../store/hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { Loading } from "../Loading";
+import { useHoverShiftLeft } from "./eventHover";
 
 export type EventCategoryType = {
     resourceId: number;
@@ -120,7 +121,7 @@ const useStyles = makeStyles()((theme) =>
             flexWrap: "wrap",
         },
         eventRoot: {
-            height: "inherit",
+            minHeight: "inherit",
         },
         accept: {
             color: "green",
@@ -232,7 +233,8 @@ const EventCategory = ({
     const theme = useTheme();
     const { classes } = useStyles();
     const dispatch = StateHooks.useAppDispatch();
-    const [_categories, loading, error] = StateHooks.useVolunteerInfo();
+    const containerRef = useHoverShiftLeft<HTMLDivElement>();
+    const [_categories, loading, _error] = StateHooks.useVolunteerInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
@@ -309,9 +311,6 @@ const EventCategory = ({
 
         const handleOkClick = (submitRoleID: number | string) => {
             if (submitRoleID) {
-                console.log("request", submitRequest);
-                console.log("data", data);
-                console.log("index", index);
                 const submitMappedRole = mappedRoles.find((role: any) => {
                     return role.roleID === submitRoleID;
                 });
@@ -441,7 +440,7 @@ const EventCategory = ({
     const id = popoverOpen ? "simple-popover" : undefined;
 
     return <>
-        <Container onClick={handleClick} className={classes.eventRoot}>
+        <Container onClick={handleClick} className={classes.eventRoot} ref={containerRef}>
             <strong>{event.title}</strong>
             <br />
             Available Positions:{" "}
@@ -480,11 +479,6 @@ const EventCategory = ({
                             subheader={`${event.category}: ${event.title}`}
                         />
                         <CardContent className={classes.cardContent}>
-                            <Typography color="error">
-                                {error && error.reponse
-                                    ? error.reponse.data
-                                    : null}
-                            </Typography>
                             {requests && requests.length > 0 ? (
                                 <List className={classes.list}>
                                     {requests.map(
