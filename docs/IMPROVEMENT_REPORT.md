@@ -6,7 +6,7 @@ _Generated as a triage backlog after the 2026 dependency upgrade. Findings are g
 >
 > **Implementation pass (pending review, uncommitted):** H-1, H-2, M-1, H-3, H-4, M-2, M-3, M-4, M-5, M-6, L-1, L-2, M-8, M-9, M-10 are implemented. All 70 backend + 74 frontend tests still pass; `tsc --noEmit` is clean. Remaining: the L-3..L-7 backlog.
 >
-> **Follow-up pass (committed on `dependency-upgrade-2026`):** L-5 (profile completeness indicator) and L-4 (volunteer iCal/ICS export) implemented. L-5: `getIncompleteProfileFields` util + unit tests, and a warning in the submit-request popover linking to the profile edit page. L-4: authenticated `api/my_schedule.ics` endpoint returning the volunteer's accepted shifts as a VCALENDAR, plus an "Add to calendar" download button on My Schedule. Remaining: L-3, L-6, L-7.
+> **Follow-up pass (committed on `dependency-upgrade-2026`):** L-5 (profile completeness indicator), L-4 (volunteer iCal/ICS export), and L-6 (test coverage) addressed. L-5: `getIncompleteProfileFields` util + unit tests, and a warning in the submit-request popover linking to the profile edit page. L-4: authenticated `api/my_schedule.ics` endpoint returning the volunteer's accepted shifts as a VCALENDAR, plus an "Add to calendar" download button on My Schedule. L-6: added an `apiUtils` test suite (auth headers, error-message extraction, 401 interceptor) and Django tests for the admin daily check-in CSV export. Remaining: L-3, L-7.
 
 ---
 
@@ -117,9 +117,9 @@ _Generated as a triage backlog after the 2026 dependency upgrade. Findings are g
 - **Why it matters:** Edge-case data loss; surprising update semantics.
 - **Fix:** Check `is not None` / presence in `validated_data` instead of truthiness.
 
-### 🟢 L-6 — Test coverage gaps (post-additions)
-- Now covered: reducers, store utils, `src/utils`, auth action creators/thunks, a few components; Django models/serializers/api/context-processor.
-- Still thin: most components (LoginPage, SignUpPage, PasswordReset*, ProfileEditPage, Calendar internals), network/error branches of thunks, admin views, and an end-to-end request flow (create → accept → check-in export).
+### � L-6 — Test coverage gaps (post-additions)
+- Now covered: reducers, store utils, `src/utils`, auth action creators/thunks, `apiUtils` (auth headers, API error-message extraction, 401 interceptor), a few components; Django models/serializers/api/context-processor, the volunteer iCal/ICS export endpoint, and the admin daily check-in CSV export.
+- Still thin: most components (LoginPage, SignUpPage, PasswordReset*, ProfileEditPage, Calendar internals), network/error branches of thunks, remaining admin views, and an end-to-end request flow (create → accept → check-in export).
 
 ---
 

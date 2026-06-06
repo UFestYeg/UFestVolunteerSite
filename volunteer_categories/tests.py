@@ -394,6 +394,57 @@ class MyScheduleICSTests(ApiBaseTestCase):
         self.assertNotIn("BEGIN:VEVENT", body)
 
 
+class DailyCheckinExportTests(TestCase):
+    """Cover the admin `export-checkin` CSV view."""
+
+    url = "/admin/volunteer_categories/request/export-checkin/"
+
+    def setUp(self):
+        from volunteer_categories.admin import DEFAULT_DATES
+
+        self.admin = User.objects.create_superuser(
+            username="root", email="root@example.com", password="pw"
+        )
+        self.client.force_login(self.admin)
+        # Use one of the default selectable dates so the form value validates.
+        self.choice_datetime = DEFAULT_DATES[0][0]
+        self.selected_date = str(self.choice_datetime)
+        self.category = VolunteerCategory.categories.create(
+            title="Greeters",
+            description="desc",
+            start_time=self.choice_datetime,
+            end_time=self.choice_datetime + timedelta(hours=4),
+        )
+        self.role = Role.roles.create(
+            title="Greeter",
+            description="welcome guests",
+            number_of_positions=2,
+            category=self.category,
+        )
+
+    def test_post_exports_accepted_requests_as_csv(self):
+        volunteer = User.objects.create_user(
+            username="vol", password="pw", first_name="Ada", last_name="Lovelace"
+        )
+        Request.requests.create(
+            user=volunteer, role=self.role, status=Request.ACCEPTED
+        )
+        resp = self.client.post(self.url, {"selected_date": self.selected_date})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv")
+        self.assertIn("attachment", resp["Content-Disposition"])
+        self.assertIn(".csv", resp["Content-Disposition"])
+        body = resp.content.decode()
+        self.assertIn("Lovelace", body)
+        self.assertIn("Ada", body)
+        self.assertIn("Greeters", body)
+
+    def test_post_with_no_accepted_requests_redirects(self):
+        resp = self.client.post(self.url, {"selected_date": self.selected_date})
+        self.assertEqual(resp.status_code, 302)
+
+
+
 # ---------------------------------------------------------------------------
 # cron / tasks tests
 # ---------------------------------------------------------------------------
