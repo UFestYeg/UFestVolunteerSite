@@ -265,3 +265,42 @@ class UserDetailsAPITests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("username", response.data)
+
+
+class UserProfileCsvExportAdminTests(TestCase):
+    """Lock in the admin profile CSV export after the N+1 query fix: it must
+    still emit one row per selected user with that user's own profile data."""
+
+    def setUp(self):
+        from django.contrib import admin as django_admin
+
+        self.factory = RequestFactory()
+        self.admin_instance = django_admin.site._registry[User]
+        self.staff = User.objects.create_superuser(
+            username="exporter", email="exporter@example.com", password="pw12345678"
+        )
+        self.alice = make_user("alice", first_name="Alice", last_name="Zed")
+        self.alice.userprofile.age = 30
+        self.alice.userprofile.emergency_contact = "Alice Contact"
+        self.alice.userprofile.save()
+        self.bob = make_user("bob", first_name="Bob", last_name="Young")
+        self.bob.userprofile.age = 25
+        self.bob.userprofile.emergency_contact = "Bob Contact"
+        self.bob.userprofile.save()
+
+    def test_export_includes_each_users_own_profile(self):
+        request = self.factory.get("/admin/")
+        request.user = self.staff
+        queryset = User.objects.filter(
+            pk__in=[self.alice.pk, self.bob.pk]
+        )
+        response = self.admin_instance.export_user_profiles_as_csv(request, queryset)
+        self.assertEqual(response["Content-Type"], "text/csv")
+        body = response.content.decode()
+        self.assertIn("Alice", body)
+        self.assertIn("Alice Contact", body)
+        self.assertIn("Bob", body)
+        self.assertIn("Bob Contact", body)
+        # Header + one row per user (ordered by last_name: Young, Zed).
+        data_rows = [line for line in body.splitlines() if line.strip()]
+        self.assertEqual(len(data_rows), 3)

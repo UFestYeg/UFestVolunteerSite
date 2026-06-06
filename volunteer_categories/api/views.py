@@ -12,7 +12,6 @@ from .permissions import IsAdminOrAuthenticatedReadOnly
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from backend import settings
@@ -154,10 +153,15 @@ class RequestViewSet(viewsets.ModelViewSet):
             template="request_delete_email",
             context=email_context,
             bcc=recipient_list,
+            priority="medium",
         )
 
         if instance.status == Request.ACCEPTED:
-            requests = instance.user.requests.all().exclude(pk=instance.id)
+            requests = (
+                instance.user.requests.all()
+                .exclude(pk=instance.id)
+                .select_related("role__category")
+            )
             for req in requests:
                 if self.overlappingRequests(instance, req):
                     req.status = Request.PENDING
@@ -166,16 +170,22 @@ class RequestViewSet(viewsets.ModelViewSet):
         instance.delete()
         self._log_on_destroy(instance)
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     serializer_class = RequestSerializer
     
     def get_queryset(self):
         """
-        Optionally restricts the returned requests to a given user,
-        by filtering against a `date` query parameter in the URL.
+        Restrict the returned requests to the current user's own requests
+        unless they are staff. Without this scoping any authenticated user
+        could read or modify every volunteer's request (IDOR). Staff retain
+        full visibility for the admin accept/deny workflow.
         """
-        queryset = Request.requests.all()
+        if self.request.user.is_staff:
+            queryset = Request.requests.all()
+        else:
+            queryset = Request.requests.filter(user=self.request.user)
+        queryset = queryset.select_related("role__category", "user")
         use_event_dates = self.request.query_params.get("use_event_dates")
         try:
             if (

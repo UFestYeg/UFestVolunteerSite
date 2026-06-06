@@ -95,6 +95,7 @@ class RequestSerializer(serializers.ModelSerializer):
                 email_from,
                 template="request_create_email",
                 context=email_context,
+                priority="medium",
             )
 
         try:
@@ -109,7 +110,11 @@ class RequestSerializer(serializers.ModelSerializer):
             validated_data["role"] = role
             request = Request.requests.create(**validated_data)
 
-            requests = request.user.requests.all().exclude(pk=request.id)
+            requests = (
+                request.user.requests.all()
+                .exclude(pk=request.id)
+                .select_related("role__category")
+            )
             for req in requests:
                 if req.status == Request.ACCEPTED and self.overlappingRequests(
                     request, req
@@ -161,6 +166,7 @@ class RequestSerializer(serializers.ModelSerializer):
                 email_from,
                 template="request_update_email",
                 context=email_context,
+                priority="medium",
             )
 
         try:
@@ -185,13 +191,21 @@ class RequestSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {"detail": "Cannot accept any more requests."}
                     )
-                requests = instance.user.requests.all().exclude(pk=instance.id)
+                requests = (
+                    instance.user.requests.all()
+                    .exclude(pk=instance.id)
+                    .select_related("role__category")
+                )
                 for req in requests:
                     if self.overlappingRequests(instance, req):
                         req.status = Request.UNAVAILABLE
                         req.save()
             elif old_status == Request.ACCEPTED and instance.status != Request.ACCEPTED:
-                requests = instance.user.requests.all().exclude(pk=instance.id)
+                requests = (
+                    instance.user.requests.all()
+                    .exclude(pk=instance.id)
+                    .select_related("role__category")
+                )
                 for req in requests:
                     if self.overlappingRequests(instance, req):
                         req.status = Request.PENDING

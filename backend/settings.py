@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 from dotenv import load_dotenv
 import datetime
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -198,8 +199,10 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
-        # "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-        "rest_framework.permissions.AllowAny",
+        # Secure by default: any endpoint that does not explicitly opt into a
+        # different permission requires authentication. Public endpoints (e.g.
+        # dj-rest-auth login/registration) set their own AllowAny permission.
+        "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # "rest_framework.authentication.BasicAuthentication",  # enables simple command line authentication
@@ -264,3 +267,27 @@ CRONJOBS = [
 ]
 
 POST_OFFICE = {"MAX_RETRIES": 4, "RETRY_INTERVAL": datetime.timedelta(minutes=15)}
+
+
+# Production security hardening. These are only applied when DEBUG is off so
+# local development over http keeps working. The HTTPS redirect and HSTS are
+# additionally skipped while running the test suite, because the Django test
+# client talks to http://testserver and SECURE_SSL_REDIRECT would turn every
+# request into a 301 (breaking the tests, which also run with DEBUG=False).
+_RUNNING_TESTS = "test" in sys.argv
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "DENY"
+
+    if not _RUNNING_TESTS:
+        SECURE_SSL_REDIRECT = True
+        # Trust the X-Forwarded-Proto header set by the hosting platform's
+        # TLS-terminating proxy so Django knows the original request was HTTPS.
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+        SECURE_HSTS_SECONDS = 31536000  # 1 year
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+        SECURE_HSTS_PRELOAD = True

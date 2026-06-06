@@ -246,7 +246,12 @@ class VolunteerCategoryApiTests(ApiBaseTestCase):
 
 
 class CategoryTypeApiTests(ApiBaseTestCase):
-    def test_list_open_to_anonymous(self):
+    def test_list_requires_authentication(self):
+        resp = self.client.get("/api/categories/")
+        self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
+    def test_authenticated_can_list(self):
+        self.client.force_authenticate(self.user)
         resp = self.client.get("/api/categories/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         tags = [c["tag"] for c in resp.json()]
@@ -254,7 +259,12 @@ class CategoryTypeApiTests(ApiBaseTestCase):
 
 
 class EventDateApiTests(ApiBaseTestCase):
+    def test_list_requires_authentication(self):
+        resp = self.client.get("/api/eventdates/")
+        self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
     def test_list_event_dates(self):
+        self.client.force_authenticate(self.user)
         dt = timezone.make_aware(timezone.datetime(2025, 5, 24, 9, 0))
         EventDate.dates.create(event_date=dt)
         resp = self.client.get("/api/eventdates/")
@@ -286,11 +296,44 @@ class CategoryOfTypeApiTests(ApiBaseTestCase):
 
 @patch("volunteer_categories.api.serializers.mail.send")
 class RequestApiTests(ApiBaseTestCase):
-    def test_list_open_to_anonymous(self, mock_send):
+    def test_list_requires_authentication(self, mock_send):
         Request.requests.create(user=self.user, role=self.role)
         resp = self.client.get("/api/requests/")
+        self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
+    def test_list_returns_only_own_requests_for_non_staff(self, mock_send):
+        other = User.objects.create_user(username="other_own", password="pw")
+        mine = Request.requests.create(user=self.user, role=self.role)
+        Request.requests.create(user=other, role=self.role)
+        self.client.force_authenticate(self.user)
+        resp = self.client.get("/api/requests/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.json()), 1)
+        ids = [r["id"] for r in resp.json()]
+        self.assertEqual(ids, [mine.id])
+
+    def test_staff_sees_all_requests(self, mock_send):
+        other = User.objects.create_user(username="other_all", password="pw")
+        Request.requests.create(user=self.user, role=self.role)
+        Request.requests.create(user=other, role=self.role)
+        self.client.force_authenticate(self.staff)
+        resp = self.client.get("/api/requests/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.json()), 2)
+
+    def test_non_staff_cannot_retrieve_others_request(self, mock_send):
+        other = User.objects.create_user(username="other_detail", password="pw")
+        their_req = Request.requests.create(user=other, role=self.role)
+        self.client.force_authenticate(self.user)
+        resp = self.client.get(f"/api/requests/{their_req.id}/")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_non_staff_cannot_delete_others_request(self, mock_send):
+        other = User.objects.create_user(username="other_delete", password="pw")
+        their_req = Request.requests.create(user=other, role=self.role)
+        self.client.force_authenticate(self.user)
+        resp = self.client.delete(f"/api/requests/{their_req.id}/")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(Request.requests.filter(pk=their_req.id).exists())
 
     def test_anonymous_cannot_create(self, mock_send):
         payload = {"user": self.user.id, "status": Request.PENDING, "role": self.role_payload()}
