@@ -3,14 +3,25 @@ import axios from "axios";
 
 // Apply the auth/CSRF headers used by every authenticated request to the
 // shared axios defaults. Centralizing this avoids repeating the same three
-// header assignments at every call site.
+// header assignments at every call site. When a value is missing we delete the
+// corresponding header instead of sending a bogus one (e.g. "Authorization:
+// Token null"), so it's always clear whether a request is actually
+// authenticated.
 export const setAuthHeaders = (
     token: string | null,
     csrftoken?: string
 ): void => {
-    axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+    if (token) {
+        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+    } else {
+        delete axios.defaults.headers.common["Authorization"];
+    }
     axios.defaults.headers.common["Content-Type"] = "application/json";
-    axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+    if (csrftoken) {
+        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+    } else {
+        delete axios.defaults.headers.common["X-CSRFToken"];
+    }
 };
 
 // Register a global response interceptor that fails closed on authentication

@@ -42,11 +42,17 @@ describe("setAuthHeaders", () => {
         expect(axios.defaults.headers.common["X-CSRFToken"]).toBe("csrf456");
     });
 
-    it("still sets a Token header when the token is null", () => {
+    it("removes the auth and CSRF headers when the token is null", () => {
+        axios.defaults.headers.common["Authorization"] = "Token stale";
+        axios.defaults.headers.common["X-CSRFToken"] = "old-csrf";
+
         setAuthHeaders(null);
 
-        expect(axios.defaults.headers.common["Authorization"]).toBe(
-            "Token null"
+        expect(
+            axios.defaults.headers.common["Authorization"]
+        ).toBeUndefined();
+        expect(axios.defaults.headers.common["Content-Type"]).toBe(
+            "application/json"
         );
         expect(axios.defaults.headers.common["X-CSRFToken"]).toBeUndefined();
     });
