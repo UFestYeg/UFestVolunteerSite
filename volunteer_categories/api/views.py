@@ -13,6 +13,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from backend import settings
 from post_office import mail
 
@@ -20,6 +22,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.db import DatabaseError
 from django.db.models import Prefetch, Count, Q
+from django.http import HttpResponse
+from django.utils import timezone as dj_timezone
+from datetime import timezone as dt_timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -333,3 +338,74 @@ class EventDateViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = EventDate.dates.all()
     serializer_class = EventDateSerializer
+
+
+def _ics_escape(text):
+    """Escape a text value for inclusion in an iCalendar field (RFC 5545)."""
+    if text is None:
+        return ""
+    return (
+        str(text)
+        .replace("\\", "\\\\")
+        .replace(";", "\\;")
+        .replace(",", "\\,")
+        .replace("\r\n", "\\n")
+        .replace("\n", "\\n")
+    )
+
+
+def _ics_datetime(value):
+    """Format a datetime as a UTC iCalendar timestamp (e.g. 20250528T160000Z)."""
+    return value.astimezone(dt_timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+class MyScheduleICSView(APIView):
+    """
+    Return the authenticated volunteer's accepted shifts as an iCalendar (.ics)
+    file so they can import or sync their schedule into Google/Outlook/Apple
+    Calendar.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        accepted_requests = (
+            Request.requests.filter(user=request.user, status=Request.ACCEPTED)
+            .select_related("role", "role__category")
+            .order_by("role__category__start_time")
+        )
+
+        now = _ics_datetime(dj_timezone.now())
+        lines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//UFest//Volunteer Schedule//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "X-WR-CALNAME:UFest Volunteer Schedule",
+        ]
+
+        for req in accepted_requests:
+            category = req.role.category
+            if not category or not category.start_time or not category.end_time:
+                continue
+            summary = f"{category.title} - {req.role.title}"
+            lines += [
+                "BEGIN:VEVENT",
+                f"UID:request-{req.id}@volunteer.ufest.ca",
+                f"DTSTAMP:{now}",
+                f"DTSTART:{_ics_datetime(category.start_time)}",
+                f"DTEND:{_ics_datetime(category.end_time)}",
+                f"SUMMARY:{_ics_escape(summary)}",
+                f"DESCRIPTION:{_ics_escape(req.role.description)}",
+                "END:VEVENT",
+            ]
+
+        lines.append("END:VCALENDAR")
+        content = "\r\n".join(lines) + "\r\n"
+
+        response = HttpResponse(content, content_type="text/calendar; charset=utf-8")
+        response["Content-Disposition"] = (
+            'attachment; filename="ufest-volunteer-schedule.ics"'
+        )
+        return response

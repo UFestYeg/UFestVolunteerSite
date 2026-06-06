@@ -348,6 +348,52 @@ class RequestApiTests(ApiBaseTestCase):
         self.assertFalse(Request.requests.filter(pk=req.id).exists())
 
 
+class MyScheduleICSTests(ApiBaseTestCase):
+    def test_requires_authentication(self):
+        resp = self.client.get("/api/my_schedule.ics")
+        self.assertIn(
+            resp.status_code,
+            (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
+        )
+
+    def test_returns_calendar_with_accepted_shift(self):
+        Request.requests.create(
+            user=self.user, role=self.role, status=Request.ACCEPTED
+        )
+        self.client.force_authenticate(self.user)
+        resp = self.client.get("/api/my_schedule.ics")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp["Content-Type"].startswith("text/calendar"))
+        self.assertIn("attachment", resp["Content-Disposition"])
+        self.assertIn("ufest-volunteer-schedule.ics", resp["Content-Disposition"])
+        body = resp.content.decode()
+        self.assertIn("BEGIN:VCALENDAR", body)
+        self.assertIn("BEGIN:VEVENT", body)
+        self.assertIn(f"{self.category.title} - {self.role.title}", body)
+        self.assertEqual(body.count("BEGIN:VEVENT"), 1)
+
+    def test_excludes_non_accepted_requests(self):
+        Request.requests.create(
+            user=self.user, role=self.role, status=Request.PENDING
+        )
+        self.client.force_authenticate(self.user)
+        resp = self.client.get("/api/my_schedule.ics")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        body = resp.content.decode()
+        self.assertNotIn("BEGIN:VEVENT", body)
+
+    def test_only_includes_own_shifts(self):
+        other = User.objects.create_user(username="someone", password="pw")
+        Request.requests.create(
+            user=other, role=self.role, status=Request.ACCEPTED
+        )
+        self.client.force_authenticate(self.user)
+        resp = self.client.get("/api/my_schedule.ics")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        body = resp.content.decode()
+        self.assertNotIn("BEGIN:VEVENT", body)
+
+
 # ---------------------------------------------------------------------------
 # cron / tasks tests
 # ---------------------------------------------------------------------------

@@ -5,6 +5,8 @@ _Generated as a triage backlog after the 2026 dependency upgrade. Findings are g
 > Status snapshot: A test suite was just added (72 frontend Vitest tests + 70 Django tests, all passing) and the GitHub Actions CI workflow was rewritten to run them on every PR. Several items below relate to gaps surfaced while building those tests.
 >
 > **Implementation pass (pending review, uncommitted):** H-1, H-2, M-1, H-3, H-4, M-2, M-3, M-4, M-5, M-6, L-1, L-2, M-8, M-9, M-10 are implemented. All 70 backend + 74 frontend tests still pass; `tsc --noEmit` is clean. Remaining: the L-3..L-7 backlog.
+>
+> **Follow-up pass (committed on `dependency-upgrade-2026`):** L-5 (profile completeness indicator) and L-4 (volunteer iCal/ICS export) implemented. L-5: `getIncompleteProfileFields` util + unit tests, and a warning in the submit-request popover linking to the profile edit page. L-4: authenticated `api/my_schedule.ics` endpoint returning the volunteer's accepted shifts as a VCALENDAR, plus an "Add to calendar" download button on My Schedule. Remaining: L-3, L-6, L-7.
 
 ---
 
@@ -88,11 +90,13 @@ _Generated as a triage backlog after the 2026 dependency upgrade. Findings are g
 ### 🟢 L-3 — Notification preferences / unsubscribe
 - Users can't opt in/out of emails and templates lack an unsubscribe link (`templates/account/email/`). Consider a settings page + unsubscribe handling.
 
-### 🟢 L-4 — Admin reporting & calendar export
+### � L-4 — Admin reporting & calendar export (PARTIAL — ICS export DONE)
 - Admin currently exports only the daily check-in CSV (`templates/admin/export_daily_checkin_form.html`). Consider volunteer summaries / capacity views, and an iCal/ICS export so volunteers can sync shifts to Google/Outlook.
+- **Fix (ICS export):** Added an authenticated `GET api/my_schedule.ics` endpoint (`MyScheduleICSView` in `volunteer_categories/api/views.py`) that returns the logged-in volunteer's `ACCEPTED` shifts as a valid `text/calendar` VCALENDAR (one `VEVENT` per accepted request, UTC timestamps, escaped fields). A new "Add to calendar" button on the My Schedule page (`src/components/Calendar/MySchedule.tsx`) downloads the `.ics` via an authenticated blob request. Covered by 4 Django tests (auth required, accepted-only, own-shifts-only). Admin summary/capacity reporting views remain outstanding.
 
-### 🟢 L-5 — Profile completeness indicator
+### ✅ L-5 — Profile completeness indicator (DONE)
 - Required fields exist on `UserProfile` but the UI doesn't flag an incomplete profile before a volunteer submits a request.
+- **Fix (done):** `getIncompleteProfileFields` (in `src/utils.ts`, unit-tested) flags missing first/last name, email, emergency contact, and age (for under-18s). `PositionRequestPage`'s submit-request popover now shows a warning with a link to the profile edit page when the volunteer's profile is incomplete.
 
 ---
 

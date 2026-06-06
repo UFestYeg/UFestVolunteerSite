@@ -1,8 +1,10 @@
-import { Container } from "@mui/material";
+import { Box, Button, Container } from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
 import { useTheme } from "@mui/material/styles";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { makeStyles } from "tss-react/mui";
 import clsx from "clsx";
+import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
@@ -16,6 +18,8 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
 import { StateHooks } from "../../store/hooks";
 import { volunteer as volunteerActions } from "../../store/actions";
+import { notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
+import VolunteerUrls from "../../constants/volunteerUrls";
 import { IUserRequest } from "../../store/types";
 import CalendarToolbar from "./CalendarToolbar";
 import { RequestEvent } from "./RequestEvent";
@@ -160,39 +164,87 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
 
     const localizer = momentLocalizer(moment);
 
+    const hasAcceptedShifts = currentList.some(
+        (event) => event.status === "ACCEPTED"
+    );
+
+    const handleExportCalendar = async () => {
+        try {
+            setAuthHeaders(token, cookies.csrftoken);
+            const response = await axios.get(VolunteerUrls.MY_SCHEDULE_ICS, {
+                responseType: "blob",
+            });
+            const downloadUrl = window.URL.createObjectURL(
+                new Blob([response.data], { type: "text/calendar" })
+            );
+            const link = document.createElement("a");
+            link.href = downloadUrl;
+            link.setAttribute("download", "ufest-volunteer-schedule.ics");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+        } catch (error) {
+            notifyApiError(error, "Could not export your schedule.");
+        }
+    };
+
     const earliest = getEarliestDate(eventDates) ?? new Date();
     return (
         <Container maxWidth="xl" className={classes.calendarWrapper}>
             {loading ? (
                 <Loading />
             ) : (
-                <Calendar<UserRequestType, object>
-                    localizer={localizer}
-                    events={currentList}
-                    startAccessor="start_time"
-                    endAccessor="end_time"
-                    style={{ height: "calc(100vh - 200px)", minHeight: 600 }}
-                    defaultView="day"
-                    defaultDate={earliest}
-                    views={{ day: UFestDay, week: UFestWeek }}
-                    components={{
-                        event: RequestEvent,
-                        toolbar: (
-                            props: ToolbarProps<UserRequestType, object>
-                        ) => (
-                            <CalendarToolbar
-                                {...props}
-                                categoryView={false}
-                                filter={false}
-                                addButton={false}
-                            />
-                        ),
-                    }}
-                    selectable
-                    popup={true}
-                    scrollToTime={moment("08:00:00 am", "hh:mm:ss a").toDate()}
-                    eventPropGetter={customRequestStyle}
-                />
+                <>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            mb: 1,
+                        }}
+                    >
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            color="primary"
+                            startIcon={<EventAvailableIcon />}
+                            onClick={handleExportCalendar}
+                            disabled={!hasAcceptedShifts}
+                        >
+                            Add to calendar
+                        </Button>
+                    </Box>
+                    <Calendar<UserRequestType, object>
+                        localizer={localizer}
+                        events={currentList}
+                        startAccessor="start_time"
+                        endAccessor="end_time"
+                        style={{ height: "calc(100vh - 200px)", minHeight: 600 }}
+                        defaultView="day"
+                        defaultDate={earliest}
+                        views={{ day: UFestDay, week: UFestWeek }}
+                        components={{
+                            event: RequestEvent,
+                            toolbar: (
+                                props: ToolbarProps<UserRequestType, object>
+                            ) => (
+                                <CalendarToolbar
+                                    {...props}
+                                    categoryView={false}
+                                    filter={false}
+                                    addButton={false}
+                                />
+                            ),
+                        }}
+                        selectable
+                        popup={true}
+                        scrollToTime={moment(
+                            "08:00:00 am",
+                            "hh:mm:ss a"
+                        ).toDate()}
+                        eventPropGetter={customRequestStyle}
+                    />
+                </>
             )}
         </Container>
     );

@@ -8,6 +8,7 @@ from .views import (
     CategoriesWithRolesViewSet,
     RoleViewSet,
     EventDateViewSet,
+    MyScheduleICSView,
 )
 
 # Create a router and register our viewsets with it.
@@ -22,6 +23,11 @@ router.register(
 )
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
+    path(
+        "my_schedule.ics",
+        MyScheduleICSView.as_view(),
+        name="my-schedule-ics",
+    ),
     path("", include(router.urls)),
     path(
         r"positions/category/<int:pk>/roles/<int:rid>/",
