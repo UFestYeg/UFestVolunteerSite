@@ -40,7 +40,8 @@ const useStyles = makeStyles()((theme) => ({
         border: 0,
         borderRadius: theme.spacing(2),
         // color: "white",
-        paddingBlock: theme.spacing(2),
+        fontSize: "0.75rem",
+        paddingBlock: theme.spacing(1.25),
         margin: theme.spacing(1),
     },
     change: {

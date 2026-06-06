@@ -40,15 +40,15 @@ const useStyles = makeStyles()((theme) =>
         tab: {
             paddingLeft: "1%",
             paddingRight: "1%",
-            // Below the width where three full-size tabs fit, shrink the tabs
-            // (smaller text, tighter padding, no forced min-width) so every
-            // label stays visible instead of being clipped — preferred over
-            // horizontal scroll buttons.
+            // Below the width where full-size tabs fit, let the tabs size to
+            // their text (no forced min-width) with slightly tighter padding,
+            // so every label stays fully visible without clipping or scroll
+            // buttons while keeping the text comfortably readable.
             [theme.breakpoints.down(768)]: {
                 minWidth: 0,
-                paddingLeft: theme.spacing(0.75),
-                paddingRight: theme.spacing(0.75),
-                fontSize: "0.75rem",
+                paddingLeft: theme.spacing(1.25),
+                paddingRight: theme.spacing(1.25),
+                fontSize: "0.875rem",
             },
         },
     })

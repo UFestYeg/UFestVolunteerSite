@@ -210,6 +210,13 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                             startIcon={<EventAvailableIcon />}
                             onClick={handleExportCalendar}
                             disabled={!hasAcceptedShifts}
+                            sx={{
+                                fontSize: "0.7rem",
+                                py: 0.25,
+                                "& .MuiButton-startIcon > *:nth-of-type(1)": {
+                                    fontSize: "1rem",
+                                },
+                            }}
                         >
                             Add to calendar
                         </Button>
