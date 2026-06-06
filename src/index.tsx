@@ -34,7 +34,13 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: "root",
     storage,
-    whitelist: ["auth", "user"],
+    // Do NOT persist the `auth` slice: it holds the DRF token, and writing it
+    // into redux-persist's localStorage blob is a second, redundant copy of a
+    // sensitive credential (extra XSS exposure). On load, App dispatches
+    // authCheckState(), which rehydrates auth state from the canonical
+    // `token`/`expirationDate` localStorage keys, so sessions still survive a
+    // refresh without persisting the token via redux.
+    whitelist: ["user"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
