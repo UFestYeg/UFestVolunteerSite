@@ -55,6 +55,12 @@ const useStyles = makeStyles()((theme) => ({
     },
     paper: {
         background: theme.palette.secondary.main,
+        // Span the available width (capped so it reads as a centered bar) so the
+        // centered tabs always have room. The Tabs scroller uses
+        // `overflow: hidden`, which makes a shrink-to-fit wrapper collapse and
+        // clip the labels; giving the wrapper a real width avoids that.
+        width: "100%",
+        maxWidth: theme.spacing(75),
     },
     hidden: {
         display: "none",

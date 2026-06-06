@@ -96,6 +96,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                 indicatorColor="primary"
                 textColor="primary"
                 centered
+                sx={{ width: "100%" }}
             >
                 {tabValues.map((tab, index) => (
                     <Tab
