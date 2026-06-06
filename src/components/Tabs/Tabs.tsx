@@ -93,12 +93,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                         label={tab.label}
                         component={NavLink}
                         to={tab.target}
-                        className={
-                            (({ isActive }: { isActive: boolean }) =>
-                                isActive
-                                    ? `active ${styles.tab}`
-                                    : styles.tab) as unknown as string
-                        }
+                        className={styles.tab}
                     />
                 ))}
             </TabsContainer>
