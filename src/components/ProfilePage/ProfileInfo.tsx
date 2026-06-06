@@ -41,8 +41,11 @@ const useStyles = makeStyles()((theme) => ({
         borderRadius: theme.spacing(2),
         // color: "white",
         fontSize: "0.75rem",
-        paddingBlock: theme.spacing(1.25),
+        paddingBlock: theme.spacing(0.5),
+        paddingInline: theme.spacing(1.5),
+        minWidth: 0,
         margin: theme.spacing(1),
+        whiteSpace: "nowrap",
     },
     change: {
         background: theme.palette.secondary.main,
@@ -124,7 +127,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                             item
                             container
                             direction="column"
-                            alignItems="stretch"
+                            alignItems="flex-end"
                             justifyContent="flex-start"
                             xs={12}
                             sm={3}
