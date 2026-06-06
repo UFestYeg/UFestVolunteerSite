@@ -1,5 +1,6 @@
 // tslint:disable: use-simple-attributes
 import {
+    Button,
     Card,
     CardContent,
     CardMedia,
@@ -11,11 +12,16 @@ import {
     AccessibilityNew,
     AttachMoney,
     Build,
+    Construction,
+    Groups,
+    Handshake,
     HeadsetMic,
     LocalBar,
     LocalCafe,
+    MusicNote,
     People,
     PhotoCamera,
+    Star,
     Storefront,
     Traffic,
     Widgets,
@@ -82,6 +88,20 @@ const useStyles = makeStyles()((theme) =>
         gridList: {
             width: "100%",
         },
+        browseAll: {
+            borderRadius: theme.spacing(4),
+            paddingTop: theme.spacing(1.5),
+            paddingBottom: theme.spacing(1.5),
+            paddingLeft: theme.spacing(4),
+            paddingRight: theme.spacing(4),
+            marginBottom: theme.spacing(1),
+            textTransform: "none",
+            fontWeight: 600,
+        },
+        browseAllCaption: {
+            display: "block",
+            textAlign: "center",
+        },
         link: { textDecoration: "none", display: "block", height: "100%" },
         media: {
             flexShrink: 0,
@@ -110,10 +130,16 @@ const iconMap: IIconMap = {
     kids: Widgets,
     volunteers: People,
     site_and_traffic: Traffic,
+    site_management: Traffic,
     entertainment: HeadsetMic,
     finance: AttachMoney,
     workshops: Build,
     vendors: Storefront,
+    setup_and_take_down: Construction,
+    committee_members: Groups,
+    special_attractions: Star,
+    sponsorship: Handshake,
+    buskers: MusicNote,
     other: AccessibilityNew,
 };
 
@@ -180,6 +206,33 @@ const CategorySelectPage: React.FC = () => {
             >
                 <Grid item>
                     <Typography variant="h2">Request to Volunteer</Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    className={classes.gridList}
+                    container
+                    direction="column"
+                    alignItems="center"
+                >
+                    <Button
+                        component={Link}
+                        to={`${url}/all`}
+                        variant="outlined"
+                        color="primary"
+                        size="large"
+                        className={classes.browseAll}
+                    >
+                        Browse the full schedule & filter by time
+                    </Button>
+                    <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        className={classes.browseAllCaption}
+                    >
+                        Have time restrictions? See every position across all
+                        categories and pick what fits your schedule.
+                    </Typography>
                 </Grid>
                 <Grid item xs={12} className={classes.gridList}>
                     <Grid

@@ -11,6 +11,10 @@ import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails
 import ProfileRoutes from "./ProfileRoutes";
 import UserRoutes from "./UserRoutes";
 
+// ProtectedRoute only forwards `canEdit`, so wrap PositionRequestPage to set
+// the full-calendar mode for the "browse everything" route.
+const FullCalendarPage: React.FC = () => <PositionRequestPage allCategories />;
+
 const PrivateRoutes: React.FC = () => {
     return (
         <Routes>
@@ -31,6 +35,10 @@ const PrivateRoutes: React.FC = () => {
             <Route
                 path="categories"
                 element={<ProtectedRoute component={CategorySelectPage} />}
+            />
+            <Route
+                path="categories/all"
+                element={<ProtectedRoute component={FullCalendarPage} />}
             />
             <Route
                 path="categories/:categoryTypeID"

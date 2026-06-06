@@ -16,6 +16,7 @@ import { useTheme } from "@mui/material/styles";
 import { makeStyles } from "tss-react/mui";
 import { Close } from "@mui/icons-material";
 import axios from "axios";
+import chroma from "chroma-js";
 import clsx from "clsx";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -197,7 +198,17 @@ const useStyles = makeStyles()((theme) =>
     })
 );
 
-const PositionRequestPage: React.FC = () => {
+interface IPositionRequestPageProps {
+    // When true, load and display open positions across every category with a
+    // category filter, instead of a single pre-selected category. This lets
+    // volunteers who only have time restrictions browse the full schedule and
+    // pick a slot without choosing a category first.
+    allCategories?: boolean;
+}
+
+const PositionRequestPage: React.FC<IPositionRequestPageProps> = ({
+    allCategories = false,
+}) => {
     const theme = useTheme();
     const { classes } = useStyles();
     const dispatch = StateHooks.useAppDispatch();
@@ -216,32 +227,58 @@ const PositionRequestPage: React.FC = () => {
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<ScheduleEventType[]>([]);
 
+    // Category filter (full-calendar mode only).
+    const volunteerCategoryTypes = StateHooks.useVolunteerCategoryTypes();
+    const categoryTags = volunteerCategoryTypes.map((c) => c.tag);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectAll, setSelectAll] = useState<boolean>(true);
+
     const token = StateHooks.useToken();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
 
+    // Default the category filter to "all selected" once the category types
+    // have loaded, so the full calendar starts by showing everything.
     useEffect(() => {
-        if (token && !isNaN(categoryTypeID)) {
+        if (allCategories && categoryTags.length > 0) {
+            setSelectedCategories(categoryTags);
+        }
+    }, [allCategories, volunteerCategoryTypes.length]);
+
+    // Give each category type its own colour, matching the admin calendar so
+    // the full-calendar view is easy to scan by category at a glance.
+    const colours = chroma
+        .scale(["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"])
+        .colors(categoryTags.length);
+    const colourMap = new Map<string, any>();
+    categoryTags.forEach((tag, i) => {
+        colourMap.set(tag, { backgroundColor: colours[i] });
+    });
+
+    useEffect(() => {
+        if (token && (allCategories || !isNaN(categoryTypeID))) {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
             dispatch(volunteerActions.getEventDates(cookies.csrftoken));
             setAuthHeaders(token, cookies.csrftoken);
 
+            const requestUrl = allCategories
+                ? VolunteerUrls.CATEGORY_LIST
+                : roleID != undefined
+                ? VolunteerUrls.CATEGORIES_WITH_ROLE_LIST(
+                      categoryTypeID,
+                      roleID
+                  )
+                : VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID);
+
             axios
-                .get(
-                    roleID != undefined
-                        ? VolunteerUrls.CATEGORIES_WITH_ROLE_LIST(
-                              categoryTypeID,
-                              roleID
-                          )
-                        : VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID)
-                )
+                .get(requestUrl)
                 .then((res) => {
                     const data = res.data;
 
                     let mappedData;
-                    if (roleID != undefined) {
+                    if (!allCategories && roleID != undefined) {
                         const category = data.pop();
                         // In this case we only look at one of the event roles that matches the name received from the badckend
                         mappedData = data.map((d: any) => {
@@ -259,12 +296,19 @@ const PositionRequestPage: React.FC = () => {
                             return d;
                         });
                     } else {
-                        // In this case we look at tall the roles under an event
+                        // Every role under every (matching) event. Used for a
+                        // single category and for the full-calendar mode.
                         mappedData = data.reduce(
                             (accum: any, d: any) =>
                                 accum.concat(
                                     ...d.roles.map((r: any) => {
                                         r.role = JSON.parse(JSON.stringify(r));
+                                        // Give the popover a readable category
+                                        // label and tag the event with its
+                                        // category type so the full-calendar
+                                        // filter can match it.
+                                        r.role.category = { title: d.title };
+                                        r.category_type = d.category_type;
                                         r.title = d.title;
                                         r.start_time = new Date(d.start_time);
                                         r.end_time = new Date(d.end_time);
@@ -280,7 +324,7 @@ const PositionRequestPage: React.FC = () => {
                     notifyApiError(err, "Unable to load positions.")
                 );
         }
-    }, [categoryTypeID, dispatch, roleID, token, cookies.csrftoken]);
+    }, [categoryTypeID, dispatch, roleID, token, cookies.csrftoken, allCategories]);
 
     const customEventStyle: EventPropGetter<ScheduleEventType> = (
         event: ScheduleEventType,
@@ -288,7 +332,11 @@ const PositionRequestPage: React.FC = () => {
         end: string | Date,
         isSelected: boolean
     ) => {
-        return { className: clsx("rbc-event", classes.myEvent) };
+        const tag = event.category_type?.tag;
+        return {
+            className: clsx("rbc-event", classes.myEvent),
+            style: tag ? colourMap.get(tag) : undefined,
+        };
     };
 
     const Event = ({ event }: { event: any }) => {
@@ -481,15 +529,33 @@ const PositionRequestPage: React.FC = () => {
 
     const localizer = momentLocalizer(moment);
 
+    // In full-calendar mode, narrow the events to the selected categories.
+    const displayList = allCategories
+        ? currentList.filter(
+              (e) =>
+                  e.category_type != null &&
+                  selectedCategories.indexOf(e.category_type.tag) > -1
+          )
+        : currentList;
+
     return (
         <Container>
+            {allCategories ? (
+                <Typography
+                    variant="h2"
+                    align="center"
+                    sx={{ mt: 3, mb: 0.5 }}
+                >
+                    Browse All Positions
+                </Typography>
+            ) : null}
             {loading || eventDatesLoading ? (
                 <Loading />
             ) : (
                 <Calendar<ScheduleEventType, object>
                     className={classes.calendarWrapper}
                     localizer={localizer}
-                    events={currentList}
+                    events={displayList}
                     startAccessor="start_time"
                     endAccessor="end_time"
                     style={{ height: 600 }}
@@ -504,7 +570,12 @@ const PositionRequestPage: React.FC = () => {
                                 {...props}
                                 addButton={false}
                                 categoryView={false}
-                                filter={false}
+                                filter={allCategories}
+                                options={categoryTags}
+                                selectedOptions={selectedCategories}
+                                setSelectedCategories={setSelectedCategories}
+                                selectAll={selectAll}
+                                setSelectAll={setSelectAll}
                             />
                         ),
                     }}
