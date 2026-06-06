@@ -97,6 +97,25 @@ const useStyles = makeStyles()((theme) =>
             marginBottom: theme.spacing(1),
             textTransform: "none",
             fontWeight: 600,
+            // Scale the button down alongside the category grid as it
+            // collapses from two columns to one at the breakpoints below.
+            // fontSize uses !important so it wins over the theme's
+            // typography.button / MuiButton-sizeLarge font size.
+            fontSize: "1.1rem !important",
+            [theme.breakpoints.down("md")]: {
+                fontSize: "0.95rem !important",
+                paddingTop: theme.spacing(1.25),
+                paddingBottom: theme.spacing(1.25),
+                paddingLeft: theme.spacing(3),
+                paddingRight: theme.spacing(3),
+            },
+            [theme.breakpoints.down("sm")]: {
+                fontSize: "0.8rem !important",
+                paddingTop: theme.spacing(1),
+                paddingBottom: theme.spacing(1),
+                paddingLeft: theme.spacing(2),
+                paddingRight: theme.spacing(2),
+            },
         },
         browseAllCaption: {
             display: "block",

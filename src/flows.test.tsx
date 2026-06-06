@@ -207,8 +207,11 @@ describe("customer flow: browse categories", () => {
         const categoryCard = await screen.findByText("Beer Tent");
         fireEvent.click(categoryCard);
 
-        // RoleSelectPage (the category's request page) exposes a "View" select
-        // that the category list page does not, confirming we navigated in.
-        expect(await screen.findByLabelText("View")).toBeInTheDocument();
+        // RoleSelectPage (the category's request page) exposes a List/Calendar
+        // view toggle that the category list page does not, confirming we
+        // navigated in.
+        expect(
+            await screen.findByRole("button", { name: "calendar view" })
+        ).toBeInTheDocument();
     });
 });

@@ -1,29 +1,37 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { renderWithProviders, screen, fireEvent, within } from "../../test-utils";
+import { renderWithProviders, screen, fireEvent } from "../../test-utils";
 import RoleSelectPage from "./RoleSelectPage";
 
 describe("RoleSelectPage", () => {
-    it("renders the heading and the View select label", () => {
+    it("renders the heading and the view toggle", () => {
         renderWithProviders(<RoleSelectPage />);
 
         expect(
             screen.getByRole("heading", { name: "Request to Volunteer" })
         ).toBeInTheDocument();
-        expect(screen.getByLabelText("View")).toBeInTheDocument();
+        expect(
+            screen.getByRole("button", { name: "list view" })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole("button", { name: "calendar view" })
+        ).toBeInTheDocument();
     });
 
-    it("shows both view options when the select is opened", () => {
+    it("defaults to list view and switches to calendar view when toggled", () => {
         renderWithProviders(<RoleSelectPage />);
 
-        fireEvent.mouseDown(screen.getByRole("combobox", { name: "View" }));
+        const listButton = screen.getByRole("button", { name: "list view" });
+        const calendarButton = screen.getByRole("button", {
+            name: "calendar view",
+        });
 
-        const listbox = within(screen.getByRole("listbox"));
-        expect(
-            listbox.getByRole("option", { name: "List View" })
-        ).toBeInTheDocument();
-        expect(
-            listbox.getByRole("option", { name: "Calendar View" })
-        ).toBeInTheDocument();
+        expect(listButton).toHaveAttribute("aria-pressed", "true");
+        expect(calendarButton).toHaveAttribute("aria-pressed", "false");
+
+        fireEvent.click(calendarButton);
+
+        expect(calendarButton).toHaveAttribute("aria-pressed", "true");
+        expect(listButton).toHaveAttribute("aria-pressed", "false");
     });
 });

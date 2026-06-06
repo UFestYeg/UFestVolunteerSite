@@ -40,9 +40,12 @@ const useStyles = makeStyles()((theme) => ({
         border: 0,
         borderRadius: theme.spacing(2),
         // color: "white",
-        fontSize: "0.65rem",
-        paddingBlock: theme.spacing(0.5),
-        paddingInline: theme.spacing(1.5),
+        // fontSize uses !important because the theme's typography.button
+        // (1.3rem) is injected after this tss-react class and would otherwise
+        // win the cascade, keeping the label large.
+        fontSize: "0.7rem !important",
+        paddingBlock: theme.spacing(0.85),
+        paddingInline: theme.spacing(2),
         minWidth: 0,
         margin: theme.spacing(1),
         whiteSpace: "nowrap",
@@ -141,6 +144,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                                 color="secondary"
                                 variant="contained"
                                 disableElevation
+                                sx={{ lineHeight: 1.4 }}
                             >
                                 Change Password
                             </Button>
@@ -153,6 +157,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                                 color="secondary"
                                 variant="contained"
                                 disableElevation
+                                sx={{ lineHeight: 1.4 }}
                             >
                                 Edit Profile
                             </Button>

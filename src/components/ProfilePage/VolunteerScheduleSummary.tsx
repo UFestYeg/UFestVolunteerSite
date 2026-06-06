@@ -1,5 +1,6 @@
 import {
     Button,
+    Chip,
     Container,
     GlobalStyles,
     Paper,
@@ -11,6 +12,7 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import { makeStyles } from "tss-react/mui";
 import moment from "moment";
 import React, { useEffect } from "react";
@@ -21,21 +23,113 @@ import { IUserProfile, IUserRequest } from "../../store/types";
 import { Loading } from "../Loading";
 
 const useStyles = makeStyles()((theme) => ({
-    root: {
-        width: "100%",
-        marginTop: theme.spacing(3),
-        overflowX: "auto",
-        marginBottom: theme.spacing(2),
-        border: "2px solid #000000",
+    container: {
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(5),
+    },
+    header: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        flexWrap: "wrap",
+        gap: theme.spacing(2),
+    },
+    title: {
+        fontWeight: 600,
+        marginBottom: theme.spacing(0.5),
+    },
+    subtitle: {
+        color: theme.palette.text.secondary,
+        marginBottom: theme.spacing(3),
+    },
+    button: {
+        // fontSize uses !important because the theme's typography.button (1.3rem)
+        // is injected after this tss-react class and would otherwise win.
+        fontSize: "0.7rem !important",
+        paddingBlock: theme.spacing(0.85),
+        paddingInline: theme.spacing(2.25),
+        borderRadius: 999,
+        whiteSpace: "nowrap",
+        boxShadow: "none",
+        "&:hover": {
+            boxShadow: "none",
+        },
+        "@media print": {
+            display: "none",
+        },
+    },
+    tableCard: {
+        borderRadius: theme.spacing(2),
+        overflow: "hidden",
+        border: `1px solid ${theme.palette.divider}`,
+        boxShadow:
+            "0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10)",
     },
     table: {
         minWidth: 650,
     },
-    button: {
-        margin: theme.spacing(2),
-        "@media print": {
-            display: "none",
+    headRow: {
+        backgroundColor: "#f7f9fb",
+    },
+    headCell: {
+        fontWeight: 700,
+        fontSize: "0.72rem",
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+        color: theme.palette.text.secondary,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+    },
+    bodyRow: {
+        transition: "background-color 0.15s ease",
+        "&:nth-of-type(even)": {
+            backgroundColor: "#fbfcfe",
         },
+        "&:hover": {
+            backgroundColor: "#eef6fb",
+        },
+        "& td": {
+            borderBottom: `1px solid ${theme.palette.divider}`,
+        },
+        "&:last-of-type td": {
+            borderBottom: 0,
+        },
+    },
+    activityCell: {
+        fontWeight: 600,
+        fontSize: "0.95rem",
+    },
+    roleCell: {
+        color: theme.palette.text.secondary,
+    },
+    datePrimary: {
+        fontSize: "0.9rem",
+        whiteSpace: "nowrap",
+    },
+    dateSecondary: {
+        display: "block",
+        fontSize: "0.78rem",
+        color: theme.palette.text.secondary,
+        whiteSpace: "nowrap",
+    },
+    statusChip: {
+        fontWeight: 600,
+        fontSize: "0.68rem",
+        letterSpacing: "0.04em",
+        height: 24,
+        borderRadius: 999,
+    },
+    statusAccepted: {
+        backgroundColor: "#e6f4ea",
+        color: "#1e7e34",
+    },
+    statusPending: {
+        backgroundColor: theme.palette.secondary.light,
+        color: theme.palette.secondary.contrastText,
+    },
+    emptyCell: {
+        color: theme.palette.text.secondary,
+        paddingTop: theme.spacing(5),
+        paddingBottom: theme.spacing(5),
     },
     printSection: {
         "@media print": {
@@ -68,7 +162,7 @@ const printGlobalStyles = (
 );
 
 const VolunteerScheduleSummary: React.FC = () => {
-    const { classes } = useStyles();
+    const { classes, cx } = useStyles();
     const dispatch = StateHooks.useAppDispatch();
     const [cookies] = useCookies(["csrftoken"]);
 
@@ -106,68 +200,123 @@ const VolunteerScheduleSummary: React.FC = () => {
         );
     });
 
+    const acceptedCount = acceptedRequests.filter(
+        (r: IUserRequest) => r.status === "ACCEPTED"
+    ).length;
+    const pendingCount = acceptedRequests.length - acceptedCount;
+    const shiftLabel = `${acceptedRequests.length} ${
+        acceptedRequests.length === 1 ? "shift" : "shifts"
+    }`;
+
     return (
-        <Container className={classes.printSection}>
+        <Container className={cx(classes.container, classes.printSection)}>
             {printGlobalStyles}
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                }}
-            >
-                <Typography variant="h4" gutterBottom>
-                    Volunteer Schedule Summary
-                </Typography>
+            <div className={classes.header}>
+                <div>
+                    <Typography variant="h4" className={classes.title}>
+                        Volunteer Schedule Summary
+                    </Typography>
+                    <Typography variant="body2" className={classes.subtitle}>
+                        {userProfile.first_name} {userProfile.last_name}
+                        {acceptedRequests.length > 0
+                            ? ` \u2022 ${shiftLabel} \u2022 ${acceptedCount} accepted, ${pendingCount} pending`
+                            : ""}
+                    </Typography>
+                </div>
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={handlePrint}
                     className={classes.button}
+                    startIcon={<PrintOutlinedIcon />}
                 >
                     Print / Save as PDF
                 </Button>
             </div>
 
-            <Typography variant="h6" gutterBottom>
-                Volunteer: {userProfile.first_name} {userProfile.last_name}
-            </Typography>
-
-            <TableContainer component={Paper} className={classes.root}>
+            <TableContainer component={Paper} className={classes.tableCard}>
                 <Table className={classes.table} aria-label="schedule table">
                     <TableHead>
-                        <TableRow>
-                            <TableCell>Activity</TableCell>
-                            <TableCell>Role</TableCell>
-                            <TableCell>Start Time</TableCell>
-                            <TableCell>End Time</TableCell>
-                            <TableCell>Status</TableCell>
+                        <TableRow className={classes.headRow}>
+                            <TableCell className={classes.headCell}>
+                                Activity
+                            </TableCell>
+                            <TableCell className={classes.headCell}>
+                                Role
+                            </TableCell>
+                            <TableCell className={classes.headCell}>
+                                Start Time
+                            </TableCell>
+                            <TableCell className={classes.headCell}>
+                                End Time
+                            </TableCell>
+                            <TableCell className={classes.headCell}>
+                                Status
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {acceptedRequests.length > 0 ? (
                             acceptedRequests.map((req: IUserRequest) => (
-                                <TableRow key={req.id}>
-                                    <TableCell component="th" scope="row">
+                                <TableRow
+                                    key={req.id}
+                                    className={classes.bodyRow}
+                                >
+                                    <TableCell
+                                        component="th"
+                                        scope="row"
+                                        className={classes.activityCell}
+                                    >
                                         {req.role.category.title}
                                     </TableCell>
-                                    <TableCell>{req.role.title}</TableCell>
-                                    <TableCell>
-                                        {moment(req.role.category.start_time).format(
-                                            "MMM D, YYYY h:mm A"
-                                        )}
+                                    <TableCell className={classes.roleCell}>
+                                        {req.role.title}
                                     </TableCell>
                                     <TableCell>
-                                        {moment(req.role.category.end_time).format(
-                                            "MMM D, YYYY h:mm A"
-                                        )}
+                                        <span className={classes.datePrimary}>
+                                            {moment(
+                                                req.role.category.start_time
+                                            ).format("ddd, MMM D, YYYY")}
+                                        </span>
+                                        <span className={classes.dateSecondary}>
+                                            {moment(
+                                                req.role.category.start_time
+                                            ).format("h:mm A")}
+                                        </span>
                                     </TableCell>
-                                    <TableCell>{req.status}</TableCell>
+                                    <TableCell>
+                                        <span className={classes.datePrimary}>
+                                            {moment(
+                                                req.role.category.end_time
+                                            ).format("ddd, MMM D, YYYY")}
+                                        </span>
+                                        <span className={classes.dateSecondary}>
+                                            {moment(
+                                                req.role.category.end_time
+                                            ).format("h:mm A")}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Chip
+                                            label={req.status}
+                                            size="small"
+                                            className={cx(
+                                                classes.statusChip,
+                                                req.status === "ACCEPTED"
+                                                    ? classes.statusAccepted
+                                                    : classes.statusPending
+                                            )}
+                                        />
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={5} align="center">
+                                <TableCell
+                                    colSpan={5}
+                                    align="center"
+                                    className={classes.emptyCell}
+                                >
                                     No scheduled activities found for the selected
                                     dates.
                                 </TableCell>
