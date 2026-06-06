@@ -38,14 +38,13 @@ const useStyles = makeStyles()((theme) =>
             width: "100vw",
         },
         tab: {
+            // The Tabs use the fullWidth variant so the three tabs share the
+            // container evenly and fill it with no dead space at the ends.
             paddingLeft: "1%",
             paddingRight: "1%",
-            // Below the width where full-size tabs fit, let the tabs size to
-            // their text (no forced min-width) with slightly tighter padding,
-            // so every label stays fully visible without clipping or scroll
-            // buttons while keeping the text comfortably readable.
+            // On narrower screens shrink the padding/text so the labels stay
+            // fully visible within each equal share without clipping.
             [theme.breakpoints.down(768)]: {
-                minWidth: 0,
                 paddingLeft: theme.spacing(1.25),
                 paddingRight: theme.spacing(1.25),
                 fontSize: "0.875rem",
@@ -95,7 +94,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                 onChange={handleChange}
                 indicatorColor="primary"
                 textColor="primary"
-                centered
+                variant="fullWidth"
                 sx={{ width: "100%" }}
             >
                 {tabValues.map((tab, index) => (
