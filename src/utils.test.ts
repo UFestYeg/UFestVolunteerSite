@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { compareArrays, getEarliestDate, getLatestDate } from "./utils";
-import { IEventDate } from "./store/types";
+import {
+    compareArrays,
+    getEarliestDate,
+    getIncompleteProfileFields,
+    getLatestDate,
+} from "./utils";
+import { DefaultUser, IEventDate, IUserProfile } from "./store/types";
 
 const makeDates = (...isoDates: string[]): IEventDate[] =>
     isoDates.map((event_date, pk) => ({ pk, event_date, label: "" }));
@@ -58,3 +63,47 @@ describe("getLatestDate", () => {
         expect(Number.isNaN(result.getTime())).toBe(false);
     });
 });
+
+describe("getIncompleteProfileFields", () => {
+    const completeProfile: IUserProfile = {
+        ...DefaultUser,
+        first_name: "Ada",
+        last_name: "Lovelace",
+        email: "ada@example.com",
+        emergency_contact: "Mary - 555-1234",
+        over_eighteen: true,
+    };
+
+    it("returns no missing fields for a complete profile", () => {
+        expect(getIncompleteProfileFields(completeProfile)).toEqual([]);
+    });
+
+    it("flags blank required fields", () => {
+        const result = getIncompleteProfileFields({
+            ...completeProfile,
+            first_name: "",
+            emergency_contact: "   ",
+        });
+        expect(result).toContain("First name");
+        expect(result).toContain("Emergency contact");
+    });
+
+    it("requires age only when not over eighteen", () => {
+        expect(
+            getIncompleteProfileFields({
+                ...completeProfile,
+                over_eighteen: false,
+                age: null,
+            })
+        ).toContain("Age");
+
+        expect(
+            getIncompleteProfileFields({
+                ...completeProfile,
+                over_eighteen: false,
+                age: "17",
+            })
+        ).not.toContain("Age");
+    });
+});
+

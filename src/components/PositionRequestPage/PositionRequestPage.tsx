@@ -1,4 +1,5 @@
 import {
+    Alert,
     Button,
     Card,
     CardActions,
@@ -6,6 +7,7 @@ import {
     CardHeader,
     Container,
     IconButton,
+    Link as MuiLink,
     List,
     ListItem,
     Popover,
@@ -31,11 +33,11 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
 import { enqueueSnackbar } from "notistack";
 import { StateHooks } from "../../store/hooks";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link as RouterLink } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
 import { notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
-import { getEarliestDate } from "../../utils";
+import { getEarliestDate, getIncompleteProfileFields } from "../../utils";
 import { CalendarToolbar, UFestDay, UFestWeek } from "../Calendar";
 import { hoverExpandStyle, useHoverShiftLeft } from "../Calendar/eventHover";
 import { Loading } from "../Loading";
@@ -129,6 +131,13 @@ const useStyles = makeStyles()((theme) =>
         },
         cardContent: {
             padding: theme.spacing(0.5, 2),
+        },
+        profileWarning: {
+            margin: theme.spacing(1, 0, 0.5),
+            fontSize: "0.78rem",
+            "& .MuiAlert-message": {
+                padding: theme.spacing(0.25, 0),
+            },
         },
         detailList: {
             padding: 0,
@@ -339,6 +348,10 @@ const PositionRequestPage: React.FC<IPositionRequestPageProps> = ({
         };
     };
 
+    // Surfaced in the submit popover so volunteers are nudged to fill in
+    // important details (e.g. emergency contact) before requesting a position.
+    const incompleteProfileFields = getIncompleteProfileFields(userProfile);
+
     const Event = ({ event }: { event: any }) => {
         const [requestError, setRequestError] = useState<any>();
         const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(
@@ -468,6 +481,24 @@ const PositionRequestPage: React.FC<IPositionRequestPageProps> = ({
                         title="Submit Request"
                     />
                     <CardContent className={classes.cardContent}>
+                        {incompleteProfileFields.length > 0 ? (
+                            <Alert
+                                severity="warning"
+                                className={classes.profileWarning}
+                            >
+                                Your profile is missing:{" "}
+                                {incompleteProfileFields.join(", ")}.{" "}
+                                <MuiLink
+                                    component={RouterLink}
+                                    to="/volunteer/profile/edit"
+                                    color="inherit"
+                                    underline="always"
+                                >
+                                    Complete your profile
+                                </MuiLink>{" "}
+                                so organizers can reach you.
+                            </Alert>
+                        ) : null}
                         <List className={classes.detailList}>
                             <ListItem className={classes.detailItem} disableGutters>
                                 <span className={classes.detailLabel}>
