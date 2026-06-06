@@ -40,17 +40,22 @@ const useStyles = makeStyles()((theme) =>
         tab: {
             paddingLeft: "1%",
             paddingRight: "1%",
+            // Below the width where three full-size tabs fit, shrink the tabs
+            // (smaller text, tighter padding, no forced min-width) so every
+            // label stays visible instead of being clipped — preferred over
+            // horizontal scroll buttons.
+            [theme.breakpoints.down(768)]: {
+                minWidth: 0,
+                paddingLeft: theme.spacing(0.75),
+                paddingRight: theme.spacing(0.75),
+                fontSize: "0.75rem",
+            },
         },
     })
 );
 
 const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
     const mobile = !useMediaQuery("(min-width:450px)");
-    // Above the mobile breakpoint we show real tabs, but between ~450px and
-    // this width the three labels overflow and get clipped by the centered
-    // (non-scrolling) Tabs. Only center the tabs once there's room for them;
-    // otherwise let them scroll horizontally so no label is cut off.
-    const wide = useMediaQuery("(min-width:768px)");
     const location = useLocation();
     const { classes: styles } = useStyles();
 
@@ -90,10 +95,7 @@ const Tabs: React.FC<TabsProps> = ({ tabValues }: TabsProps) => {
                 onChange={handleChange}
                 indicatorColor="primary"
                 textColor="primary"
-                variant={wide ? "standard" : "scrollable"}
-                scrollButtons="auto"
-                allowScrollButtonsMobile
-                centered={wide}
+                centered
             >
                 {tabValues.map((tab, index) => (
                     <Tab
