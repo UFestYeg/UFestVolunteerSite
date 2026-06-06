@@ -84,17 +84,22 @@ const CategoryFilter: React.FC<FilterProps> = ({
     const { classes } = useStyles();
 
     const handleChange = (event: any) => {
-        if (setSelectedCategories !== undefined) {
-            setSelectedCategories(event.target.value);
+        if (setSelectedCategories === undefined) {
+            return;
         }
-    };
-
-    const handleSelectAllChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const checked = event.target.checked;
-        setSelectAll(checked);
-        setSelectedCategories(checked ? options : []);
+        const value: string[] = event.target.value;
+        // The "Select All" row carries a sentinel value rather than a real
+        // category. Clicking anywhere on that row (text or checkbox) routes
+        // through the Select's onChange and adds the sentinel to `value`, so
+        // treat it as a master toggle instead of leaking "Select All" into the
+        // selected categories.
+        if (value.includes("Select All")) {
+            const nextSelectAll = !selectAll;
+            setSelectAll(nextSelectAll);
+            setSelectedCategories(nextSelectAll ? options : []);
+            return;
+        }
+        setSelectedCategories(value);
     };
     return (
         <FormControl
@@ -122,10 +127,7 @@ const CategoryFilter: React.FC<FilterProps> = ({
                     <em>Categories</em>
                 </MenuItem>
                 <MenuItem key={"Select All"} value="Select All">
-                    <Checkbox
-                        onChange={handleSelectAllChange}
-                        checked={selectAll}
-                    />
+                    <Checkbox checked={selectAll} />
                     <ListItemText primary={"Select All"} />
                 </MenuItem>
                 {options.map((option) => (
