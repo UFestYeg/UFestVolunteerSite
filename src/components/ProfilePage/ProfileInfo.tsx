@@ -40,7 +40,7 @@ const useStyles = makeStyles()((theme) => ({
         border: 0,
         borderRadius: theme.spacing(2),
         // color: "white",
-        fontSize: "0.75rem",
+        fontSize: "0.65rem",
         paddingBlock: theme.spacing(0.5),
         paddingInline: theme.spacing(1.5),
         minWidth: 0,
@@ -130,7 +130,8 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ canEdit }) => {
                             alignItems="flex-end"
                             justifyContent="flex-start"
                             xs={12}
-                            sm={3}
+                            sm="auto"
+                            sx={{ maxWidth: "100% !important", flexShrink: 1 }}
                         >
                             <Button
                                 size="small"
