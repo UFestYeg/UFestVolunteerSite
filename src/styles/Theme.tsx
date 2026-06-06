@@ -76,7 +76,7 @@ const theme = createTheme({
         },
         h4: {
             fontFamily: [
-                "Works Sans",
+                "Work Sans",
                 '"Helvetica Neue"',
                 "Arial",
                 "sans-serif",
