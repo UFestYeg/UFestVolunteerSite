@@ -26,11 +26,11 @@ const useStyles = makeStyles()((theme) =>
         menu: {
             backgroundColor: theme.palette.secondary.light,
             textAlign: "center",
-            width: "100vw",
+            width: "100%",
         },
         menuItem: {
             textAlign: "center",
-            width: "100vw",
+            width: "100%",
         },
         popoverPaper: {
             marginLeft: 0,
@@ -42,12 +42,12 @@ const useStyles = makeStyles()((theme) =>
             // container evenly and fill it with no dead space at the ends.
             paddingLeft: "1%",
             paddingRight: "1%",
-            // On narrower screens shrink the padding/text so the labels stay
-            // fully visible within each equal share without clipping.
+            // On narrower screens tighten the horizontal padding so the labels
+            // keep room within each equal share without clipping (text size is
+            // left untouched so the labels stay readable).
             [theme.breakpoints.down(768)]: {
                 paddingLeft: theme.spacing(1.25),
                 paddingRight: theme.spacing(1.25),
-                fontSize: "0.875rem",
             },
         },
     })

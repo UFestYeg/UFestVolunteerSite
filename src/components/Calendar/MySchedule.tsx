@@ -210,13 +210,24 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                             startIcon={<EventAvailableIcon />}
                             onClick={handleExportCalendar}
                             disabled={!hasAcceptedShifts}
-                            sx={{
+                            sx={(theme) => ({
                                 fontSize: "0.7rem",
                                 py: 0.25,
                                 "& .MuiButton-startIcon > *:nth-of-type(1)": {
                                     fontSize: "1rem",
                                 },
-                            }}
+                                // Shrink the button sooner as the screen
+                                // narrows so it stays modest next to the
+                                // calendar controls.
+                                [theme.breakpoints.down(900)]: {
+                                    fontSize: "0.6rem",
+                                    py: 0.125,
+                                    px: 0.75,
+                                    "& .MuiButton-startIcon > *:nth-of-type(1)": {
+                                        fontSize: "0.85rem",
+                                    },
+                                },
+                            })}
                         >
                             Add to calendar
                         </Button>
