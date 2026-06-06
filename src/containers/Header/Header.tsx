@@ -41,9 +41,25 @@ const useStyles = makeStyles<{ isStaff: boolean }>()((theme, { isStaff }) => {
                 flexGrow: 1,
                 "& a": { textDecoration: "none" },
             },
+            appBar: {
+                background: themeColor,
+                border: 0,
+                color: theme.palette.primary.dark,
+                padding: theme.spacing(1),
+                // Must not grow: this AppBar lives in a flex column (minHeight
+                // 100vh) used for the sticky footer. Without pinning flex here
+                // it would stretch to fill spare vertical space (very tall
+                // header when zoomed out).
+                flexGrow: 0,
+                flexShrink: 0,
+                "& a": { textDecoration: "none" },
+            },
             copyright: {
                 padding: theme.spacing(2),
-                marginTop: "calc(5% + 60px)",
+                // Small breathing room between page content and the footer so
+                // it doesn't sit flush against the calendar on pages that fill
+                // the viewport.
+                marginTop: theme.spacing(3),
             },
             logo: {
                 marginLeft: theme.spacing(3),
@@ -120,8 +136,14 @@ const Header: React.FC<HeaderProps> = (props) => {
         // logout({ returnTo: window.location.origin });
         dispatch(authActions.logout());
     };
-    return <>
-        <AppBar position="static" className={classes.root}>
+    return <Box
+        sx={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+        }}
+    >
+        <AppBar position="static" className={classes.appBar}>
             <Toolbar>
                 <IconButton
                     edge="start"
@@ -217,10 +239,11 @@ const Header: React.FC<HeaderProps> = (props) => {
             </Toolbar>
         </AppBar>
         {props.children}
-        <Box mt={8} bgcolor="primary.main" className={classes.copyright}>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box bgcolor="primary.main" className={classes.copyright}>
             <Copyright />
         </Box>
-    </>;
+    </Box>;
 };
 
 export default Header;

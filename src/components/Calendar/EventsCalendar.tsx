@@ -38,7 +38,6 @@ const EventsCalendar: React.FC = () => {
     const dispatch = StateHooks.useAppDispatch();
     const eventDates = StateHooks.useEventDates();
     const earliest = getEarliestDate(eventDates);
-    console.log(`earliest ${earliest}`);
 
     const defaultIsCategoryView =
         state && state.oldCategoryView !== undefined
@@ -93,7 +92,7 @@ const EventsCalendar: React.FC = () => {
     }
 
     return (
-        <Container maxWidth="lg">
+        <Container maxWidth="xl">
             {categoryView ? (
                 <EventsCategoryView
                     setCategoryView={setCategoryView}

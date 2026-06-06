@@ -28,14 +28,12 @@ class UFestDay extends React.Component<{
         switch (action) {
             case "PREV":
                 if (moment(date).isAfter(UFEST_VOLUNTEERING_START_DATE)) {
-                    console.log("prev");
                     return moment(date).subtract(1, "d").toDate();
                 } else {
                     return date;
                 }
             case "NEXT":
                 if (moment(date).isBefore(UFEST_VOLUNTEERING_END_DATE)) {
-                    console.log("next");
                     return moment(date).add(1, "d").toDate();
                 } else {
                     return date;

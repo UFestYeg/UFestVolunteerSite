@@ -35,7 +35,6 @@ const useStyles = makeStyles()((theme) => ({
         // border: "1px solid black",
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
-        width: "99%",
     },
     button: {
         background: theme.palette.primary.main,
@@ -112,6 +111,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
             <Grid
                 className={classes.grid}
                 container
+                item
                 spacing={1}
                 justifyContent="center"
                 alignItems="flex-start"
@@ -139,7 +139,13 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
                         </Typography>
                     </Grid>
                 </Grid>
-                {props.children}
+                {/* Wrap children as a full-width Grid item so they receive the
+                    padding that compensates for the spacing grids' negative
+                    margins; otherwise plain children (e.g. the schedule
+                    calendar) get shifted left and sit off-centre. */}
+                <Grid item xs={12} sx={{ width: "100%" }}>
+                    {props.children}
+                </Grid>
             </Grid>
         </Grid>
     );

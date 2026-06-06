@@ -18,7 +18,11 @@ from post_office import mail
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+from django.db import DatabaseError
 from django.db.models import Prefetch, Count, Q
+import logging
+
+logger = logging.getLogger(__name__)
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -65,8 +69,8 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
                     "%Y-%m-%d"
                 )
                 queryset = queryset.filter(start_time__range=[start_date, end_date])
-        except Exception as e:
-            print(f"Issue {e}")
+        except (DatabaseError, ValueError):
+            logger.exception("Failed to filter categories by event date")
         return queryset
 
     @action(detail=False, methods=['get'], url_path='with-requests')
@@ -117,8 +121,6 @@ class RequestViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         from django.db.models import Q
         from django.contrib.auth.models import User
-
-        print("perform destroy")
 
         deleting_user = User.objects.get(pk=instance.user.pk)
         category_type = CategoryType.types.get(
@@ -183,17 +185,15 @@ class RequestViewSet(viewsets.ModelViewSet):
                     "%Y-%m-%d"
                 )
                 queryset = queryset.filter(role__category__start_time__range=[start_date, end_date])
-        except Exception as e:
-            print(f"Issue {e}")
+        except (DatabaseError, ValueError):
+            logger.exception("Failed to filter requests by event date")
         return queryset
     
     def perform_create(self, serializer):
-        print("perform create")
         super().perform_create(serializer)
         self._log_on_create(serializer)
 
     def perform_update(self, serializer):
-        print("perform update")
         old_data = self.serializer_class(self.get_object()).data
         super().perform_update(serializer)
         self._log_on_update(serializer, old_data)

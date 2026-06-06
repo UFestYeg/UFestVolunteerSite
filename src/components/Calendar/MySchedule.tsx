@@ -71,6 +71,15 @@ const useStyles = makeStyles()((theme) =>
             "& .rbc-time-header-cell-single-day": {
                 display: "flex",
             },
+            // RBC styles day/week events with `flex-flow: column wrap`, so on
+            // hover (when the body grows tall) the content wraps into a second
+            // column to the right of the time label and overflows the card.
+            // This is a plain (non-DnD) Calendar, so it's vulnerable; force
+            // nowrap. The `.rbc-day-slot` ancestor keeps the selector more
+            // specific than RBC's own `.rbc-day-slot .rbc-event` rule.
+            "& .rbc-day-slot .rbc-event": {
+                flexWrap: "nowrap",
+            },
             "& .rbc-header": {
                 height: "auto",
                 minHeight: "fit-content",
@@ -153,7 +162,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
 
     const earliest = getEarliestDate(eventDates) ?? new Date();
     return (
-        <Container maxWidth="lg" className={classes.calendarWrapper}>
+        <Container maxWidth="xl" className={classes.calendarWrapper}>
             {loading ? (
                 <Loading />
             ) : (
@@ -162,7 +171,7 @@ const MySchedule: React.FC<ScheduleProps> = ({ requests }: ScheduleProps) => {
                     events={currentList}
                     startAccessor="start_time"
                     endAccessor="end_time"
-                    style={{ height: 600 }}
+                    style={{ height: "calc(100vh - 200px)", minHeight: 600 }}
                     defaultView="day"
                     defaultDate={earliest}
                     views={{ day: UFestDay, week: UFestWeek }}

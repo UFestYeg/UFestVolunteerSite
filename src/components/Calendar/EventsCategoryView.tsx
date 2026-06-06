@@ -235,12 +235,12 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
     };
 
     return (
-        <Container maxWidth="lg">
+        <Container maxWidth="xl">
             {loading || eventDatesLoading ? (
                 <Loading />
             ) : (
                 <>
-                    {error && error.reponse ? error.reponse.data : null}
+                    {error ? error : null}
                     <DnDCalendar
                         className={classes.calendarWrapper}
                         localizer={localizer}
@@ -250,7 +250,7 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                         tooltipAccessor={(event: EventCategoryType) =>
                             `${event.title}: ${event.number_of_positions} positions`
                         }
-                        style={{ height: 600 }}
+                        style={{ height: "calc(100vh - 200px)", minHeight: 600 }}
                         defaultView="day"
                         defaultDate={props.defaultDate ?? new Date()}
                         views={{ day: UFestDay, week: UFestWeek }}

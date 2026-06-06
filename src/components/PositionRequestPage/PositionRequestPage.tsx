@@ -14,7 +14,7 @@ import {
 // tslint:disable-next-line: no-submodule-imports
 import { useTheme } from "@mui/material/styles";
 import { makeStyles } from "tss-react/mui";
-import { Cancel } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import axios from "axios";
 import clsx from "clsx";
 import moment from "moment";
@@ -71,6 +71,19 @@ const useStyles = makeStyles()((theme) =>
             "& .rbc-time-header-cell-single-day": {
                 display: "flex",
             },
+            // RBC styles day/week events with `flex-flow: column wrap`. The
+            // other calendars use the drag-and-drop addon, which wraps the
+            // event body in a `.rbc-addons-dnd-resizable` div so there is
+            // nothing to wrap. This page renders a plain `Calendar`, so on
+            // hover (when the body grows tall) the content wrapped into a
+            // second flex column and jumped to the right of the time label,
+            // overflowing the card. Forcing `nowrap` keeps the label and
+            // content stacked in a single column, inside the card. The
+            // `.rbc-day-slot` ancestor is included so this rule out-specifies
+            // RBC's own `.rbc-day-slot .rbc-event` declaration.
+            "& .rbc-day-slot .rbc-event": {
+                flexWrap: "nowrap",
+            },
             "& .rbc-header": {
                 height: "auto",
                 minHeight: "fit-content",
@@ -85,31 +98,91 @@ const useStyles = makeStyles()((theme) =>
             },
         },
         card: {
-            transition: "0.3s",
-            boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            textAlign: "center",
-            margin: 8,
-            color: theme.palette.primary.dark,
-            justifyContent: "center",
-        },
-        cardContent: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            width: "100%",
+            borderRadius: 16,
+            boxShadow: "0 12px 40px rgba(34, 35, 58, 0.18)",
+            overflow: "hidden",
+            minWidth: 300,
+            maxWidth: 360,
+            color: theme.palette.text.primary,
         },
         cardHeader: {
-            width: "inherit",
+            backgroundColor: theme.palette.primary.dark,
+            color: theme.palette.primary.contrastText,
+            padding: theme.spacing(1.25, 2),
+            "& .MuiCardHeader-title": {
+                fontSize: "1rem",
+                fontWeight: 600,
+            },
+            "& .MuiCardHeader-action": {
+                margin: 0,
+                alignSelf: "center",
+            },
+        },
+        closeButton: {
+            color: theme.palette.primary.contrastText,
+            opacity: 0.85,
+            "&:hover": {
+                opacity: 1,
+                backgroundColor: "rgba(255, 255, 255, 0.12)",
+            },
+        },
+        cardContent: {
+            padding: theme.spacing(0.5, 2),
+        },
+        detailList: {
+            padding: 0,
+        },
+        detailItem: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+            gap: theme.spacing(2),
+            padding: theme.spacing(0.9, 0),
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            "&:last-of-type": {
+                borderBottom: "none",
+            },
+        },
+        detailLabel: {
+            color: theme.palette.text.secondary,
+            fontSize: "0.65rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+        },
+        detailValue: {
+            color: theme.palette.text.primary,
+            fontSize: "0.85rem",
+            fontWeight: 400,
+            textAlign: "right",
+        },
+        cardActions: {
+            padding: theme.spacing(1, 2, 1.75),
+            justifyContent: "flex-end",
+            gap: theme.spacing(1),
+            "& .MuiButton-root": {
+                fontSize: "0.75rem",
+                padding: theme.spacing(0.5, 1.5),
+            },
         },
         eventRoot: {
-            // Use minHeight rather than a fixed inherited height so the inner
-            // container can grow to fit its text when the card expands on hover,
-            // instead of being locked to the clipped parent height.
-            minHeight: "inherit",
+            // Fill the full react-big-calendar event box so the entire card is
+            // clickable. The Container otherwise only takes its intrinsic text
+            // height, so clicks below the text hit the event box but missed
+            // this onClick handler (no popover). `height: 100%` also lets the
+            // container fill the expanded card on hover.
+            height: "100%",
+            // Drop MUI Container's default 24px side gutters (see the
+            // `disableGutters`/`maxWidth={false}` props on the Container below).
+            // In a narrow event tile those gutters left almost no room for
+            // text, so on hover the text was pushed right and overflowed past
+            // the card's right edge. A small even padding plus `overflowWrap`
+            // keeps the text inside the card and uses the tile's full width.
+            // Kept identical to the EventCategory/EventDetail tiles so all
+            // calendars behave the same.
+            padding: theme.spacing(0.25, 0.75),
+            overflowWrap: "break-word",
         },
         myEvent: {
             "& .rbc-event-label": {
@@ -291,7 +364,13 @@ const PositionRequestPage: React.FC = () => {
             selectedRole?.number_of_open_positions === 0;
 
         return <>
-            <Container onClick={handleClick} className={classes.eventRoot} ref={containerRef}>
+            <Container
+                onClick={handleClick}
+                className={classes.eventRoot}
+                ref={containerRef}
+                disableGutters
+                maxWidth={false}
+            >
                 {errorMessage}
                 <strong>{event.title}</strong> : {event.role.title}
                 <br />
@@ -314,59 +393,87 @@ const PositionRequestPage: React.FC = () => {
                     horizontal: "center",
                     vertical: "bottom",
                 }}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            borderRadius: 4,
+                            overflow: "visible",
+                            backgroundColor: "transparent",
+                            boxShadow: "none",
+                        },
+                    },
+                }}
             >
                 <Card className={classes.card}>
+                    <CardHeader
+                        className={classes.cardHeader}
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                onClick={handleClose}
+                                size="small"
+                                className={classes.closeButton}
+                            >
+                                <Close />
+                            </IconButton>
+                        }
+                        title="Submit Request"
+                    />
                     <CardContent className={classes.cardContent}>
-                        <CardHeader
-                            className={classes.cardHeader}
-                            action={
-                                <IconButton aria-label="settings" onClick={handleClose} size="large">
-                                    <Cancel />
-                                </IconButton>
-                            }
-                            title="Submit Request"
-                        />
-                        <List dense>
-                            <ListItem>
-                                category:{" "}
-                                {selectedRole.category
-                                    ? selectedRole.category.title
-                                    : ""}
+                        <List className={classes.detailList}>
+                            <ListItem className={classes.detailItem} disableGutters>
+                                <span className={classes.detailLabel}>
+                                    Category
+                                </span>
+                                <span className={classes.detailValue}>
+                                    {selectedRole.category
+                                        ? selectedRole.category.title
+                                        : "—"}
+                                </span>
                             </ListItem>
-                            <ListItem>
-                                position: {selectedRole.title}
+                            <ListItem className={classes.detailItem} disableGutters>
+                                <span className={classes.detailLabel}>
+                                    Position
+                                </span>
+                                <span className={classes.detailValue}>
+                                    {selectedRole.title}
+                                </span>
                             </ListItem>
-                            <ListItem>
-                                start date:{" "}
-                                {moment(event.start_time.getTime()).format(
-                                    "YYYY-MM-DD hh:mm a"
-                                )}
+                            <ListItem className={classes.detailItem} disableGutters>
+                                <span className={classes.detailLabel}>
+                                    Start
+                                </span>
+                                <span className={classes.detailValue}>
+                                    {moment(event.start_time.getTime()).format(
+                                        "MMM D, YYYY · h:mm A"
+                                    )}
+                                </span>
                             </ListItem>
-                            <ListItem>
-                                end date:{" "}
-                                {moment(event.end_time.getTime()).format(
-                                    "YYYY-MM-DD hh:mm a"
-                                )}
+                            <ListItem className={classes.detailItem} disableGutters>
+                                <span className={classes.detailLabel}>End</span>
+                                <span className={classes.detailValue}>
+                                    {moment(event.end_time.getTime()).format(
+                                        "MMM D, YYYY · h:mm A"
+                                    )}
+                                </span>
                             </ListItem>
                         </List>
-                        <CardActions disableSpacing>
-                            <Button
-                                aria-label="add to favorites"
-                                onClick={handleSubmitClick}
-                                disabled={noPositionsLeft}
-                            >
-                                {noPositionsLeft
-                                    ? "No positions left"
-                                    : "Submit"}
-                            </Button>
-                            <Button
-                                aria-label="share"
-                                onClick={handleClose}
-                            >
-                                Cancel
-                            </Button>
-                        </CardActions>
                     </CardContent>
+                    <CardActions className={classes.cardActions}>
+                        <Button onClick={handleClose} color="inherit" size="small">
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleSubmitClick}
+                            disabled={noPositionsLeft}
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            disableElevation
+                        >
+                            {noPositionsLeft ? "No positions left" : "Submit"}
+                        </Button>
+                    </CardActions>
                 </Card>
             </Popover>
         </>;

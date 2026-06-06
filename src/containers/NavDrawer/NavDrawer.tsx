@@ -43,6 +43,7 @@ const useStyles = makeStyles()((theme) => ({
     },
     subheader: {
         background: theme.palette.primary.dark,
+        color: theme.palette.primary.contrastText,
     },
 }));
 

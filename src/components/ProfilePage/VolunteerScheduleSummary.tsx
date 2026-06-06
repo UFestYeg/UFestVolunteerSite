@@ -1,6 +1,7 @@
 import {
     Button,
     Container,
+    GlobalStyles,
     Paper,
     Table,
     TableBody,
@@ -38,7 +39,6 @@ const useStyles = makeStyles()((theme) => ({
     },
     printSection: {
         "@media print": {
-            visibility: "visible",
             position: "absolute",
             left: 0,
             top: 0,
@@ -46,9 +46,26 @@ const useStyles = makeStyles()((theme) => ({
             margin: 0,
             padding: "20px",
             backgroundColor: "white",
+            // Re-show only the summary subtree after hiding everything else.
+            visibility: "visible",
+            "& *": {
+                visibility: "visible",
+            },
         },
     },
 }));
+
+// Hide the rest of the app when printing so only the summary subtree
+// (re-shown via the printSection class) ends up in the print/PDF output.
+const printGlobalStyles = (
+    <GlobalStyles
+        styles={{
+            "@media print": {
+                "body *": { visibility: "hidden" },
+            },
+        }}
+    />
+);
 
 const VolunteerScheduleSummary: React.FC = () => {
     const { classes } = useStyles();
@@ -91,6 +108,7 @@ const VolunteerScheduleSummary: React.FC = () => {
 
     return (
         <Container className={classes.printSection}>
+            {printGlobalStyles}
             <div
                 style={{
                     display: "flex",
@@ -107,7 +125,7 @@ const VolunteerScheduleSummary: React.FC = () => {
                     onClick={handlePrint}
                     className={classes.button}
                 >
-                    Download as PDF
+                    Print / Save as PDF
                 </Button>
             </div>
 

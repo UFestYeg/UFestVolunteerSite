@@ -32,6 +32,6 @@ if __name__ == "__main__":
 
     try:
         INTERVAL = int(os.getenv("MINUTE_INTERVAL"))
-    except:
+    except (TypeError, ValueError):
         INTERVAL = 5
     mail_task(INTERVAL * SECONDS_IN_A_MINUTE)

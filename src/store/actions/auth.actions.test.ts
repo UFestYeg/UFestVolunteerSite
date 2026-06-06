@@ -13,8 +13,10 @@ import {
     resetPasswordFail,
     resetPasswordStart,
     resetPasswordSuccess,
+    sessionExpired,
 } from "./auth";
 import * as actionTypes from "./actionTypes";
+import { AuthUrls } from "../../constants";
 
 vi.mock("axios", () => ({
     default: {
@@ -80,6 +82,8 @@ describe("synchronous auth action creators", () => {
 describe("logout action creator", () => {
     beforeEach(() => {
         localStorage.clear();
+        mockedPost.mockReset();
+        mockedPost.mockResolvedValue({});
     });
 
     it("clears stored credentials and returns an AUTH_LOGOUT action", () => {
@@ -92,12 +96,47 @@ describe("logout action creator", () => {
         expect(localStorage.getItem("token")).toBeNull();
         expect(localStorage.getItem("expirationDate")).toBeNull();
     });
+
+    it("revokes the token server-side when a token exists", () => {
+        localStorage.setItem("token", "abc");
+
+        logout();
+
+        expect(mockedPost).toHaveBeenCalledWith(AuthUrls.LOGOUT, {});
+    });
+
+    it("does not call the backend when there is no token", () => {
+        logout();
+
+        expect(mockedPost).not.toHaveBeenCalled();
+    });
+});
+
+describe("sessionExpired action creator", () => {
+    beforeEach(() => {
+        localStorage.clear();
+        mockedPost.mockReset();
+        mockedPost.mockResolvedValue({});
+    });
+
+    it("clears credentials and returns AUTH_LOGOUT without a network call", () => {
+        localStorage.setItem("token", "abc");
+        localStorage.setItem("expirationDate", "2099-01-01T00:00:00.000Z");
+
+        const action = sessionExpired();
+
+        expect(action).toEqual({ type: actionTypes.AUTH_LOGOUT });
+        expect(localStorage.getItem("token")).toBeNull();
+        expect(localStorage.getItem("expirationDate")).toBeNull();
+        expect(mockedPost).not.toHaveBeenCalled();
+    });
 });
 
 describe("authCheckState thunk", () => {
     beforeEach(() => {
         localStorage.clear();
         mockedPost.mockReset();
+        mockedPost.mockResolvedValue({});
     });
 
     it("dispatches logout when there is no token in storage", () => {

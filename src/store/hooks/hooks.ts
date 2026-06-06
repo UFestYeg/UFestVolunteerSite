@@ -17,7 +17,7 @@ export const useAuthInfo = () => {
     const isAuthenticated = useIsAuthenticated();
     const loading = useSelector((state: State) => state.auth.loading);
     const error = useSelector((state: State) => state.auth.error);
-    return [loading, isAuthenticated, error];
+    return [loading, isAuthenticated, error] as const;
 };
 
 export const useToken = () => {
@@ -43,7 +43,7 @@ export const useViewedUserProfile = () => {
 export const useUserInfo = () => {
     const loading = useSelector((state: State) => state.user.loading);
     const error = useSelector((state: State) => state.user.error);
-    return [useUserProfile(), loading, error];
+    return [useUserProfile(), loading, error] as const;
 };
 
 export const useVolunteerCategoryTypes = () => {
@@ -60,7 +60,7 @@ export const useMappedRoles = () => {
 export const useVolunteerInfo = () => {
     const loading = useSelector((state: State) => state.volunteer.loading);
     const error = useSelector((state: State) => state.volunteer.error);
-    return [useVolunteerCategories(), loading, error];
+    return [useVolunteerCategories(), loading, error] as const;
 };
 
 export const useEventDates = () => {

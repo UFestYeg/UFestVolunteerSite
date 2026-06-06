@@ -30,9 +30,6 @@ class UserAdmin(BaseUserAdmin):
         return [getattr(obj, field) for field in field_names]
 
     def export_emails_as_csv(self, request, queryset):
-        meta = self.model._meta
-
-        print(meta.fields)
         field_names = ["first_name", "last_name", "email"]
 
         response = HttpResponse(content_type="text/csv")
@@ -57,13 +54,9 @@ class UserAdmin(BaseUserAdmin):
     export_emails_as_csv.short_description = "Export Selected Emails"
 
     def export_user_profiles_as_csv(self, request, queryset):
-        meta = self.model._meta
-
         # queryset is users so get the profiles instead
         profile_queryset = UserProfile.profiles.filter(user__in=queryset)
 
-        print(meta.fields)
-        print(queryset)
         user_field_names = [
             "first_name",
             "last_name",

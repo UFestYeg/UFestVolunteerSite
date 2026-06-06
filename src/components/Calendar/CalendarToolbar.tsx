@@ -32,7 +32,20 @@ const useStyles = makeStyles()((theme) => ({
         minWidth: 100,
     },
     grid: {
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
+        rowGap: theme.spacing(1),
+        // MUI Buttons set their own font-size from theme.typography.button
+        // (1.3rem), which the library upgrade inflates relative to the old
+        // toolbar. Pin the toolbar controls to a compact size so the buttons
+        // and overall spacing match the pre-upgrade design.
+        "& .MuiButtonGroup-root .MuiButton-root": {
+            fontSize: "0.8rem",
+            padding: theme.spacing(0.4, 1.25),
+            lineHeight: 1.5,
+        },
+    },
+    addButton: {
+        padding: theme.spacing(0.5),
     },
     noPadding: {
         paddingBottom: 0,
@@ -116,7 +129,7 @@ const CustomToolbar: React.FC<
             </ButtonGroup>
 
             <Typography variant="subtitle1">{props.label}</Typography>
-            <Grid item direction="row" justifyContent="flex-end" alignItems="center">
+            <Grid item container direction="row" justifyContent="flex-end" alignItems="center" width="auto">
                 {props.filter &&
                 props.selectAll !== undefined &&
                 props.setSelectAll &&
@@ -167,8 +180,9 @@ const CustomToolbar: React.FC<
                         aria-label="add-event"
                         color="primary"
                         onClick={props.openModal}
-                        size="large">
-                        <AddCircleIcon fontSize="large" />
+                        className={classes.addButton}
+                        size="small">
+                        <AddCircleIcon fontSize="medium" />
                     </IconButton>
                 ) : null}
             </Grid>

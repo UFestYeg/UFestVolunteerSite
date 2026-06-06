@@ -2,6 +2,7 @@ import axios from "axios";
 import { enqueueSnackbar } from "notistack";
 import { AuthUrls } from "../../constants";
 import { navigate } from "../../navigation";
+import { setAuthHeaders } from "./apiUtils";
 import { AuthActionType as ActionType } from "../types";
 import * as actionTypes from "./actionTypes";
 
@@ -9,6 +10,15 @@ type DispatchType = (action: ActionType) => void;
 
 const SECOND_IN_HOUR = 3600;
 const MILLISECONDS_IN_SECOND = 1000;
+
+// Remove the locally cached credentials and stop sending the stale token on
+// subsequent requests. Centralized so both the explicit logout and the
+// 401-driven session expiry clear exactly the same state.
+const clearStoredCredentials = (): void => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("expirationDate");
+    delete axios.defaults.headers.common["Authorization"];
+};
 
 export const authStart = (): ActionType => {
     return {
@@ -87,8 +97,31 @@ export const changePasswordFail = (error: any): ActionType => {
 };
 
 export const logout = (): ActionType => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("expirationDate");
+    // Best-effort server-side revocation: POST to dj-rest-auth's logout
+    // endpoint so the user's DRF token is deleted in the database, not just
+    // forgotten locally. The token in the Authorization header (set by
+    // setAuthHeaders) identifies which token to revoke, so no cookies are
+    // needed. Fire-and-forget — the local sign-out below must succeed
+    // regardless of the network result, and we skip the call entirely for
+    // anonymous app loads (no token).
+    const token = localStorage.getItem("token");
+    if (token) {
+        axios.post(AuthUrls.LOGOUT, {}).catch(() => {
+            // Ignore: the user is signed out locally either way.
+        });
+    }
+    clearStoredCredentials();
+    return {
+        type: actionTypes.AUTH_LOGOUT,
+    };
+};
+
+// Local-only sign-out used when the backend has already rejected our token
+// (HTTP 401 from the response interceptor). Skips the network logout: the
+// token is already invalid server-side, so there is nothing to revoke, and
+// calling the logout endpoint with a dead token would just 401 again.
+export const sessionExpired = (): ActionType => {
+    clearStoredCredentials();
     return {
         type: actionTypes.AUTH_LOGOUT,
     };
@@ -156,8 +189,7 @@ export const authSignup = (
                 password2,
                 username,
             })
-            .then((res) => {
-                console.log(res);
+            .then(() => {
                 dispatch(authEmailSent());
                 navigate("/signup_done");
             })
@@ -203,17 +235,14 @@ export const changePassword = (
         if (!token) {
             return;
         }
-        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-        axios.defaults.headers.common["Content-Type"] = "application/json";
-        axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+        setAuthHeaders(token, csrftoken);
         axios
             .post(AuthUrls.CHANGE_PASSWORD, {
                 old_password: oldPassword,
                 new_password1: newPassword1,
                 new_password2: newPassword2,
             })
-            .then((response) => {
-                console.log(response);
+            .then(() => {
                 // redirect to the route '/profile'
                 dispatch(changePasswordSuccess());
                 enqueueSnackbar("Your password was changed.", {
@@ -239,9 +268,8 @@ export const resetPassword = (email: string, csrftoken: string) => {
         axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.RESET_PASSWORD, { email })
-            .then((response) => {
+            .then(() => {
                 // redirect to reset done page
-                console.log(response);
                 dispatch(resetPasswordEmailSent());
                 enqueueSnackbar("Password reset email sent.", {
                     variant: "success",
@@ -272,8 +300,7 @@ export const confirmPasswordChange = (
                 new_password1: password,
                 new_password2: confirmPassword,
             })
-            .then((response) => {
-                console.log(response);
+            .then(() => {
                 dispatch(resetPasswordSuccess());
                 enqueueSnackbar("Your password has been reset, please log in.", {
                     variant: "success",
@@ -293,8 +320,7 @@ export const activateUserAccount = (key: string, csrftoken: string) => {
         axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
         axios
             .post(AuthUrls.USER_ACTIVATION, { key })
-            .then((response) => {
-                console.log(response);
+            .then(() => {
                 dispatch(authActivationSent());
                 enqueueSnackbar(
                     "Your account has been activated successfully, please log in.",

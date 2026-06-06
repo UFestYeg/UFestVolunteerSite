@@ -27,7 +27,7 @@ import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import { StateHooks } from "../../store/hooks";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { auth as actions } from "../../store/actions";
 import { buildErrorMessage } from "../../store/utils";
@@ -77,6 +77,7 @@ const SignIn: React.FC = () => {
     const { classes } = useStyles();
     const dispatch = StateHooks.useAppDispatch();
     const location = useLocation();
+    const navigate = useNavigate();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [showPassword, setShowPassword] = useState(false);
@@ -261,6 +262,27 @@ const SignIn: React.FC = () => {
                                                 {
                                                     "Don't have an account? Sign Up"
                                                 }
+                                            </Link>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <Link
+                                                href="/"
+                                                variant="body2"
+                                                // Navigate on mousedown (before
+                                                // the click completes) so a
+                                                // focused field's onBlur
+                                                // validation can't render
+                                                // helperText, shift the layout,
+                                                // and make the first click miss
+                                                // the moved link.
+                                                onMouseDown={(
+                                                    event: React.MouseEvent
+                                                ) => {
+                                                    event.preventDefault();
+                                                    navigate("/");
+                                                }}
+                                            >
+                                                Back to home
                                             </Link>
                                         </Grid>
                                     </Grid>

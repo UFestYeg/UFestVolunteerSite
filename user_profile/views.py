@@ -3,11 +3,15 @@ from .serializers import UserSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework import viewsets
 from volunteer_categories.models import EventDate, Request
+from django.db import DatabaseError
 from django.db.models import Prefetch
 from dj_rest_auth.views import UserDetailsView
+import logging
 
 # Create your views here.
 
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -35,8 +39,8 @@ def apply_event_date_filter(request, queryset):
             queryset = queryset.prefetch_related(
                 Prefetch('requests', queryset=requests_qs)
             )
-    except Exception as e:
-        print(f"Issue {e}")
+    except (DatabaseError, ValueError):
+        logger.exception("Failed to apply event date filter")
     return queryset
 
 

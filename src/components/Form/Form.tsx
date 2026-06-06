@@ -25,6 +25,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { VolunteerUrls } from "../../constants";
+import { logDev, notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
 import { StateHooks } from "../../store/hooks";
 
 interface IFormValues {
@@ -97,9 +98,7 @@ const CustomForm: React.FC<ICustomFormProps> = ({
         const startTime = values.startTime;
         const endTime = values.endTime;
 
-        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-        axios.defaults.headers.common["Content-Type"] = "application/json";
-        axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
+        setAuthHeaders(token, cookies.csrftoken);
         if (token) {
             switch (requestType) {
                 case "POST":
@@ -111,11 +110,12 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                             start_time: startTime,
                             end_time: endTime,
                         })
-                        .then((res) => {
-                            console.log(res);
+                        .then(() => {
                             navigate("/volunteer/calendar");
                         })
-                        .catch((err) => console.error(err));
+                        .catch((err) =>
+                            notifyApiError(err, "Could not create position.")
+                        );
                     break;
                 case "PUT":
                     if (positionID) {
@@ -127,13 +127,17 @@ const CustomForm: React.FC<ICustomFormProps> = ({
                                 start_time: startTime,
                                 end_time: endTime,
                             })
-                            .then((res) => {
-                                console.log(res);
+                            .then(() => {
                                 navigate("/volunteer/calendar");
                             })
-                            .catch((err) => console.error(err));
+                            .catch((err) =>
+                                notifyApiError(
+                                    err,
+                                    "Could not update position."
+                                )
+                            );
                     } else {
-                        console.log("cannot update without `positionID`");
+                        logDev("cannot update without `positionID`");
                     }
                     break;
             }

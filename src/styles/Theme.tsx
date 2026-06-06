@@ -1,6 +1,6 @@
-import { createTheme, responsiveFontSizes, adaptV4Theme } from "@mui/material/styles";
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
-let theme = createTheme(adaptV4Theme({
+const theme = createTheme({
     palette: {
         primary: {
             light: "#b2e4f1",
@@ -16,7 +16,7 @@ let theme = createTheme(adaptV4Theme({
         },
         text: {
             primary: "#000",
-            secondary: "#fff",
+            secondary: "rgba(0, 0, 0, 0.6)",
         },
         background: {
             paper: "#fff",
@@ -197,6 +197,6 @@ let theme = createTheme(adaptV4Theme({
             textTransform: "uppercase",
         },
     },
-}));
+});
 
 export default responsiveFontSizes(theme);

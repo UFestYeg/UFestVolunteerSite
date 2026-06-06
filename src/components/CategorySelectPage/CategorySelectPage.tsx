@@ -62,8 +62,19 @@ const useStyles = makeStyles()((theme) =>
             alignItems: "center",
             textAlign: "center",
             width: "100%",
+            minWidth: 0,
+            overflowWrap: "break-word",
         },
-        root: { overflow: "hidden" },
+        cardTitle: {
+            [theme.breakpoints.down("md")]: {
+                fontSize: "1.75rem",
+            },
+        },
+        root: {
+            overflow: "hidden",
+            paddingLeft: theme.spacing(3),
+            paddingRight: theme.spacing(3),
+        },
         grid: {
             overflow: "hidden",
             marginTop: theme.spacing(3),
@@ -78,9 +89,11 @@ const useStyles = makeStyles()((theme) =>
             height: theme.spacing(9),
             marginLeft: theme.spacing(2),
             marginRight: theme.spacing(2),
-            [theme.breakpoints.down("sm")]: {
-                width: theme.spacing(7),
-                height: theme.spacing(7),
+            [theme.breakpoints.down("md")]: {
+                width: theme.spacing(6),
+                height: theme.spacing(6),
+                marginLeft: theme.spacing(1),
+                marginRight: theme.spacing(1),
             },
         },
     })
@@ -141,7 +154,11 @@ const CategorySelectPage: React.FC = () => {
                             component={iconMap[nameToIconMapKey(categoryType)]}
                         />
                         <CardContent className={classes.cardContent}>
-                            <Typography color="textPrimary" variant="h3">
+                            <Typography
+                                color="textPrimary"
+                                variant="h3"
+                                className={classes.cardTitle}
+                            >
                                 {categoryType}
                             </Typography>
                         </CardContent>

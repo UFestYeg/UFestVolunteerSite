@@ -66,6 +66,8 @@ const useStyles = makeStyles()((theme) =>
         grid: {
             overflow: "hidden",
             marginTop: theme.spacing(3),
+            paddingLeft: theme.spacing(3),
+            paddingRight: theme.spacing(3),
         },
         gridList: {
             width: "100%",

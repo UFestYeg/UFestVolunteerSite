@@ -261,7 +261,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
             ) : (
                 <>
                     <Typography color="error">
-                        {error && error.reponse ? error.reponse.data : null}
+                        {error ? error : null}
                     </Typography>
                     <DnDCalendar
                         className={classes.calendarWrapper}
@@ -269,7 +269,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
                         events={currentList}
                         startAccessor="start_time"
                         endAccessor="end_time"
-                        style={{ height: 600 }}
+                        style={{ height: "calc(100vh - 200px)", minHeight: 600 }}
                         defaultView="day"
                         defaultDate={props.defaultDate ?? new Date()}
                         views={{ day: UFestDay, week: UFestWeek }}

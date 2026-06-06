@@ -26,9 +26,15 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") != "False"
+# Fail closed: only enable debug when explicitly opted in.
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["127.0.0.1", "www.volunteer.ufest.ca"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "volunteer.ufest.ca",
+    "www.volunteer.ufest.ca",
+]
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -163,15 +169,27 @@ STORAGES = {
 
 # The frontend will be served here
 
-# CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
-CORS_ALLOW_ALL_ORIGINS = True
+# Restrict cross-origin requests to known origins. In production Django serves
+# the SPA from the same origin; the dev server runs on a separate port.
+CORS_ALLOWED_ORIGINS = [
+    "https://volunteer.ufest.ca",
+    "https://www.volunteer.ufest.ca",
+]
+if DEBUG:
+    CORS_ALLOWED_ORIGINS += [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+CORS_ALLOW_CREDENTIALS = True
 
 # Base URL of the frontend. In production Django serves the built SPA from the
 # same origin, so relative links work (empty prefix). In development the
 # frontend runs on a separate dev-server port, so admin links back to the SPA
-# need an absolute URL.
+# need an absolute URL. Use 127.0.0.1 (not localhost) to match the Vite dev
+# host and ROOT_URL: the browser treats the two as different sites, so mixing
+# them splits cookies and breaks session sharing.
 FRONTEND_URL = os.getenv(
-    "FRONTEND_URL", "http://localhost:3000" if DEBUG else ""
+    "FRONTEND_URL", "http://127.0.0.1:3000" if DEBUG else ""
 )
 
 CSRF_COOKIE_NAME = "csrftoken"

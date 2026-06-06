@@ -55,28 +55,58 @@ export function useHoverShiftLeft<T extends HTMLElement>() {
         });
         resizeObserver.observe(eventEl);
 
+        // Shift the card leftwards if expanding pushed its right edge past the
+        // calendar's right edge, so it grows to the left instead of running off
+        // the calendar.
+        const reposition = () => {
+            const rect = eventEl.getBoundingClientRect();
+            const calendarRect = calendarEl?.getBoundingClientRect();
+            const rightBound = calendarRect
+                ? calendarRect.right
+                : document.documentElement.clientWidth;
+            const leftBound = calendarRect ? calendarRect.left : 0;
+            // Never pull the card's right edge left of its resting footprint.
+            // The pointer is hovering somewhere over that footprint, so
+            // shrinking past it would uncover the pointer and fire
+            // mouseleave -> reset -> mouseenter in a loop. The card therefore
+            // only ever grows leftward beyond its resting bounds.
+            const restingRight = rect.left + restingWidth;
+            const targetRight = Math.max(rightBound - margin, restingRight);
+            if (rect.right > targetRight) {
+                if (eventEl.dataset.origLeft === undefined) {
+                    eventEl.dataset.origLeft = eventEl.style.left ?? "";
+                }
+                const currentLeft =
+                    parseFloat(getComputedStyle(eventEl).left) || 0;
+                const overflow = rect.right - targetRight;
+                // Clamp against the calendar's left edge rather than the
+                // event's offset parent (`left: 0`). In the category view
+                // events live inside narrow per-resource columns, so a
+                // column-relative `0` can still sit past the calendar's right
+                // edge; clamping to the calendar edge lets the card shift left
+                // across columns far enough to stay in bounds.
+                const offsetParentLeft = rect.left - currentLeft;
+                const minLeft = leftBound + margin - offsetParentLeft;
+                const newLeft = Math.max(minLeft, currentLeft - overflow);
+                eventEl.style.left = `${newLeft}px`;
+                eventEl.style.right = "auto";
+            }
+        };
+
         const onEnter = () => {
             hovering = true;
             // Floor the width at the resting width so the card only grows.
             eventEl.style.minWidth = `${Math.max(300, restingWidth)}px`;
-            // Measure after the browser has applied the :hover styles.
-            requestAnimationFrame(() => {
-                const rect = eventEl.getBoundingClientRect();
-                const rightBound = calendarEl
-                    ? calendarEl.getBoundingClientRect().right
-                    : document.documentElement.clientWidth;
-                if (rect.right > rightBound - margin) {
-                    if (eventEl.dataset.origLeft === undefined) {
-                        eventEl.dataset.origLeft = eventEl.style.left ?? "";
-                    }
-                    const currentLeft =
-                        parseFloat(getComputedStyle(eventEl).left) || 0;
-                    const overflow = rect.right - (rightBound - margin);
-                    const newLeft = Math.max(0, currentLeft - overflow);
-                    eventEl.style.left = `${newLeft}px`;
-                    eventEl.style.right = "auto";
-                }
-            });
+            // Reposition synchronously. By the time mouseenter fires the :hover
+            // styles are already applied, and reading getBoundingClientRect in
+            // reposition() forces a synchronous reflow, so the expanded
+            // measurements are accurate now. Doing this synchronously (rather
+            // than in a deferred requestAnimationFrame) is important: a later
+            // rAF could run mid-click and move the card out from under the
+            // pointer between mousedown and mouseup, which cancels the click so
+            // the popover never opens. The shift completes within mouseenter,
+            // before any press is possible, so the card is stable when clicked.
+            reposition();
         };
 
         const onLeave = () => {

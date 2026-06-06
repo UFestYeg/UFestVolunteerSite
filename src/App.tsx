@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, useNavigate } from "react-router-dom";
 import "./App.css";
 import { setNavigator } from "./navigation";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { BaseRouter } from "./routes";
 import { auth as actions } from "./store/actions";
 import { StateHooks } from "./store/hooks";
@@ -37,7 +38,9 @@ const App: React.FC = () => {
                     >
                         <BrowserRouter>
                             <NavigationSetter />
-                            <BaseRouter />
+                            <ErrorBoundary>
+                                <BaseRouter />
+                            </ErrorBoundary>
                         </BrowserRouter>
                     </SnackbarProvider>
                 </ThemeProvider>

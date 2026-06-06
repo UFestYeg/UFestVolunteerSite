@@ -9,6 +9,7 @@ import {
     UserActionType as ActionType,
 } from "../types";
 import * as ActionTypes from "./actionTypes";
+import { logDev, notifyApiError, setAuthHeaders } from "./apiUtils";
 
 type DispatchType = (action: ActionType) => void;
 
@@ -75,30 +76,20 @@ export const getUserProfile = (cookies: any, userID?: number) => {
             const userProfileUrl = userID
                 ? UserUrls.USER_PROFILE_DETAILS(userID)
                 : AuthUrls.USER_PROFILE;
-            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-            axios.defaults.headers.common["Content-Type"] =
-                "application/json";
-            axios.defaults.headers.common["X-CSRFToken"] = cookies;
+            setAuthHeaders(token, cookies);
             axios
                 .get(userProfileUrl)
                 .then((response) => {
-                    console.log(response.data);
                     userID
                         ? dispatch(getViewedUserProfileSucces(response.data))
                         : dispatch(getUserProfileSucces(response.data));
                 })
                 .catch((reqError) => {
-                    // If request is bad...
-                    // Show an error to the user
-                    console.error(reqError);
                     dispatch(getUserProfileFail(reqError));
-                    // TODO: send notification and redirect
-                    enqueueSnackbar("Unable to get user profile.", {
-                        variant: "error",
-                    });
+                    notifyApiError(reqError, "Unable to get user profile.");
                 });
         } else {
-            console.log("Unable to get user without token");
+            logDev("Unable to get user without token");
         }
     };
 };
@@ -111,13 +102,10 @@ export const updateUserProfile = (
 
     return (dispatch: DispatchType) => {
         dispatch(updateProfileStart());
-        axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-        axios.defaults.headers.common["Content-Type"] = "application/json";
-        axios.defaults.headers.common["X-CSRFToken"] = cookies;
+        setAuthHeaders(token, cookies);
         axios
             .patch(AuthUrls.USER_PROFILE, formValues)
-            .then((response) => {
-                console.log(response);
+            .then(() => {
                 dispatch(updateProfileSuccess());
                 enqueueSnackbar("Your profile was updated.", {
                     variant: "success",
@@ -125,12 +113,10 @@ export const updateUserProfile = (
                 navigate("/volunteer");
             })
             .catch((reqError) => {
-                // If request is bad...
-                // Show an error to the user
                 dispatch(updateProfileFail(reqError));
-                enqueueSnackbar(
-                    "Unable to update profile. Please try again.",
-                    { variant: "error" }
+                notifyApiError(
+                    reqError,
+                    "Unable to update profile. Please try again."
                 );
             });
     };

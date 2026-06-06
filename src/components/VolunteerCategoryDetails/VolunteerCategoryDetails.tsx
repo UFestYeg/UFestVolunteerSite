@@ -8,6 +8,7 @@ import { StateHooks } from "../../store/hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
+import { setAuthHeaders } from "../../store/actions/apiUtils";
 import { CustomForm } from "../Form";
 
 const useStyles = makeStyles()((theme: Theme) =>
@@ -43,15 +44,11 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
-            axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-            axios.defaults.headers.common["Content-Type"] =
-                "application/json";
-            axios.defaults.headers.common["X-CSRFToken"] = cookies.csrftoken;
+            setAuthHeaders(token, cookies.csrftoken);
             axios
                 .get(VolunteerUrls.CATEGORY_DETAILS(positionID))
                 .then((res) => {
                     setEvent(res.data);
-                    console.log(res.data);
                 });
         }
     }, [cookies.csrftoken, dispatch, positionID, token]);

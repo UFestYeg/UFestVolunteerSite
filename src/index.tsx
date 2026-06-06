@@ -12,6 +12,9 @@ import App from "./App";
 import { Loading } from "./components/Loading";
 import * as serviceWorker from "./serviceWorker";
 import { authReducer, userReducer, volunteerReducer } from "./store/reducers";
+import { sessionExpired } from "./store/actions/auth";
+import { registerUnauthorizedInterceptor } from "./store/actions/apiUtils";
+import { navigate } from "./navigation";
 
 declare global {
     interface Window {
@@ -42,6 +45,15 @@ const store = createStore(
 );
 
 const persistor = persistStore(store);
+
+// Fail closed on auth errors: if the backend rejects our token (401), drop the
+// stale credentials and send the user to the login page instead of leaving the
+// app stuck in a "logged in locally, rejected by the server" state. Uses the
+// local-only `sessionExpired` (no network logout) so a dead token can't loop.
+registerUnauthorizedInterceptor(() => {
+    store.dispatch(sessionExpired());
+    navigate("/login");
+});
 
 const container = document.getElementById("root");
 const root = createRoot(container!);

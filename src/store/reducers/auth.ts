@@ -1,9 +1,18 @@
+import { AnyAction } from "redux";
 import { actionTypes } from "../actions";
+import { AuthActionType } from "../types";
 import { updateObject } from "../utils";
+
+// Narrows the AuthActionType union to the single member with the given `type`,
+// so each reducer helper can be typed to exactly the action it handles.
+type AAction<T extends AuthActionType["type"]> = Extract<
+    AuthActionType,
+    { type: T }
+>;
 
 export interface IAuthState {
     token: string | null;
-    error: any | null;
+    error: string | null;
     loading: boolean;
 }
 
@@ -13,28 +22,31 @@ const initialState: IAuthState = {
     token: null,
 };
 
-const authStart = (state: IAuthState, action: any) => {
+const authStart = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: true,
     });
 };
 
-const authEmailSent = (state: IAuthState, action: any) => {
+const authEmailSent = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: false,
     });
 };
 
-const authActivation = (state: IAuthState, action: any) => {
+const authActivation = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: false,
     });
 };
 
-const authSuccess = (state: IAuthState, action: any) => {
+const authSuccess = (
+    state: IAuthState,
+    action: AAction<typeof actionTypes.AUTH_SUCCESS>
+) => {
     return updateObject(state, {
         error: null,
         loading: false,
@@ -42,94 +54,104 @@ const authSuccess = (state: IAuthState, action: any) => {
     });
 };
 
-const authFail = (state: IAuthState, action: any) => {
+const authFail = (
+    state: IAuthState,
+    action: AAction<typeof actionTypes.AUTH_FAIL>
+) => {
     return updateObject(state, {
         error: action.error,
         loading: false,
     });
 };
 
-const authLogout = (state: IAuthState, action: any) => {
+const authLogout = (state: IAuthState) => {
     return updateObject(state, {
         token: null,
     });
 };
 
-const resetPasswordStart = (state: IAuthState, action: any) => {
+const resetPasswordStart = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: true,
     });
 };
 
-const resetPasswordSuccess = (state: IAuthState, action: any) => {
+const resetPasswordSuccess = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: false,
     });
 };
 
-const resetPasswordEmailSent = (state: IAuthState, action: any) => {
+const resetPasswordEmailSent = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: false,
     });
 };
 
-const resetPasswordFail = (state: IAuthState, action: any) => {
+const resetPasswordFail = (
+    state: IAuthState,
+    action: AAction<typeof actionTypes.RESET_PASSWORD_FAIL>
+) => {
     return updateObject(state, {
         error: action.error,
         loading: false,
     });
 };
 
-const changePasswordStart = (state: IAuthState, action: any) => {
+const changePasswordStart = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: true,
     });
 };
 
-const changePasswordSuccess = (state: IAuthState, action: any) => {
+const changePasswordSuccess = (state: IAuthState) => {
     return updateObject(state, {
         error: null,
         loading: false,
     });
 };
 
-const changePasswordFail = (state: IAuthState, action: any) => {
+const changePasswordFail = (
+    state: IAuthState,
+    action: AAction<typeof actionTypes.CHANGE_PASSWORD_FAIL>
+) => {
     return updateObject(state, {
         error: action.error,
         loading: false,
     });
 };
 
-export const reducer = (state = initialState, action: any) => {
+export const reducer = (state = initialState, incomingAction: AnyAction) => {
+    const action = incomingAction as AuthActionType;
     switch (action.type) {
         case actionTypes.AUTH_START:
-            return authStart(state, action);
+            return authStart(state);
         case actionTypes.AUTH_EMAIL_SENT:
-            return authEmailSent(state, action);
+            return authEmailSent(state);
         case actionTypes.AUTH_ACTIVATION:
-            return authActivation(state, action);
+            return authActivation(state);
         case actionTypes.AUTH_SUCCESS:
             return authSuccess(state, action);
         case actionTypes.AUTH_FAIL:
             return authFail(state, action);
         case actionTypes.AUTH_LOGOUT:
-            return authLogout(state, action);
+            return authLogout(state);
         case actionTypes.RESET_PASSWORD_START:
-            return resetPasswordStart(state, action);
+            return resetPasswordStart(state);
         case actionTypes.RESET_PASSWORD_SUCCESS:
-            return resetPasswordSuccess(state, action);
+            return resetPasswordSuccess(state);
         case actionTypes.RESET_PASSWORD_EMAIL_SENT:
-            return resetPasswordEmailSent(state, action);
+            return resetPasswordEmailSent(state);
         case actionTypes.RESET_PASSWORD_FAIL:
             return resetPasswordFail(state, action);
         case actionTypes.CHANGE_PASSWORD_START:
-            return changePasswordStart(state, action);
+            return changePasswordStart(state);
         case actionTypes.CHANGE_PASSWORD_SUCCESS:
-            return changePasswordSuccess(state, action);
+            return changePasswordSuccess(state);
         case actionTypes.CHANGE_PASSWORD_FAIL:
             return changePasswordFail(state, action);
         default:

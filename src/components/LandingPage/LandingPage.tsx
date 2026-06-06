@@ -17,10 +17,13 @@ const useStyles = makeStyles()((theme: Theme) =>
     ({
         button: {
             border: 0,
-            borderRadius: theme.spacing(2),
-            // color: "white",
-            paddingBlock: theme.spacing(4),
+            // Pill-shaped, wider-than-tall proportions read as a button
+            // rather than a rounded square.
+            borderRadius: theme.spacing(5),
+            paddingBlock: theme.spacing(1.5),
+            paddingInline: theme.spacing(5),
             margin: theme.spacing(3),
+            fontWeight: 600,
         },
         signup: {
             background: theme.palette.secondary.main,

@@ -85,7 +85,7 @@ class UserSerializer(UserDetailsSerializer):
         if profile_data:
             if over_eighteen is not None:
                 profile.over_eighteen = over_eighteen
-            if age:
+            if age is not None:
                 profile.age = age
             if previous_volunteer is not None:
                 profile.previous_volunteer = previous_volunteer
@@ -99,7 +99,7 @@ class UserSerializer(UserDetailsSerializer):
                 profile.student_volunteer_hours = student_volunteer_hours
             if emergency_contact is not None:
                 profile.emergency_contact = emergency_contact
-            if t_shirt_size:
+            if t_shirt_size is not None:
                 profile.t_shirt_size = t_shirt_size
             if comments is not None:
                 profile.comments = comments
