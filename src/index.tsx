@@ -12,7 +12,7 @@ import App from "./App";
 import { Loading } from "./components/Loading";
 import * as serviceWorker from "./serviceWorker";
 import { authReducer, userReducer, volunteerReducer } from "./store/reducers";
-import { sessionExpired } from "./store/actions/auth";
+import { authCheckState, sessionExpired } from "./store/actions/auth";
 import { registerUnauthorizedInterceptor } from "./store/actions/apiUtils";
 import { navigate } from "./navigation";
 
@@ -60,6 +60,14 @@ registerUnauthorizedInterceptor(() => {
     store.dispatch(sessionExpired());
     navigate("/login");
 });
+
+// Seed auth state from the localStorage token BEFORE the first render. Since we
+// no longer persist the `auth` slice via redux-persist (see persistConfig),
+// this must run synchronously up front; otherwise a deep-link into a protected
+// route (e.g. the admin "View calendar" button -> /volunteer/calendar) renders
+// once with isAuthenticated=false, bounces through ProtectedRoute -> /login,
+// and LoginPage then redirects the already-authenticated user to profile/edit.
+store.dispatch(authCheckState());
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
