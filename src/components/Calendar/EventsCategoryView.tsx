@@ -240,7 +240,7 @@ const EventsCategoryView: React.FC<IEventsCategoryView> = (props) => {
                 <Loading />
             ) : (
                 <>
-                    {error ? error : null}
+                    {typeof error === "string" ? error : null}
                     <DnDCalendar
                         className={classes.calendarWrapper}
                         localizer={localizer}

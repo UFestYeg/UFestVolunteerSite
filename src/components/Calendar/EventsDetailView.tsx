@@ -261,7 +261,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
             ) : (
                 <>
                     <Typography color="error">
-                        {error ? error : null}
+                        {typeof error === "string" ? error : null}
                     </Typography>
                     <DnDCalendar
                         className={classes.calendarWrapper}
