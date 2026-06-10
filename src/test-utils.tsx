@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 // Shared testing utilities: a custom render that wraps components in all the
 // providers the app relies on (Redux store, MUI theme, router, cookies,
 // notistack). Import { renderWithProviders } from this module in component

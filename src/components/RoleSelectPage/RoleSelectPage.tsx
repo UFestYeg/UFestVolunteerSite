@@ -19,7 +19,13 @@ import { useCookies } from "react-cookie";
 import { StateHooks } from "../../store/hooks";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { PositionRequestPage } from "../PositionRequestPage";
+import { Loading } from "../Loading";
+
+// Lazy-load the calendar view so its react-big-calendar/moment weight stays out
+// of the initial bundle and only loads when the user switches to "calendar".
+const PositionRequestPage = React.lazy(
+    () => import("../PositionRequestPage/PositionRequestPage")
+);
 
 const useStyles = makeStyles()((theme) =>
     ({
@@ -278,7 +284,9 @@ const RoleSelectPage: React.FC = () => {
             </Grid>
             {view === "calendar" ? (
                 <Grid item className={classes.calendarContainer}>
-                    <PositionRequestPage />
+                    <React.Suspense fallback={<Loading />}>
+                        <PositionRequestPage />
+                    </React.Suspense>
                 </Grid>
             ) : (
                 <Grid item className={classes.cardsContainer}>

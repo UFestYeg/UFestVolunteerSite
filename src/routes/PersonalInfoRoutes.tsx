@@ -1,12 +1,16 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { Loading } from "../components/Loading";
 import { NotFoundPage } from "../components/NotFoundPage";
-import {
-    ProfileCalendar,
-    ProfileInfo,
-    VolunteerScheduleSummary,
-} from "../components/ProfilePage";
+import ProfileInfo from "../components/ProfilePage/ProfileInfo";
+import VolunteerScheduleSummary from "../components/ProfilePage/VolunteerScheduleSummary";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+
+// Lazy-load the schedule calendar so react-big-calendar/moment only load when
+// the user opens their schedule, keeping them out of the initial bundle.
+const ProfileCalendar = React.lazy(
+    () => import("../components/ProfilePage/ProfileCalendar")
+);
 
 const PersonalInfoRoutes: React.FC = () => {
     return (
@@ -18,7 +22,11 @@ const PersonalInfoRoutes: React.FC = () => {
             />
             <Route
                 path="schedule"
-                element={<ProtectedRoute component={ProfileCalendar} />}
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <ProtectedRoute component={ProfileCalendar} />
+                    </Suspense>
+                }
             />
             <Route
                 path="summary"

@@ -13,15 +13,11 @@ import UserRoutes from "./UserRoutes";
 // VolunteerCategoryDetails pull in react-big-calendar + moment (~130KB gzip), so
 // loading them lazily keeps that weight out of the initial bundle for users who
 // only ever hit the landing/home/category pages.
-const EventsCalendar = React.lazy(() =>
-    import("../components/Calendar").then((m) => ({
-        default: m.EventsCalendar,
-    }))
+const EventsCalendar = React.lazy(
+    () => import("../components/Calendar/EventsCalendar")
 );
-const PositionRequestPage = React.lazy(() =>
-    import("../components/PositionRequestPage").then((m) => ({
-        default: m.PositionRequestPage,
-    }))
+const PositionRequestPage = React.lazy(
+    () => import("../components/PositionRequestPage/PositionRequestPage")
 );
 const VolunteerCategoryDetails = React.lazy(() =>
     import("../components/VolunteerCategoryDetails").then((m) => ({
