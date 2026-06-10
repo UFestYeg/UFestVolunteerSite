@@ -149,20 +149,85 @@ A typical update is:
    build) are configured on the host.
 3. After deploy, sanity-check the live site and review logs.
 
-### If you deploy on a shell-based host (e.g. PythonAnywhere)
+### Deploying on a shell-based host (e.g. PythonAnywhere)
 
-If you're updating the app manually over SSH rather than via a Procfile
-platform, run the equivalent steps by hand in the project directory:
+PythonAnywhere (and similar shell hosts) ignore the `Procfile`/gunicorn — they
+run their own WSGI file pointing at `backend.wsgi` — so you deploy manually over
+SSH and reload from the dashboard. The steps below are an ordered runbook with
+backups and a rollback path, since this branch is a larger stack jump (Django
+3 → 5, Python 3.13, Pipenv → uv, CRA → Vite).
+
+> Environment management note: **`uv` now owns the virtualenv** (it replaces
+> Pipenv). You do **not** create a venv by hand — `uv sync` reads
+> `.python-version` (3.13), provisions that interpreter if needed, creates
+> `.venv/` in the project root, and installs from `uv.lock`. Point the host's
+> "Virtualenv" setting at that `.venv`.
+
+#### 1. Pre-flight & backups
 
 ```bash
-git pull
-uv sync                                   # install backend deps
-npm ci && npm run build                   # build the SPA into build/
-uv run python manage.py collectstatic --noinput
-uv run python manage.py migrate
+cd ~/UFestVolunteerSite                    # project dir on the host
+git rev-parse HEAD > ~/rollback_commit.txt # record current commit (code rollback)
+cp db.sqlite3 db.sqlite3.$(date +%F_%H%M).bak   # back up the DB (lives only on the server)
+cp -r build build.bak.$(date +%F_%H%M)     # back up current static build
 ```
 
-Then reload the web app from the host's dashboard and confirm it's running.
+Also note the current "Virtualenv" path from the Web tab — do not delete the old
+venv; it's half your rollback.
+
+#### 2. Pull code and build the environment (no downtime yet)
+
+```bash
+git fetch origin && git checkout dependency-upgrade-2026 && git pull
+uv sync                                    # provisions Python 3.13 + creates .venv/ + installs deps
+npm ci && npm run build                    # build the SPA into build/ (needs .env.production VITE_API_URI)
+uv run python manage.py check --deploy     # sanity-check config, writes nothing
+```
+
+#### 3. Cutover (the risk window — prefer low traffic)
+
+```bash
+uv run python manage.py collectstatic --noinput   # required: WhiteNoise manifest storage
+uv run python manage.py migrate                   # applies the new BigAutoField migrations
+```
+
+Then in the **Web tab**: set **Virtualenv** to `~/UFestVolunteerSite/.venv`,
+confirm the WSGI file imports `backend.wsgi` with `DEBUG=False` and the prod env
+vars (`SECRET_KEY`, `EMAIL_ADDRESS`, `EMAIL_PASSWORD`, `MINUTE_INTERVAL`), and
+**Reload**.
+
+#### 4. Verify
+
+- Re-register cron under the new venv (see below).
+- Smoke-test login **and signup** (allauth/dj-rest-auth changed), static assets,
+  the calendar, and submitting a position request.
+- Watch the PA error log and `send_mail.log` for ~10–15 min.
+
+#### Fallback: host without `uv`
+
+If `uv` can't run on the host (e.g. console memory limits during resolve), build
+a plain venv and install from an exported requirements file instead:
+
+```bash
+python3.13 -m venv ~/.virtualenvs/ufest-313 && source ~/.virtualenvs/ufest-313/bin/activate
+uv export --no-hashes --no-dev > /tmp/req.txt   # run locally if uv is unavailable on the host
+pip install -r /tmp/req.txt
+```
+
+Point the Web tab's Virtualenv at `~/.virtualenvs/ufest-313` instead of `.venv`.
+This is the **only** path where you create the venv yourself.
+
+#### Rollback
+
+1. Restore the DB: `cp db.sqlite3.<timestamp>.bak db.sqlite3`
+2. Restore code: `git checkout $(cat ~/rollback_commit.txt)`
+3. Restore static (optional): `rm -rf build && mv build.bak.<timestamp> build`
+4. Repoint the Web tab Virtualenv to the original venv path, then **Reload**.
+5. Re-register cron under the old venv.
+
+The BigAutoField migrations are reversible (`migrate user_profile 0001`,
+`migrate volunteer_categories 0007`), but on SQLite prefer the DB file restore —
+it's atomic and guaranteed.
 
 ### Scheduled emails (cron)
 

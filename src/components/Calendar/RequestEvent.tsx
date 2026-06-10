@@ -71,19 +71,31 @@ const RequestEvent = ({ event }: { event: any }) => {
     const { classes } = useStyles();
     const [requestError, setRequestError] = useState<any>();
     const navigate = useNavigate();
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-        null
-    );
+    const [anchorPosition, setAnchorPosition] = React.useState<{
+        top: number;
+        left: number;
+    } | null>(null);
     const dispatch = StateHooks.useAppDispatch();
     const containerRef = useHoverShiftLeft<HTMLDivElement>();
     const handleClick = (
         clickEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
-        setAnchorEl(clickEvent.currentTarget);
+        // Freeze the popover at the button's current top-center in viewport
+        // coordinates instead of anchoring to the element. The event card is
+        // hover-shifted (see useHoverShiftLeft); with an element anchor, moving
+        // the mouse onto the popover fires the card's mouseleave, which resets
+        // the card and drags the still-open popover out from under the cursor
+        // mid-click — so the first click on the close button misses and you
+        // have to click again. A fixed anchor position stays put.
+        const rect = clickEvent.currentTarget.getBoundingClientRect();
+        setAnchorPosition({
+            top: rect.top,
+            left: rect.left + rect.width / 2,
+        });
     };
 
     const handleClose = () => {
-        setAnchorEl(null);
+        setAnchorPosition(null);
     };
     const handleDelete = (role: any) => {
         axios
@@ -106,7 +118,7 @@ const RequestEvent = ({ event }: { event: any }) => {
 
     const handleDeleteClick = () => handleDelete(event);
 
-    const open = Boolean(anchorEl);
+    const open = Boolean(anchorPosition);
     const id = open ? "simple-popover" : undefined;
 
     const tooLateToDelete = () => {
@@ -142,12 +154,9 @@ const RequestEvent = ({ event }: { event: any }) => {
         <Popover
             id={id}
             open={open}
-            anchorEl={anchorEl}
+            anchorReference="anchorPosition"
+            anchorPosition={anchorPosition ?? undefined}
             onClose={handleClose}
-            anchorOrigin={{
-                horizontal: "right",
-                vertical: "top",
-            }}
             transformOrigin={{
                 horizontal: "center",
                 vertical: "bottom",

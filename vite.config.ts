@@ -16,6 +16,44 @@ export default defineConfig({
     },
     build: {
         outDir: "build",
+        // Emit JS/CSS/asset chunks into build/static (not the Vite default
+        // build/assets). Django serves static only under STATIC_URL=/static/
+        // (STATICFILES_DIRS includes build/static), so with base "/" the bundle
+        // is referenced as /static/<hash>.js and collectstatic/WhiteNoise can
+        // actually serve it. Without this the app loads from /assets/... which
+        // 404s into the SPA catch-all and the page renders blank.
+        assetsDir: "static",
+        // The `mui` chunk (@mui/material core + @emotion) is ~790 kB minified
+        // (~240 kB gzip) and can't be split further in any useful way — its
+        // modules are deeply interdependent. Everything else that can be split
+        // already is (vendor, mui-icons, and the lazy calendar route chunks),
+        // so raise the limit above the MUI core size to silence the noise while
+        // still catching genuinely new oversized chunks.
+        chunkSizeWarningLimit: 850,
+        rollupOptions: {
+            output: {
+                // Split the always-loaded dependencies out of the app bundle so
+                // they cache independently of our code. react-big-calendar is
+                // deliberately left out (returns undefined) so it stays in the
+                // lazily-loaded calendar route chunks instead of being pulled
+                // back into an eager vendor chunk.
+                manualChunks(id) {
+                    if (!id.includes("node_modules")) {
+                        return;
+                    }
+                    if (id.includes("react-big-calendar")) {
+                        return;
+                    }
+                    if (id.includes("@mui/icons-material")) {
+                        return "mui-icons";
+                    }
+                    if (id.includes("@mui") || id.includes("@emotion")) {
+                        return "mui";
+                    }
+                    return "vendor";
+                },
+            },
+        },
     },
     test: {
         globals: true,
