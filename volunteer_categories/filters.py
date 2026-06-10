@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldError, ValidationError
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
@@ -19,8 +20,13 @@ class DateRangeFilter(admin.FieldListFilter):
         # Build the lookup keys before calling super(), because the base
         # ``FieldListFilter.__init__`` calls ``expected_parameters`` which
         # relies on them being set.
-        self.lookup_kwarg_since = "%s__date__gte" % field_path
-        self.lookup_kwarg_until = "%s__date__lte" % field_path
+        lookup_field = "%s__date" % field_path
+        if isinstance(field, models.DateField) and not isinstance(
+            field, models.DateTimeField
+        ):
+            lookup_field = field_path
+        self.lookup_kwarg_since = "%s__gte" % lookup_field
+        self.lookup_kwarg_until = "%s__lte" % lookup_field
         super().__init__(field, request, params, model, model_admin, field_path)
         # Read the raw values straight from the query string so rendering and
         # filtering stay consistent across Django param-parsing changes.
@@ -48,7 +54,7 @@ class DateRangeFilter(admin.FieldListFilter):
             return queryset
         try:
             return queryset.filter(**filters)
-        except (ValueError, ValidationError):
+        except (FieldError, ValueError, ValidationError):
             return queryset
 
     def choices(self, changelist):

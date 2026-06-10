@@ -53,10 +53,11 @@ const VolunteerCategoryDetails: React.FC<any> = () => {
         }
     }, [cookies.csrftoken, dispatch, positionID, token]);
 
-    const handleDelete = () => {
+    const handleDelete = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         if (token && !isNaN(positionID)) {
             axios.delete(VolunteerUrls.CATEGORY_DETAILS(positionID));
-            navigate("/positions");
+            navigate("/volunteer");
         }
     };
 
