@@ -1,14 +1,33 @@
 {% extends 'admin/change_list.html' %}
-{% load static %}
 
-{% block extrastyle %}
-    {{block.super}}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+{% block extrastyle %}{{ block.super }}
+<style>
+  /* The extra export button widens the object-tools; drop them below the
+     page title instead of letting Django pull them up onto the title row
+     (base.css uses margin-top: -48px), which overlaps long titles. Render
+     them as a left-aligned block (like Django's own responsive layout) so
+     they don't float over the title or the filter sidebar. */
+  /* The extra export button widens the object-tools; drop them below the
+     page title instead of letting Django pull them up onto the title row
+     (base.css uses margin-top: -48px), which overlaps long titles. Render
+     them as a left-aligned block (like Django's own responsive layout) and
+     un-float the items, otherwise the floated buttons push the flex
+     changelist (a block-formatting context) into the narrow space beside
+     them instead of letting it sit below at full width. */
+  #content-main > .object-tools {
+    margin: 0 0 15px;
+    float: none;
+    overflow: visible;
+  }
+  #content-main > .object-tools li {
+    float: none;
+    display: inline-block;
+    height: auto;
+  }
+</style>
 {% endblock %}
 
-{% block object-tools %}
-    <a class="btn btn-outline-secondary" href="export-schedule/">Export Master Schedule</a>
-    <br />
+{% block object-tools-items %}
+    <li><a href="export-schedule/" class="addlink">Export Master Schedule</a></li>
     {{ block.super }}
 {% endblock %}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { NotFoundPage } from "../components/NotFoundPage";
 import {
     ProfileCalendar,
@@ -8,35 +8,30 @@ import {
 } from "../components/ProfilePage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 
-const ProfileRoutes: React.FC = () => {
-    const { path } = useRouteMatch();
-
+const PersonalInfoRoutes: React.FC = () => {
     return (
-        <React.Fragment>
-            <Switch>
-                <Route exact path={`${path}`}>
-                    <Redirect to={`${path}/info`} />
-                </Route>
-                <ProtectedRoute
-                    exact
-                    canEdit={true}
-                    path={`${path}/info`}
-                    component={ProfileInfo}
-                />
-                <ProtectedRoute
-                    exact
-                    path={`${path}/schedule`}
-                    component={ProfileCalendar}
-                />
-                <ProtectedRoute
-                    exact
-                    path={`${path}/summary`}
-                    component={VolunteerScheduleSummary}
-                />
-                <ProtectedRoute path="*" component={NotFoundPage} />
-            </Switch>
-        </React.Fragment>
+        <Routes>
+            <Route index element={<Navigate to="info" replace />} />
+            <Route
+                path="info"
+                element={<ProtectedRoute canEdit component={ProfileInfo} />}
+            />
+            <Route
+                path="schedule"
+                element={<ProtectedRoute component={ProfileCalendar} />}
+            />
+            <Route
+                path="summary"
+                element={
+                    <ProtectedRoute component={VolunteerScheduleSummary} />
+                }
+            />
+            <Route
+                path="*"
+                element={<ProtectedRoute component={NotFoundPage} />}
+            />
+        </Routes>
     );
 };
 
-export default ProfileRoutes;
+export default PersonalInfoRoutes;

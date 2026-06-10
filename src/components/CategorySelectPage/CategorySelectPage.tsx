@@ -1,37 +1,39 @@
 // tslint:disable: use-simple-attributes
 import {
+    Button,
     Card,
     CardContent,
     CardMedia,
     Grid,
-    GridList,
-    GridListTile,
     Typography,
-    useMediaQuery,
-} from "@material-ui/core";
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+} from "@mui/material";
+import { makeStyles } from "tss-react/mui";
 import {
     AccessibilityNew,
     AttachMoney,
     Build,
+    Construction,
+    Groups,
+    Handshake,
     HeadsetMic,
     LocalBar,
     LocalCafe,
+    MusicNote,
     People,
     PhotoCamera,
+    Star,
     Storefront,
     Traffic,
     Widgets,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Link, useRouteMatch } from "react-router-dom";
-import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { Link, useLocation } from "react-router-dom";
+import { volunteer as volunteerActions } from "../../store/actions";
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme) =>
+    ({
         button: {
             background: theme.palette.secondary.main,
             border: 0,
@@ -52,9 +54,13 @@ const useStyles = makeStyles((theme) =>
             flexDirection: "row",
             alignItems: "center",
             textAlign: "center",
-            margin: 8,
+            height: "100%",
             color: theme.palette.primary.dark,
             justifyContent: "center",
+            "&:hover": {
+                boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.35)",
+                transform: "translateY(-4px)",
+            },
         },
         cardContent: {
             display: "flex",
@@ -62,24 +68,72 @@ const useStyles = makeStyles((theme) =>
             alignItems: "center",
             textAlign: "center",
             width: "100%",
+            minWidth: 0,
+            overflowWrap: "break-word",
         },
-        root: { overflow: "hidden" },
+        cardTitle: {
+            [theme.breakpoints.down("md")]: {
+                fontSize: "1.75rem",
+            },
+        },
+        root: {
+            overflow: "hidden",
+            paddingLeft: theme.spacing(3),
+            paddingRight: theme.spacing(3),
+        },
         grid: {
             overflow: "hidden",
             marginTop: theme.spacing(3),
         },
         gridList: {
             width: "100%",
-            height: "100%",
         },
-        link: { textDecoration: "none" },
+        browseAll: {
+            borderRadius: theme.spacing(4),
+            paddingTop: theme.spacing(1.5),
+            paddingBottom: theme.spacing(1.5),
+            paddingLeft: theme.spacing(4),
+            paddingRight: theme.spacing(4),
+            marginBottom: theme.spacing(1),
+            textTransform: "none",
+            fontWeight: 600,
+            // Scale the button down alongside the category grid as it
+            // collapses from two columns to one at the breakpoints below.
+            // fontSize uses !important so it wins over the theme's
+            // typography.button / MuiButton-sizeLarge font size.
+            fontSize: "1.1rem !important",
+            [theme.breakpoints.down("md")]: {
+                fontSize: "0.95rem !important",
+                paddingTop: theme.spacing(1.25),
+                paddingBottom: theme.spacing(1.25),
+                paddingLeft: theme.spacing(3),
+                paddingRight: theme.spacing(3),
+            },
+            [theme.breakpoints.down("sm")]: {
+                fontSize: "0.8rem !important",
+                paddingTop: theme.spacing(1),
+                paddingBottom: theme.spacing(1),
+                paddingLeft: theme.spacing(2),
+                paddingRight: theme.spacing(2),
+            },
+        },
+        browseAllCaption: {
+            display: "block",
+            textAlign: "center",
+        },
+        link: { textDecoration: "none", display: "block", height: "100%" },
         media: {
             flexShrink: 0,
-            width: "20%",
-            height: "20%",
-            marginLeft: "auto",
-            marginRight: 8,
-            padding: "2%",
+            width: theme.spacing(9),
+            height: theme.spacing(9),
+            marginLeft: theme.spacing(2),
+            marginRight: theme.spacing(2),
+            [theme.breakpoints.down("md")]: {
+                width: theme.spacing(6),
+                height: theme.spacing(6),
+                marginLeft: theme.spacing(1),
+                marginRight: theme.spacing(1),
+            },
         },
     })
 );
@@ -95,10 +149,16 @@ const iconMap: IIconMap = {
     kids: Widgets,
     volunteers: People,
     site_and_traffic: Traffic,
+    site_management: Traffic,
     entertainment: HeadsetMic,
     finance: AttachMoney,
     workshops: Build,
     vendors: Storefront,
+    setup_and_take_down: Construction,
+    committee_members: Groups,
+    special_attractions: Star,
+    sponsorship: Handshake,
+    buskers: MusicNote,
     other: AccessibilityNew,
 };
 
@@ -108,11 +168,9 @@ const nameToIconMapKey = (name: string) => {
 };
 
 const CategorySelectPage: React.FC = () => {
-    const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const { url } = useRouteMatch();
-    const smallWidth = useMediaQuery(theme.breakpoints.down("xs"));
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const { pathname: url } = useLocation();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const volunteerCategories = StateHooks.useVolunteerCategoryTypes();
     const volunteerCategoryTypeMap = volunteerCategories.reduce<any>(
@@ -130,25 +188,28 @@ const CategorySelectPage: React.FC = () => {
 
     const GridTiles = () => {
         return volunteerCategoryTypes.map((categoryType, idx, _arr) => (
-            <Link
-                to={`${url}/${volunteerCategoryTypeMap[categoryType]}`}
-                key={idx}
-                className={classes.link}
-            >
-                <GridListTile cols={1}>
+            <Grid item xs={12} sm={6} key={idx}>
+                <Link
+                    to={`${url}/${volunteerCategoryTypeMap[categoryType]}`}
+                    className={classes.link}
+                >
                     <Card className={classes.card}>
                         <CardMedia
                             className={classes.media}
                             component={iconMap[nameToIconMapKey(categoryType)]}
                         />
                         <CardContent className={classes.cardContent}>
-                            <Typography color="textPrimary" variant="h3">
+                            <Typography
+                                color="textPrimary"
+                                variant="h3"
+                                className={classes.cardTitle}
+                            >
                                 {categoryType}
                             </Typography>
                         </CardContent>
                     </Card>
-                </GridListTile>
-            </Link>
+                </Link>
+            </Grid>
         ));
     };
 
@@ -158,21 +219,49 @@ const CategorySelectPage: React.FC = () => {
                 container
                 spacing={3}
                 direction="column"
-                justify="center"
+                justifyContent="center"
                 alignItems="center"
                 className={classes.grid}
             >
                 <Grid item>
                     <Typography variant="h2">Request to Volunteer</Typography>
                 </Grid>
-                <Grid item>
-                    <GridList
-                        cellHeight="auto"
-                        className={classes.gridList}
-                        cols={smallWidth ? 1 : 2}
+                <Grid
+                    item
+                    xs={12}
+                    className={classes.gridList}
+                    container
+                    direction="column"
+                    alignItems="center"
+                >
+                    <Button
+                        component={Link}
+                        to={`${url}/all`}
+                        variant="outlined"
+                        color="primary"
+                        size="large"
+                        className={classes.browseAll}
+                    >
+                        Browse the full schedule & filter by time
+                    </Button>
+                    <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        className={classes.browseAllCaption}
+                    >
+                        Have time restrictions? See every position across all
+                        categories and pick what fits your schedule.
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} className={classes.gridList}>
+                    <Grid
+                        container
+                        spacing={3}
+                        justifyContent="center"
+                        alignItems="stretch"
                     >
                         {GridTiles()}
-                    </GridList>
+                    </Grid>
                 </Grid>
             </Grid>
         </div>

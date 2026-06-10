@@ -1,14 +1,15 @@
 import {
     Drawer,
     List,
-    ListItem,
+    ListItemButton,
     ListItemIcon,
     ListItemText,
     ListSubheader,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import {
     AccessibilityNew as AccessibilityNewIcon,
     AccountBalance as AccountBalanceIcon,
@@ -16,14 +17,14 @@ import {
     CalendarToday as CalendarTodayIcon,
     ExitToApp as ExitToAppIcon,
     PermContactCalendar,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { NavLink, useRouteMatch } from "react-router-dom";
-import { auth as actions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { NavLink, useMatch } from "react-router-dom";
+import { auth as actions } from "../../store/actions";
+import { ROOT_URL } from "../../constants";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     active: {
         background: theme.palette.primary.main,
         color: "white",
@@ -42,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
     },
     subheader: {
         background: theme.palette.primary.dark,
+        color: theme.palette.primary.contrastText,
     },
 }));
 
@@ -66,27 +68,27 @@ const NavListItem = ({
     activeClassName,
     onClose,
 }: NavListItemProps) => {
+    const isActive = useMatch({ path: to, end: true }) !== null;
     return (
-        <ListItem
-            button
+        <ListItemButton
             component={NavLink}
-            exact={true}
+            end
             to={to}
-            activeClassName={activeClassName}
+            className={isActive ? activeClassName : ""}
             onClick={() => onClose(false)}
         >
             <ListItemIcon>{icon}</ListItemIcon>
             <ListItemText primary={text} />
-        </ListItem>
+        </ListItemButton>
     );
 };
 
 const LinkListItem = ({ text, icon, href }: LinkListItemProps) => {
     return (
-        <ListItem button component="a" href={href}>
+        <ListItemButton component="a" href={href}>
             <ListItemIcon>{icon}</ListItemIcon>
             <ListItemText primary={text} />
-        </ListItem>
+        </ListItemButton>
     );
 };
 
@@ -100,9 +102,9 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
     onCloseFunc,
 }: NavDrawerProps) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const match = useRouteMatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const match = { url: "/volunteer" };
     const userProfile = StateHooks.useUserProfile();
     const { is_staff } = userProfile;
     const handleLogout = () => {
@@ -128,7 +130,7 @@ const NavDrawer: React.FC<NavDrawerProps> = ({
                     }
                 >
                     <LinkListItem
-                        href={`${window.location.origin}/admin/`}
+                        href={`${ROOT_URL}admin/`}
                         icon={<AccountBalanceIcon />}
                         text="Admin Dashboard"
                     />

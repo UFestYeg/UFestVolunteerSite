@@ -10,10 +10,9 @@ import {
     IconButton,
     Switch,
     Typography,
-} from "@material-ui/core";
-// tslint:disable-next-line: no-submodule-imports
-import { makeStyles } from "@material-ui/core/styles";
-import { AddCircle as AddCircleIcon } from "@material-ui/icons";
+} from "@mui/material";
+import { makeStyles } from "tss-react/mui";
+import { AddCircle as AddCircleIcon } from "@mui/icons-material";
 import React from "react";
 import {
     Messages,
@@ -23,7 +22,7 @@ import {
 } from "react-big-calendar";
 import CategoryFilter from "./CategoryFilter";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
@@ -33,7 +32,20 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 100,
     },
     grid: {
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
+        rowGap: theme.spacing(1),
+        // MUI Buttons set their own font-size from theme.typography.button
+        // (1.3rem), which the library upgrade inflates relative to the old
+        // toolbar. Pin the toolbar controls to a compact size so the buttons
+        // and overall spacing match the pre-upgrade design.
+        "& .MuiButtonGroup-root .MuiButton-root": {
+            fontSize: "0.8rem",
+            padding: theme.spacing(0.4, 1.25),
+            lineHeight: 1.5,
+        },
+    },
+    addButton: {
+        padding: theme.spacing(0.5),
     },
     noPadding: {
         paddingBottom: 0,
@@ -65,13 +77,13 @@ type ConfigProps = {
 };
 
 const CustomToolbar: React.FC<
-    ToolbarProps &
+    ToolbarProps<any, object> &
         AddPositionProps &
         CategoryViewProps &
         FilterProps &
         ConfigProps
 > = (props) => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     function navigate(action: NavigateAction) {
         props.onNavigate(action);
@@ -102,7 +114,7 @@ const CustomToolbar: React.FC<
         <Grid
             container
             direction="row"
-            justify="space-between"
+            justifyContent="space-between"
             alignItems="center"
             className={classes.grid}
         >
@@ -117,7 +129,7 @@ const CustomToolbar: React.FC<
             </ButtonGroup>
 
             <Typography variant="subtitle1">{props.label}</Typography>
-            <Grid item direction="row" justify="flex-end" alignItems="center">
+            <Grid item container direction="row" justifyContent="flex-end" alignItems="center" width="auto">
                 {props.filter &&
                 props.selectAll !== undefined &&
                 props.setSelectAll &&
@@ -168,8 +180,9 @@ const CustomToolbar: React.FC<
                         aria-label="add-event"
                         color="primary"
                         onClick={props.openModal}
-                    >
-                        <AddCircleIcon fontSize="large" />
+                        className={classes.addButton}
+                        size="small">
+                        <AddCircleIcon fontSize="medium" />
                     </IconButton>
                 ) : null}
             </Grid>

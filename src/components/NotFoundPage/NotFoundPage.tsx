@@ -1,4 +1,4 @@
-import { Grid, Typography, useMediaQuery } from "@material-ui/core";
+import { Grid, Typography, useMediaQuery } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 import { StateHooks } from "../../store/hooks";
@@ -22,7 +22,7 @@ const NotFoundPage: React.FC = () => {
         width = 100;
     }
     return (
-        <Grid container direction="column" justify="center" alignItems="center">
+        <Grid container direction="column" justifyContent="center" alignItems="center">
             <Grid item xs={12} style={{ marginTop: "20px" }}>
                 <img
                     src={logo}

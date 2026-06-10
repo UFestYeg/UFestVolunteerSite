@@ -1,22 +1,19 @@
-import { List, ListItem, ListItemText, Typography } from "@material-ui/core";
-import {
-    createStyles,
-    makeStyles,
-    Theme,
-    useTheme,
-} from "@material-ui/core/styles";
+import { List, ListItem, ListItemText, Typography } from "@mui/material";
+import { Theme, useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { Link } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
+import { notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
 import { CustomForm } from "../Form";
+import { Loading } from "../Loading";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+    ({
         root: {
             width: "100%",
             // maxWidth: 360,
@@ -36,10 +33,11 @@ type VolunteerCategoryType = {
 
 const VolunteerCategoryList: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
     const token = StateHooks.useToken();
 
     useEffect(() => {
@@ -47,36 +45,46 @@ const VolunteerCategoryList: React.FC = () => {
             dispatch(
                 volunteerActions.getVolunteerCategoryTypes(cookies.csrftoken)
             );
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies.csrftoken,
-            };
+            setAuthHeaders(token, cookies.csrftoken);
 
-            axios.get(VolunteerUrls.CATEGORY_LIST).then((res) => {
-                setList(res.data);
-                console.log(res.data);
-            });
+            setLoading(true);
+            axios
+                .get(VolunteerUrls.CATEGORY_LIST)
+                .then((res) => {
+                    setList(res.data);
+                })
+                .catch((err) =>
+                    notifyApiError(err, "Unable to load categories.")
+                )
+                .finally(() => setLoading(false));
         }
     }, [token, cookies.csrftoken, dispatch]);
 
     return (
         <div className={classes.root}>
             <Typography variant="h2">List Page</Typography>
-            <List component="nav" aria-label="schedule event list">
-                {currentList.map((value, _idx, _arr) => {
-                    return (
-                        <ListItem
-                            button
-                            component={Link}
-                            to={`positions/${value.id}`}
-                            key={`list-${value.id}`}
-                        >
-                            <ListItemText primary={value.title} />
-                        </ListItem>
-                    );
-                })}
-            </List>
+            {loading ? (
+                <Loading />
+            ) : currentList.length === 0 ? (
+                <Typography variant="body1">
+                    No volunteer categories have been created yet.
+                </Typography>
+            ) : (
+                <List component="nav" aria-label="schedule event list">
+                    {currentList.map((value, _idx, _arr) => {
+                        return (
+                            <ListItem
+                                button
+                                component={Link}
+                                to={`positions/${value.id}`}
+                                key={`list-${value.id}`}
+                            >
+                                <ListItemText primary={value.title} />
+                            </ListItem>
+                        );
+                    })}
+                </List>
+            )}
             <br />
             <Typography variant="h2">Create Event</Typography>
             <CustomForm requestTypeProp="POST" buttonText="Create" />

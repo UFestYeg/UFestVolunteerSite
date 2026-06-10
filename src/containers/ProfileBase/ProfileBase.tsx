@@ -4,23 +4,24 @@ import {
     Paper,
     Typography,
     useMediaQuery,
-} from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { Tabs } from "../../components/Tabs";
 import { TabProps } from "../../components/Tabs/Tabs";
 import { user as userActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
 
 interface IProfileBase {
     useTabs: boolean;
     tabs?: TabProps[];
+    children?: React.ReactNode;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     large: {
         width: theme.spacing(10),
         height: theme.spacing(10),
@@ -34,7 +35,6 @@ const useStyles = makeStyles((theme) => ({
         // border: "1px solid black",
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
-        width: "99%",
     },
     button: {
         background: theme.palette.primary.main,
@@ -55,6 +55,12 @@ const useStyles = makeStyles((theme) => ({
     },
     paper: {
         background: theme.palette.secondary.main,
+        // Span the available width (capped so it reads as a centered bar) so the
+        // centered tabs always have room. The Tabs scroller uses
+        // `overflow: hidden`, which makes a shrink-to-fit wrapper collapse and
+        // clip the labels; giving the wrapper a real width avoids that.
+        width: "100%",
+        maxWidth: theme.spacing(75),
     },
     hidden: {
         display: "none",
@@ -80,8 +86,8 @@ const useStyles = makeStyles((theme) => ({
 
 const ProfilePage: React.FC<IProfileBase> = (props) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const { useTabs, tabs } = props;
     const mobile = !useMediaQuery("(min-width:400px)");
@@ -89,9 +95,9 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
         dispatch(userActions.getUserProfile(cookies.csrftoken));
     }, [dispatch]);
 
-    const userProfile = useTabs
-        ? StateHooks.useUserProfile()
-        : StateHooks.useViewedUserProfile();
+    const ownUserProfile = StateHooks.useUserProfile();
+    const viewedUserProfile = StateHooks.useViewedUserProfile();
+    const userProfile = useTabs ? ownUserProfile : viewedUserProfile;
 
     return (
         <Grid
@@ -99,7 +105,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
             container
             spacing={2}
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
         >
             {useTabs && tabs ? (
@@ -111,8 +117,9 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
             <Grid
                 className={classes.grid}
                 container
+                item
                 spacing={1}
-                justify="center"
+                justifyContent="center"
                 alignItems="flex-start"
                 direction="column"
                 xs={12}
@@ -122,7 +129,7 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
                     item
                     direction="row"
                     alignItems="center"
-                    justify="flex-start"
+                    justifyContent="flex-start"
                     className={classes.heading}
                 >
                     <Grid className={classes.grid} item>
@@ -138,7 +145,13 @@ const ProfilePage: React.FC<IProfileBase> = (props) => {
                         </Typography>
                     </Grid>
                 </Grid>
-                {props.children}
+                {/* Wrap children as a full-width Grid item so they receive the
+                    padding that compensates for the spacing grids' negative
+                    margins; otherwise plain children (e.g. the schedule
+                    calendar) get shifted left and sit off-centre. */}
+                <Grid item xs={12} sx={{ width: "100%" }}>
+                    {props.children}
+                </Grid>
             </Grid>
         </Grid>
     );

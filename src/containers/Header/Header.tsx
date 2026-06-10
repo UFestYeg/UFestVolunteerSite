@@ -10,29 +10,29 @@ import {
     Toolbar,
     Typography,
     useMediaQuery,
-} from "@material-ui/core";
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
-import { Menu as MenuIcon } from "@material-ui/icons";
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { Menu as MenuIcon } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { StateHooks } from "../../store/hooks";
+import { Link, useNavigate } from "react-router-dom";
 import Copyright from "../../components/Copyright";
 import { auth as authActions, user as userActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { userAvatarString } from "../../store/utils";
 import "./Header.css";
 
 interface HeaderProps {
     onMenuClick: (clicked: boolean) => void;
+    children?: React.ReactNode;
 }
 
-const useStyles = (theme: any, isStaff: boolean) =>
-    makeStyles((theme) => {
-        const themeColor = isStaff
-            ? theme.palette.primary.main
-            : theme.palette.secondary.main;
-        return createStyles({
+const useStyles = makeStyles<{ isStaff: boolean }>()((theme, { isStaff }) => {
+    const themeColor = isStaff
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main;
+    return {
             root: {
                 background: themeColor,
                 border: 0,
@@ -41,9 +41,25 @@ const useStyles = (theme: any, isStaff: boolean) =>
                 flexGrow: 1,
                 "& a": { textDecoration: "none" },
             },
+            appBar: {
+                background: themeColor,
+                border: 0,
+                color: theme.palette.primary.dark,
+                padding: theme.spacing(1),
+                // Must not grow: this AppBar lives in a flex column (minHeight
+                // 100vh) used for the sticky footer. Without pinning flex here
+                // it would stretch to fill spare vertical space (very tall
+                // header when zoomed out).
+                flexGrow: 0,
+                flexShrink: 0,
+                "& a": { textDecoration: "none" },
+            },
             copyright: {
                 padding: theme.spacing(2),
-                marginTop: "calc(5% + 60px)",
+                // Small breathing room between page content and the footer so
+                // it doesn't sit flush against the calendar on pages that fill
+                // the viewport.
+                marginTop: theme.spacing(3),
             },
             logo: {
                 marginLeft: theme.spacing(3),
@@ -76,19 +92,19 @@ const useStyles = (theme: any, isStaff: boolean) =>
                     backgroundColor: theme.palette.secondary.main,
                 },
             },
-        });
-    })(theme);
+        };
+});
 
 const Header: React.FC<HeaderProps> = (props) => {
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [isStaff, setIsStaff] = useState<boolean>(false);
-    const history = useHistory();
+    const navigate = useNavigate();
     const isAuthenticated = StateHooks.useIsAuthenticated();
     const open = Boolean(anchorEl);
-    const xsmallWidth = useMediaQuery(theme.breakpoints.down("xs"));
-    const smallWidth = useMediaQuery(theme.breakpoints.down("sm"));
-    const dispatch = useDispatch();
+    const xsmallWidth = useMediaQuery(theme.breakpoints.down('sm'));
+    const smallWidth = useMediaQuery(theme.breakpoints.down('md'));
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     useEffect(() => {
@@ -101,7 +117,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         const { is_staff } = userProfile;
         setIsStaff(is_staff);
     }, [userProfile]);
-    const classes = useStyles(theme, isStaff);
+    const { classes } = useStyles({ isStaff });
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -112,7 +128,7 @@ const Header: React.FC<HeaderProps> = (props) => {
     };
 
     const handleLoginClick = () => {
-        history.push("/login");
+        navigate("/login");
     };
 
     const handleLogout = () => {
@@ -120,110 +136,114 @@ const Header: React.FC<HeaderProps> = (props) => {
         // logout({ returnTo: window.location.origin });
         dispatch(authActions.logout());
     };
-    return (
-        <>
-            <AppBar position="static" className={classes.root}>
-                <Toolbar>
-                    <IconButton
-                        edge="start"
-                        color="inherit"
-                        aria-label="menu"
-                        onClick={() => props.onMenuClick(true)}
+    return <Box
+        sx={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+        }}
+    >
+        <AppBar position="static" className={classes.appBar}>
+            <Toolbar>
+                <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="menu"
+                    onClick={() => props.onMenuClick(true)}
+                    size="large">
+                    <MenuIcon
+                        fontSize={xsmallWidth ? "medium" : "large"}
+                    />
+                </IconButton>
+                <Typography
+                    variant={
+                        smallWidth ? (xsmallWidth ? "h6" : "h4") : "h5"
+                    }
+                    className={classes.root}
+                    component="a"
+                    href={isAuthenticated ? "/volunteer" : "/"}
+                >
+                    UFest Volunteering {isStaff ? "(Admin)" : null}
+                </Typography>
+                {!isAuthenticated && (
+                    <Button
+                        id="login-button"
+                        size="medium"
+                        className={classes.button}
+                        onClick={handleLoginClick} // loginWithRedirect({})}
                     >
-                        <MenuIcon
-                            fontSize={xsmallWidth ? "default" : "large"}
-                        />
-                    </IconButton>
-                    <Typography
-                        variant={
-                            smallWidth ? (xsmallWidth ? "h6" : "h4") : "h5"
-                        }
-                        className={classes.root}
-                        component="a"
-                        href={isAuthenticated ? "/volunteer" : "/"}
-                    >
-                        UFest Volunteering {isStaff ? "(Admin)" : null}
-                    </Typography>
-                    {!isAuthenticated && (
+                        Login
+                    </Button>
+                )}
+                {isAuthenticated && (
+                    <div>
                         <Button
-                            id="login-button"
-                            size="medium"
-                            className={classes.button}
-                            onClick={handleLoginClick} // loginWithRedirect({})}
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleMenu}
+                            color="inherit"
+                            // variant="outlined"
                         >
-                            Login
+                            <Avatar className={classes.avatar}>
+                                {userAvatarString(userProfile)}
+                            </Avatar>
                         </Button>
-                    )}
-                    {isAuthenticated && (
-                        <div>
-                            <Button
-                                aria-label="account of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                onClick={handleMenu}
-                                color="inherit"
-                                // variant="outlined"
+                        <Menu
+                            id="menu-appbar"
+                            elevation={0}
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                horizontal: "center",
+                                vertical: "bottom",
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                horizontal: "left",
+                                vertical: "top",
+                            }}
+                            open={open}
+                            onClose={handleClose}
+                            className={classes.menuList}
+                        >
+                            <Link
+                                to={"/volunteer/profile/info"}
+                                style={{ textDecoration: "none" }}
                             >
-                                <Avatar className={classes.avatar}>
-                                    {userAvatarString(userProfile)}
-                                </Avatar>
-                            </Button>
-                            <Menu
-                                id="menu-appbar"
-                                elevation={0}
-                                getContentAnchorEl={null}
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    horizontal: "center",
-                                    vertical: "bottom",
-                                }}
-                                keepMounted
-                                transformOrigin={{
-                                    horizontal: "left",
-                                    vertical: "top",
-                                }}
-                                open={open}
-                                onClose={handleClose}
-                                className={classes.menuList}
-                            >
-                                <Link
-                                    to={"/volunteer/profile/info"}
-                                    style={{ textDecoration: "none" }}
-                                >
-                                    <MenuItem
-                                        className={classes.menuItem}
-                                        onClick={handleClose}
-                                    >
-                                        <Typography
-                                            variant="subtitle2"
-                                            className={classes.logout}
-                                        >
-                                            Profile
-                                        </Typography>
-                                    </MenuItem>
-                                </Link>
                                 <MenuItem
                                     className={classes.menuItem}
-                                    onClick={handleLogout}
+                                    onClick={handleClose}
                                 >
                                     <Typography
                                         variant="subtitle2"
                                         className={classes.logout}
                                     >
-                                        logout
+                                        Profile
                                     </Typography>
                                 </MenuItem>
-                            </Menu>
-                        </div>
-                    )}
-                </Toolbar>
-            </AppBar>
-            {props.children}
-            <Box mt={8} bgcolor="primary.main" className={classes.copyright}>
-                <Copyright />
-            </Box>
-        </>
-    );
+                            </Link>
+                            <MenuItem
+                                className={classes.menuItem}
+                                onClick={handleLogout}
+                            >
+                                <Typography
+                                    variant="subtitle2"
+                                    className={classes.logout}
+                                >
+                                    logout
+                                </Typography>
+                            </MenuItem>
+                        </Menu>
+                    </div>
+                )}
+            </Toolbar>
+        </AppBar>
+        {props.children}
+        <Box sx={{ flexGrow: 1 }} />
+        <Box bgcolor="primary.main" className={classes.copyright}>
+            <Copyright />
+        </Box>
+    </Box>;
 };
 
 export default Header;

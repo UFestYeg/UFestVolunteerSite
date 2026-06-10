@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_auth.serializers import UserDetailsSerializer
+from dj_rest_auth.serializers import UserDetailsSerializer
 from .models import UserProfile
 from volunteer_categories.api.serializers import RequestSerializer
 
@@ -57,6 +57,14 @@ class UserSerializer(UserDetailsSerializer):
             "is_staff",
         )
 
+    def validate_username(self, username):
+        # When updating, allauth's clean_username rejects the user's own
+        # existing username because it checks global uniqueness without
+        # excluding the current instance. Skip the check when unchanged.
+        if self.instance is not None and username == self.instance.username:
+            return username
+        return super().validate_username(username)
+
     def update(self, instance, validated_data):
         profile_data = validated_data.pop("userprofile", {})
         over_eighteen = profile_data.get("over_eighteen")
@@ -77,7 +85,7 @@ class UserSerializer(UserDetailsSerializer):
         if profile_data:
             if over_eighteen is not None:
                 profile.over_eighteen = over_eighteen
-            if age:
+            if age is not None:
                 profile.age = age
             if previous_volunteer is not None:
                 profile.previous_volunteer = previous_volunteer
@@ -91,7 +99,7 @@ class UserSerializer(UserDetailsSerializer):
                 profile.student_volunteer_hours = student_volunteer_hours
             if emergency_contact is not None:
                 profile.emergency_contact = emergency_contact
-            if t_shirt_size:
+            if t_shirt_size is not None:
                 profile.t_shirt_size = t_shirt_size
             if comments is not None:
                 profile.comments = comments

@@ -8,19 +8,19 @@ import {
     CircularProgress,
     Container,
     Typography,
-} from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { CheckCircleOutline as CheckCircleOutlineIcon } from "@material-ui/icons";
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { CheckCircleOutline as CheckCircleOutlineIcon } from "@mui/icons-material";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import { useParams } from "react-router-dom";
 import { auth } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { buildErrorMessage } from "../../store/utils";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     avatar: {
         backgroundColor: theme.palette.secondary.main,
         margin: theme.spacing(1),
@@ -53,8 +53,8 @@ const useStyles = makeStyles((theme) => ({
 
 const AccountActivation: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const { key } = useParams<{ key: string }>();
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
@@ -62,7 +62,7 @@ const AccountActivation: React.FC = () => {
     const errorMessage: any[] = buildErrorMessage(error);
 
     const handleFormSubmit = () => {
-        dispatch(auth.activateUserAccount(key, cookies.csrftoken));
+        dispatch(auth.activateUserAccount(key ?? "", cookies.csrftoken));
     };
     return (
         <Container component="main" maxWidth="xs">

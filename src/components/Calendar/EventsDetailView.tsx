@@ -8,9 +8,10 @@ import {
     DialogContent,
     DialogTitle,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import axios from "axios";
 import chroma from "chroma-js";
 import clsx from "clsx";
@@ -29,15 +30,16 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 // tslint:disable-next-line: no-submodule-imports
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { StateHooks } from "../../store/hooks";
+import { useLocation, useNavigate } from "react-router-dom";
 import { VolunteerUrls } from "../../constants";
 import { volunteer as volunteerActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
+import { notifyApiError, setAuthHeaders } from "../../store/actions/apiUtils";
 import { CustomForm } from "../Form";
 import { Loading } from "../Loading";
 import CalendarToolbar from "./CalendarToolbar";
 import EventDetail from "./EventDetail";
+import { hoverExpandStyle } from "./eventHover";
 import UFestDay from "./UFestDay";
 import UFestWeek from "./UFestWeek";
 
@@ -58,12 +60,37 @@ type DragAndDropData = {
     event: VolunteerCategoryType;
     start: string | Date;
     end: string | Date;
-    allDay: boolean;
+    allDay?: boolean;
 };
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        myEvent: { "&:hover": { zIndex: 1000, minWidth: "fit-content" } },
+const useStyles = makeStyles()((theme) =>
+    ({
+        calendarWrapper: {
+            // RBC hides the day header in single-day (day) view by default,
+            // which leaves an empty bar. Show it instead.
+            "& .rbc-time-header-cell-single-day": {
+                display: "flex",
+            },
+            "& .rbc-header": {
+                height: "auto",
+                minHeight: "fit-content",
+                lineHeight: "normal",
+                overflow: "visible",
+                padding: theme.spacing(0.75, 0.5),
+                whiteSpace: "normal",
+            },
+            "& .rbc-header .rbc-button-link, & .rbc-header span": {
+                fontSize: "1rem",
+                fontWeight: 500,
+            },
+        },
+        myEvent: {
+            "& .rbc-event-label": {
+                whiteSpace: "normal",
+                paddingRight: theme.spacing(2.5),
+            },
+            ...hoverExpandStyle,
+        },
     })
 );
 
@@ -79,10 +106,10 @@ interface IEventsDetailView {
 
 const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const history = useHistory();
-    const { url } = useRouteMatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const navigate = useNavigate();
+    const { pathname: url } = useLocation();
     const [currentList, setList] = useState<VolunteerCategoryType[]>([]);
     const [originalList, setOriginalList] = useState<VolunteerCategoryType[]>(
         []
@@ -150,48 +177,26 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
         start: string | Date,
         end: string | Date
     ) => {
-        axios.defaults.headers = {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": cookies.csrftoken,
-        };
-        if (token && process.env.REACT_APP_API_URI !== undefined) {
+        setAuthHeaders(token, cookies.csrftoken);
+        if (token && import.meta.env.VITE_API_URI !== undefined) {
             axios
                 .put(VolunteerUrls.CATEGORY_DETAILS(event.id), {
                     ...event,
                     end_time: end,
                     start_time: start,
                 })
-                .then((res) => {
-                    console.log(res);
-                    history.replace(url, browserState);
-                    history.go(0);
+                .then(() => {
+                    navigate(url, { state: browserState, replace: true });
+                    navigate(0);
                 })
                 .catch((err) => {
-                    if (err.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(err.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
-                    }
-                    console.log(err.config);
-                    console.error(err);
+                    notifyApiError(err, "Could not update the event.");
                 });
         }
     };
 
     const onEventResize = (data: DragAndDropData) => {
         const { start, end, event } = data;
-        console.log(start, end);
         const nextEvents = currentList.map((existingEvent) => {
             return existingEvent.id === event.id
                 ? { ...existingEvent, start_time: start, end_time: end }
@@ -248,7 +253,7 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
     };
 
     const localizer = momentLocalizer(moment);
-    const DnDCalendar = withDragAndDrop(Calendar);
+    const DnDCalendar = withDragAndDrop<VolunteerCategoryType, object>(Calendar);
     return (
         <>
             {loading || eventDatesLoading ? (
@@ -256,20 +261,26 @@ const EventDetailView: React.FC<IEventsDetailView> = (props) => {
             ) : (
                 <>
                     <Typography color="error">
-                        {error && error.reponse ? error.reponse.data : null}
+                        {typeof error === "string" ? error : null}
                     </Typography>
                     <DnDCalendar
+                        className={classes.calendarWrapper}
                         localizer={localizer}
                         events={currentList}
                         startAccessor="start_time"
                         endAccessor="end_time"
-                        style={{ height: 600 }}
+                        style={{ height: "calc(100vh - 200px)", minHeight: 600 }}
                         defaultView="day"
                         defaultDate={props.defaultDate ?? new Date()}
                         views={{ day: UFestDay, week: UFestWeek }}
                         components={{
                             event: WrappedEventDetail,
-                            toolbar: (tbarProps: ToolbarProps) => (
+                            toolbar: (
+                                tbarProps: ToolbarProps<
+                                    VolunteerCategoryType,
+                                    object
+                                >
+                            ) => (
                                 <CalendarToolbar
                                     {...tbarProps}
                                     openModal={() => setModalOpen(true)}

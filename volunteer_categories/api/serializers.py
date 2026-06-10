@@ -10,6 +10,9 @@ from django.db.utils import IntegrityError
 from django.contrib.auth.models import User
 from backend import settings
 from post_office import mail
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CategoryTypeSerializer(serializers.ModelSerializer):
@@ -92,6 +95,7 @@ class RequestSerializer(serializers.ModelSerializer):
                 email_from,
                 template="request_create_email",
                 context=email_context,
+                priority="medium",
             )
 
         try:
@@ -106,7 +110,11 @@ class RequestSerializer(serializers.ModelSerializer):
             validated_data["role"] = role
             request = Request.requests.create(**validated_data)
 
-            requests = request.user.requests.all().exclude(pk=request.id)
+            requests = (
+                request.user.requests.all()
+                .exclude(pk=request.id)
+                .select_related("role__category")
+            )
             for req in requests:
                 if req.status == Request.ACCEPTED and self.overlappingRequests(
                     request, req
@@ -120,9 +128,11 @@ class RequestSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"detail": "Duplicate requests not allowed."}
             )
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            raise e
+        except serializers.ValidationError:
+            raise
+        except Exception:
+            logger.exception("Unexpected error while creating request")
+            raise
 
     def update(self, instance, validated_data):
         def send_update_mail(instance):
@@ -156,6 +166,7 @@ class RequestSerializer(serializers.ModelSerializer):
                 email_from,
                 template="request_update_email",
                 context=email_context,
+                priority="medium",
             )
 
         try:
@@ -180,13 +191,21 @@ class RequestSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {"detail": "Cannot accept any more requests."}
                     )
-                requests = instance.user.requests.all().exclude(pk=instance.id)
+                requests = (
+                    instance.user.requests.all()
+                    .exclude(pk=instance.id)
+                    .select_related("role__category")
+                )
                 for req in requests:
                     if self.overlappingRequests(instance, req):
                         req.status = Request.UNAVAILABLE
                         req.save()
             elif old_status == Request.ACCEPTED and instance.status != Request.ACCEPTED:
-                requests = instance.user.requests.all().exclude(pk=instance.id)
+                requests = (
+                    instance.user.requests.all()
+                    .exclude(pk=instance.id)
+                    .select_related("role__category")
+                )
                 for req in requests:
                     if self.overlappingRequests(instance, req):
                         req.status = Request.PENDING
@@ -201,9 +220,11 @@ class RequestSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"detail": "Duplicate requests not allowed."}
             )
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            raise e
+        except serializers.ValidationError:
+            raise
+        except Exception:
+            logger.exception("Unexpected error while updating request")
+            raise
 
 
 class RoleSummarySerializer(serializers.ModelSerializer):

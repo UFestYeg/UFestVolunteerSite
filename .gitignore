@@ -168,3 +168,6 @@ yarn-error.log*
 
 # VS Code
 .vscode/
+
+# Local-only planning/triage doc (kept out of the PR)
+docs/IMPROVEMENT_REPORT.md

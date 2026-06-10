@@ -1,0 +1,33 @@
+[project]
+name = "ufest-volunteer-site"
+version = "1.0.0"
+description = "UFest Volunteer Site Django backend"
+requires-python = ">=3.13"
+dependencies = [
+    "Django>=5.2.14,<6.0",
+    "djangorestframework>=3.17.1",
+    "django-cors-headers>=4.9.0",
+    "dj-rest-auth>=7.2.0",
+    "django-allauth[socialaccount]>=65.18.0",
+    "gunicorn>=26.0.0",
+    "whitenoise>=6.12.0",
+    "python-dotenv>=1.2.2",
+    "django-post-office>=3.11.2",
+    "bleach>=6.3.0",
+    "django-crontab>=0.7.1",
+    "django-extensions>=4.1",
+    "graphviz>=0.21",
+    "requests>=2.34.2",
+    "requests-oauthlib>=2.0.0",
+    "oauthlib>=3.3.1",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "pylint",
+    "django-debug-toolbar>=6.3.0",
+]
+
+[tool.uv]
+package = false

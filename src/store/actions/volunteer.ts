@@ -1,9 +1,8 @@
 import axios from "axios";
-import { Notification } from "react-notification-system";
-import { error, success } from "react-notification-system-redux";
+import { enqueueSnackbar } from "notistack";
 import { EventCategoryType } from "../../components/Calendar/EventCategory";
 import { UserUrls, VolunteerUrls } from "../../constants";
-import history from "../../history";
+import { navigate } from "../../navigation";
 import {
     IEventDate,
     IVolunteerCategory,
@@ -11,6 +10,7 @@ import {
     VolunteerActionType as ActionType,
 } from "../types";
 import * as ActionTypes from "./actionTypes";
+import { logDev, notifyApiError, setAuthHeaders } from "./apiUtils";
 
 type DispatchType = (action: ActionType) => void;
 
@@ -156,41 +156,20 @@ export const getVolunteerCategoryTypes = (cookies: any) => {
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .get(VolunteerUrls.CATEGORY_TYPE_LIST)
                 .then((response) => {
-                    console.log(response.data);
                     dispatch(setCategoryTypes(response.data));
                 })
                 .catch((error) => {
-                    // If request is bad...
-                    // Show an error to the user
-                    // TODO: send notification and redirect
-                    if (error.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    } else if (error.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(error.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
-                    }
-                    console.log(error.config);
-                    console.error(error);
+                    notifyApiError(
+                        error,
+                        "Unable to load volunteer category types."
+                    );
                 });
         } else {
-            console.log("Unable to get category without token");
+            logDev("Unable to get category without token");
         }
     };
 };
@@ -200,42 +179,21 @@ export const getVolunteerCategories = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getVolunteerCategoriesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .get(VolunteerUrls.CATEGORY_LIST)
                 .then((response) => {
-                    console.log(response.data);
                     dispatch(getVolunteerCategoriesSuccess(response.data));
                 })
                 .catch((error) => {
-                    // If request is bad...
-                    // Show an error to the user
-                    if (error.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    } else if (error.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(error.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
-                    }
-                    console.log(error.config);
-                    console.error(error);
                     dispatch(getVolunteerCategoriesFail(error));
-                    // TODO: send notification and redirect
+                    notifyApiError(
+                        error,
+                        "Unable to load volunteer categories."
+                    );
                 });
         } else {
-            console.log("Unable to get categories without token");
+            logDev("Unable to get categories without token");
         }
     };
 };
@@ -247,41 +205,20 @@ export const getVolunteerCategoryOfType = (
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .get(VolunteerUrls.CATEGORIES_OF_TYPE_LIST(categoryTypeID))
                 .then((response) => {
-                    console.log(response.data);
                     dispatch(setVolunteerCategoriesOfType(response.data));
                 })
                 .catch((error) => {
-                    // If request is bad...
-                    // Show an error to the user
-                    if (error.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    } else if (error.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(error.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
-                    }
-                    console.log(error.config);
-                    console.error(error);
-                    // TODO: send notification and redirect
+                    notifyApiError(
+                        error,
+                        "Unable to load volunteer categories."
+                    );
                 });
         } else {
-            console.log("Unable to get category without token");
+            logDev("Unable to get category without token");
         }
     };
 };
@@ -291,43 +228,18 @@ export const getEventDates = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getEventDatesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .get(VolunteerUrls.EVENT_DATES_LIST)
                 .then((response) => {
-                    console.log(response.data);
                     dispatch(getEventDatesSuccess(response.data));
                 })
                 .catch((error) => {
-                    // If request is bad...
-                    // Show an error to the user
-                    // TODO: send notification and redirect
-                    if (error.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.error("Error");
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    } else if (error.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log("Error", error.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", error.message);
-                    }
-                    console.log(error.config);
-                    console.error(error);
-                    dispatch(getEventDatesSuccess(error));
+                    dispatch(getEventDatesFail(error));
+                    notifyApiError(error, "Unable to load event dates.");
                 });
         } else {
-            console.log("Unable to get eventdates without token");
+            logDev("Unable to get eventdates without token");
         }
     };
 };
@@ -377,11 +289,7 @@ export const getMappedVolunteerRoles = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getMappedVolunteerRolesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .get(VolunteerUrls.CATEGORY_LIST_WITH_REQUESTS)
                 .then((res) => {
@@ -409,9 +317,12 @@ export const getMappedVolunteerRoles = (cookies: any) => {
                     
                     dispatch(getMappedVolunteerRolesSuccess(mappedData));
                 })
-                .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
+                .catch((e) => {
+                    dispatch(getMappedVolunteerRolesFail(e));
+                    notifyApiError(e, "Unable to load volunteer roles.");
+                });
         } else {
-            console.log("Unable to get mapped roles without token");
+            logDev("Unable to get mapped roles without token");
         }
     };
 };
@@ -422,11 +333,7 @@ export const getMappedVolunteerRolesLegacy = (cookies: any) => {
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(getMappedVolunteerRolesStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             
             // Make all three requests in parallel instead of sequentially
             Promise.all([
@@ -473,9 +380,12 @@ export const getMappedVolunteerRolesLegacy = (cookies: any) => {
                     
                     dispatch(getMappedVolunteerRolesSuccess(mappedData));
                 })
-                .catch((e) => dispatch(getMappedVolunteerRolesFail(e)));
+                .catch((e) => {
+                    dispatch(getMappedVolunteerRolesFail(e));
+                    notifyApiError(e, "Unable to load volunteer roles.");
+                });
         } else {
-            console.log("Unable to get mapped roles without token");
+            logDev("Unable to get mapped roles without token");
         }
     };
 };
@@ -486,54 +396,35 @@ export const acceptRequest = (
     browserState: any,
     cookies: any
 ) => {
-    console.log("request", request);
     const token = localStorage.getItem("token");
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(acceptRequestStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), {
                     ...request,
                     status: "ACCEPTED",
                 })
-                .then((res) => {
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                .then(() => {
+                    enqueueSnackbar(
+                        `You accepted ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
+                        { variant: "success" }
+                    );
                     dispatch(acceptRequestSuccess());
-                    // redirect to the route '/profile'
-                    history.replace(redirectUrl, browserState);
-                    history.go(0);
-                    console.log(res);
+                    // Persist the current view/filters into the history entry
+                    // (without a reload) so the browser back button restores
+                    // them, then refetch the calendar data in place. Avoiding a
+                    // full reload keeps the success snackbar alive.
+                    navigate(redirectUrl, {
+                        state: browserState,
+                        replace: true,
+                    });
+                    getMappedVolunteerRoles(cookies)(dispatch);
                 })
                 .catch((err) => {
                     dispatch(acceptRequestFail(err));
-                    if (err.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(err.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
-                    }
-                    console.log(err.config);
-                    console.error(err);
+                    notifyApiError(err, "Could not accept the request.");
                 });
         }
     };
@@ -549,48 +440,31 @@ export const denyRequest = (
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(denyRequestStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), {
                     ...request,
                     status: "DENIED",
                 })
-                .then((res) => {
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                .then(() => {
+                    enqueueSnackbar(
+                        `You denied ${request.user_profile.first_name} ${request.user_profile.last_name}'s request on ${request.role.title}`,
+                        { variant: "success" }
+                    );
                     dispatch(denyRequestSuccess());
-                    history.replace(redirectUrl, browserState);
-                    history.go(0);
-                    console.log("res", res);
+                    // Persist the current view/filters into the history entry
+                    // (without a reload) so the browser back button restores
+                    // them, then refetch the calendar data in place. Avoiding a
+                    // full reload keeps the success snackbar alive.
+                    navigate(redirectUrl, {
+                        state: browserState,
+                        replace: true,
+                    });
+                    getMappedVolunteerRoles(cookies)(dispatch);
                 })
                 .catch((err) => {
                     dispatch(denyRequestFail(err));
-                    if (err.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(err.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
-                    }
-                    console.log(err.config);
-                    console.error(err);
+                    notifyApiError(err, "Could not deny the request.");
                 });
         }
     };
@@ -612,58 +486,27 @@ export const changeRequestRole = (
     return (dispatch: DispatchType) => {
         if (token) {
             dispatch(changeRequestRoleStart());
-            axios.defaults.headers = {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-                "X-CSRFToken": cookies,
-            };
+            setAuthHeaders(token, cookies);
             axios
                 .put(VolunteerUrls.REQUESTS_DETAILS(request.id), payload)
-                .then((res) => {
-                    const notificationOpts: Notification = {
-                        title: "Success!",
-                        message: `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role to ${role.title}`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(success(notificationOpts));
+                .then(() => {
+                    enqueueSnackbar(
+                        `You swapped ${request.user_profile.first_name} ${request.user_profile.last_name}'s role to ${role.title}`,
+                        { variant: "success" }
+                    );
                     dispatch(changeRequestRoleSuccess());
-                    console.log(res);
-                    history.replace(redirectUrl, browserState);
-                    history.go(0);
+                    navigate(redirectUrl, {
+                        state: browserState,
+                        replace: true,
+                    });
+                    navigate(0);
                 })
                 .catch((err) => {
-                    const notificationOpts: Notification = {
-                        title: "Oops, something went wrong!",
-                        message:
-                            `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role` +
-                            `${
-                                err?.response?.data
-                                    ? `:${err.response.data.detail}`
-                                    : ""
-                            }`,
-                        position: "tr",
-                        autoDismiss: 5,
-                    };
-                    dispatch(error(notificationOpts));
                     dispatch(changeRequestRoleFail(err));
-                    if (err.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(err.response.data);
-                        console.log(err.response.status);
-                        console.log(err.response.headers);
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(err.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log("Error", err.message);
-                    }
-                    console.log(err.config);
-                    console.error(err);
+                    notifyApiError(
+                        err,
+                        `Could not swap ${request.user_profile.first_name} ${request.user_profile.last_name}'s role.`
+                    );
                 });
         }
     };

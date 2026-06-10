@@ -16,30 +16,29 @@ import {
     Select,
     TextField,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
 import {
     CheckBox as CheckBoxIcon,
     CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
     LockOutlined as LockOutlinedIcon,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import clsx from "clsx";
 import { Form, Formik } from "formik";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { Notification } from "react-notification-system";
-import { success } from "react-notification-system-redux";
-import { useDispatch } from "react-redux";
+import { enqueueSnackbar } from "notistack";
+import { StateHooks } from "../../store/hooks";
 import { useLocation } from "react-router-dom";
 import * as Yup from "yup";
 import { user as userActions } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { IProfileEditFormValues } from "../../store/types";
 import { buildErrorMessage } from "../../store/utils";
 import { tShirtSizes } from "../../types";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     avatar: {
         backgroundColor: theme.palette.secondary.main,
         margin: theme.spacing(1),
@@ -82,9 +81,10 @@ interface ILocationState {
 
 const ProfileEditPage: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const { state } = useLocation<ILocationState>();
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const { state: locationState } = useLocation();
+    const state = locationState as ILocationState | null;
+    const dispatch = StateHooks.useAppDispatch();
     const [_userProfile, loading, error] = StateHooks.useUserInfo();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const handleFormSubmit = (values: IProfileEditFormValues) => {
@@ -164,11 +164,12 @@ const ProfileEditPage: React.FC = () => {
                                 .nullable()
                                 .when("over_eighteen", {
                                     is: false,
-                                    then: Yup.number()
-                                        .min(1)
-                                        .integer()
-                                        .nullable()
-                                        .required("Required."),
+                                    then: (schema) =>
+                                        schema
+                                            .min(1)
+                                            .integer()
+                                            .nullable()
+                                            .required("Required."),
                                 }),
                             previous_volunteer: Yup.boolean(),
                             dietary_restrictions: Yup.string(),
@@ -188,13 +189,10 @@ const ProfileEditPage: React.FC = () => {
                                     state.fromRequestPage &&
                                     state.title
                                 ) {
-                                    const notificationOpts: Notification = {
-                                        title: "Success!",
-                                        message: `Request submitted for ${state.title}`,
-                                        position: "tr",
-                                        autoDismiss: 5,
-                                    };
-                                    dispatch(success(notificationOpts));
+                                    enqueueSnackbar(
+                                        `Request submitted for ${state.title}`,
+                                        { variant: "success" }
+                                    );
                                 }
                                 setSubmitting(false);
                             }, 400);
@@ -328,7 +326,7 @@ const ProfileEditPage: React.FC = () => {
                                         container
                                         xs={12}
                                         sm={values.over_eighteen ? 12 : 6}
-                                        justify="center"
+                                        justifyContent="center"
                                         alignItems="center"
                                     >
                                         <FormControlLabel

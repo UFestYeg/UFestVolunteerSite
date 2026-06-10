@@ -9,24 +9,24 @@ import {
     Container,
     TextField,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 // tslint:disable-next-line: no-submodule-imports
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { LockOpen as LockOpenIcon } from "@material-ui/icons";
+import { useTheme } from "@mui/material/styles";
+import { makeStyles } from "tss-react/mui";
+import { LockOpen as LockOpenIcon } from "@mui/icons-material";
 import { Form, Formik } from "formik";
 import React from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { StateHooks } from "../../store/hooks";
 import * as Yup from "yup";
 import { auth } from "../../store/actions";
-import { StateHooks } from "../../store/hooks";
 import { buildErrorMessage } from "../../store/utils";
 
 interface IResetPasswordFormValues {
     email: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     avatar: {
         backgroundColor: theme.palette.secondary.main,
         margin: theme.spacing(1),
@@ -59,8 +59,8 @@ const useStyles = makeStyles((theme) => ({
 
 const PasswordReset: React.FC = () => {
     const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
     const [loading, isAuthenticated, error] = StateHooks.useAuthInfo();
 

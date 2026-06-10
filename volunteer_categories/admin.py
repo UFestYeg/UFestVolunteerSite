@@ -8,9 +8,13 @@ import datetime
 from django.http import HttpResponse
 import csv
 from backend.settings import TIME_ZONE
-from pytz import timezone
+from zoneinfo import ZoneInfo as timezone
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
+from .filters import DateRangeFilter
+import logging
+
+logger = logging.getLogger(__name__)
 
 _today = datetime.datetime.now()
 datetime_one = datetime.datetime(_today.year, 5, 25, 8)
@@ -46,7 +50,8 @@ def date_choices():
             if EventDate.dates.exists()
             else DEFAULT_DATES
         )
-    except:
+    except Exception:
+        logger.exception("Failed to build date choices")
         return DEFAULT_DATES
 
 
@@ -58,7 +63,7 @@ def datetime_range(start, end, delta):
 
 
 class DailyCheckinForm(forms.Form):
-    selected_date = forms.ChoiceField(choices=date_choices())
+    selected_date = forms.ChoiceField(choices=date_choices)
 
 
 # Register your models here.
@@ -77,8 +82,9 @@ class RoleAdmin(admin.ModelAdmin):
         "category",
         "category_start_time",
     ]
+    date_hierarchy = "category__start_time"
     list_filter = [
-        ("category__start_time", admin.DateFieldListFilter),
+        ("category__start_time", DateRangeFilter),
     ]
 
     def category_start_time(self, obj):
@@ -92,9 +98,20 @@ class RoleAdmin(admin.ModelAdmin):
 class RequestAdmin(admin.ModelAdmin):
     list_display = ["status", "user", "role", "role_start_time"]
 
+    search_fields = [
+        "user__username",
+        "user__first_name",
+        "user__last_name",
+        "user__email",
+        "role__title",
+        "role__category__title",
+    ]
+
+    date_hierarchy = "role__category__start_time"
+
     list_filter = [
         "status",
-        ("role__category__start_time", admin.DateFieldListFilter),
+        ("role__category__start_time", DateRangeFilter),
     ]
 
     change_list_template = "admin/request_changelist.html"
@@ -217,7 +234,9 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
         "number_of_positions",
     )
 
-    list_filter = ["start_time", "category_type"]
+    date_hierarchy = "start_time"
+
+    list_filter = [("start_time", DateRangeFilter), "category_type"]
 
     search_fields = ["title"]
 
@@ -326,9 +345,9 @@ class VolunteerCategoryAdmin(admin.ModelAdmin):
                             if dt in day_heading:
                                 row[day_heading.index(dt)] = volunteers[i]
                             else:
-                                print(f"Event not within event range {dt}")
-                        except:
-                            print(f"invalid date {day_heading.index(dt)}")
+                                logger.debug("Event not within event range %s", dt)
+                        except (ValueError, IndexError):
+                            logger.debug("invalid date %s", dt)
                     csv_writer.writerow(row)
 
         response = HttpResponse(content_type="text/csv")

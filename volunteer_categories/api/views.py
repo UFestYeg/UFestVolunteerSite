@@ -12,13 +12,21 @@ from .permissions import IsAdminOrAuthenticatedReadOnly
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from backend import settings
 from post_office import mail
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+from django.db import DatabaseError
 from django.db.models import Prefetch, Count, Q
+from django.http import HttpResponse
+from django.utils import timezone as dj_timezone
+from datetime import timezone as dt_timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 class VolunteerCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -65,8 +73,8 @@ class VolunteerCategoryViewSet(viewsets.ModelViewSet):
                     "%Y-%m-%d"
                 )
                 queryset = queryset.filter(start_time__range=[start_date, end_date])
-        except Exception as e:
-            print(f"Issue {e}")
+        except (DatabaseError, ValueError):
+            logger.exception("Failed to filter categories by event date")
         return queryset
 
     @action(detail=False, methods=['get'], url_path='with-requests')
@@ -118,8 +126,6 @@ class RequestViewSet(viewsets.ModelViewSet):
         from django.db.models import Q
         from django.contrib.auth.models import User
 
-        print("perform destroy")
-
         deleting_user = User.objects.get(pk=instance.user.pk)
         category_type = CategoryType.types.get(
             pk=instance.role.category.category_type.id
@@ -147,10 +153,15 @@ class RequestViewSet(viewsets.ModelViewSet):
             template="request_delete_email",
             context=email_context,
             bcc=recipient_list,
+            priority="medium",
         )
 
         if instance.status == Request.ACCEPTED:
-            requests = instance.user.requests.all().exclude(pk=instance.id)
+            requests = (
+                instance.user.requests.all()
+                .exclude(pk=instance.id)
+                .select_related("role__category")
+            )
             for req in requests:
                 if self.overlappingRequests(instance, req):
                     req.status = Request.PENDING
@@ -159,16 +170,22 @@ class RequestViewSet(viewsets.ModelViewSet):
         instance.delete()
         self._log_on_destroy(instance)
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     serializer_class = RequestSerializer
     
     def get_queryset(self):
         """
-        Optionally restricts the returned requests to a given user,
-        by filtering against a `date` query parameter in the URL.
+        Restrict the returned requests to the current user's own requests
+        unless they are staff. Without this scoping any authenticated user
+        could read or modify every volunteer's request (IDOR). Staff retain
+        full visibility for the admin accept/deny workflow.
         """
-        queryset = Request.requests.all()
+        if self.request.user.is_staff:
+            queryset = Request.requests.all()
+        else:
+            queryset = Request.requests.filter(user=self.request.user)
+        queryset = queryset.select_related("role__category", "user")
         use_event_dates = self.request.query_params.get("use_event_dates")
         try:
             if (
@@ -183,17 +200,15 @@ class RequestViewSet(viewsets.ModelViewSet):
                     "%Y-%m-%d"
                 )
                 queryset = queryset.filter(role__category__start_time__range=[start_date, end_date])
-        except Exception as e:
-            print(f"Issue {e}")
+        except (DatabaseError, ValueError):
+            logger.exception("Failed to filter requests by event date")
         return queryset
     
     def perform_create(self, serializer):
-        print("perform create")
         super().perform_create(serializer)
         self._log_on_create(serializer)
 
     def perform_update(self, serializer):
-        print("perform update")
         old_data = self.serializer_class(self.get_object()).data
         super().perform_update(serializer)
         self._log_on_update(serializer, old_data)
@@ -293,7 +308,7 @@ class CategoriesWithRolesViewSet(viewsets.ViewSet):
     @action(
         methods=["get"],
         detail=False,
-        url_path="(?P<rid>\d+)",
+        url_path=r"(?P<rid>\d+)",
         url_name="categoriesWithRoles",
     )
     def get_with_roleid(self, request, pk=None, rid=None):
@@ -333,3 +348,74 @@ class EventDateViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = EventDate.dates.all()
     serializer_class = EventDateSerializer
+
+
+def _ics_escape(text):
+    """Escape a text value for inclusion in an iCalendar field (RFC 5545)."""
+    if text is None:
+        return ""
+    return (
+        str(text)
+        .replace("\\", "\\\\")
+        .replace(";", "\\;")
+        .replace(",", "\\,")
+        .replace("\r\n", "\\n")
+        .replace("\n", "\\n")
+    )
+
+
+def _ics_datetime(value):
+    """Format a datetime as a UTC iCalendar timestamp (e.g. 20250528T160000Z)."""
+    return value.astimezone(dt_timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+class MyScheduleICSView(APIView):
+    """
+    Return the authenticated volunteer's accepted shifts as an iCalendar (.ics)
+    file so they can import or sync their schedule into Google/Outlook/Apple
+    Calendar.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        accepted_requests = (
+            Request.requests.filter(user=request.user, status=Request.ACCEPTED)
+            .select_related("role", "role__category")
+            .order_by("role__category__start_time")
+        )
+
+        now = _ics_datetime(dj_timezone.now())
+        lines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//UFest//Volunteer Schedule//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "X-WR-CALNAME:UFest Volunteer Schedule",
+        ]
+
+        for req in accepted_requests:
+            category = req.role.category
+            if not category or not category.start_time or not category.end_time:
+                continue
+            summary = f"{category.title} - {req.role.title}"
+            lines += [
+                "BEGIN:VEVENT",
+                f"UID:request-{req.id}@volunteer.ufest.ca",
+                f"DTSTAMP:{now}",
+                f"DTSTART:{_ics_datetime(category.start_time)}",
+                f"DTEND:{_ics_datetime(category.end_time)}",
+                f"SUMMARY:{_ics_escape(summary)}",
+                f"DESCRIPTION:{_ics_escape(req.role.description)}",
+                "END:VEVENT",
+            ]
+
+        lines.append("END:VCALENDAR")
+        content = "\r\n".join(lines) + "\r\n"
+
+        response = HttpResponse(content, content_type="text/calendar; charset=utf-8")
+        response["Content-Disposition"] = (
+            'attachment; filename="ufest-volunteer-schedule.ics"'
+        )
+        return response

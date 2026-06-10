@@ -1,0 +1,29 @@
+{% load i18n %}
+<details data-filter-title="{{ title }}" open>
+  <summary>
+    {% blocktranslate with filter_title=title %} By {{ filter_title }} {% endblocktranslate %}
+  </summary>
+  <form method="get" class="date-range-filter">
+    {% for key, value in spec.hidden_params %}
+      <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+    <p class="date-range-filter-row">
+      <label for="id_{{ spec.lookup_kwarg_since }}">{% translate "From" %}:</label>
+      <input type="date" id="id_{{ spec.lookup_kwarg_since }}"
+             name="{{ spec.lookup_kwarg_since }}" value="{{ spec.form_since }}">
+    </p>
+    <p class="date-range-filter-row">
+      <label for="id_{{ spec.lookup_kwarg_until }}">{% translate "To" %}:</label>
+      <input type="date" id="id_{{ spec.lookup_kwarg_until }}"
+             name="{{ spec.lookup_kwarg_until }}" value="{{ spec.form_until }}">
+    </p>
+    <p class="date-range-filter-controls">
+      <input type="submit" class="button" value="{% translate 'Apply' %}">
+      {% for choice in choices %}
+        {% if not choice.selected %}
+          <a href="{{ choice.query_string|iriencode }}">{% translate "Clear" %}</a>
+        {% endif %}
+      {% endfor %}
+    </p>
+  </form>
+</details>

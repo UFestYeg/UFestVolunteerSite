@@ -30,9 +30,6 @@ class UserAdmin(BaseUserAdmin):
         return [getattr(obj, field) for field in field_names]
 
     def export_emails_as_csv(self, request, queryset):
-        meta = self.model._meta
-
-        print(meta.fields)
         field_names = ["first_name", "last_name", "email"]
 
         response = HttpResponse(content_type="text/csv")
@@ -57,13 +54,14 @@ class UserAdmin(BaseUserAdmin):
     export_emails_as_csv.short_description = "Export Selected Emails"
 
     def export_user_profiles_as_csv(self, request, queryset):
-        meta = self.model._meta
+        # queryset is users so get the profiles instead. Build a single
+        # {user_id: profile} map up front so the export does not issue one
+        # extra query per user (N+1) inside the row loop below.
+        profiles_by_user = {
+            profile.user_id: profile
+            for profile in UserProfile.profiles.filter(user__in=queryset)
+        }
 
-        # queryset is users so get the profiles instead
-        profile_queryset = UserProfile.profiles.filter(user__in=queryset)
-
-        print(meta.fields)
-        print(queryset)
         user_field_names = [
             "first_name",
             "last_name",
@@ -90,7 +88,9 @@ class UserAdmin(BaseUserAdmin):
 
         writer.writerow([*user_field_names, *profile_field_names])
         for user_obj in queryset.order_by("last_name"):
-            user_profile_obj = profile_queryset.get(pk=user_obj.id)
+            user_profile_obj = profiles_by_user.get(user_obj.id)
+            if user_profile_obj is None:
+                continue
             writer.writerow(
                 [
                     *self.get_export_row(user_obj, user_field_names),

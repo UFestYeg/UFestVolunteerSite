@@ -9,9 +9,8 @@ import {
     MenuItem,
     Select,
     Typography,
-} from "@material-ui/core";
-// tslint:disable-next-line: no-submodule-imports
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { makeStyles, withStyles } from "tss-react/mui";
 import React from "react";
 
 const ITEM_HEIGHT = 48;
@@ -25,7 +24,7 @@ const MenuProps = {
     },
 };
 
-const CustomInput = withStyles((theme) => ({
+const CustomInput = withStyles(InputBase, (theme) => ({
     root: {
         "label + &": {
             marginTop: theme.spacing(3),
@@ -39,7 +38,7 @@ const CustomInput = withStyles((theme) => ({
         paddingBottom: 0,
         paddingLeft: theme.spacing(1),
         paddingTop: 0,
-        position: "relative",
+        position: "relative" as const,
         transition: theme.transitions.create(["border-color", "box-shadow"]),
         "&:focus": {
             borderColor: theme.palette.primary.main,
@@ -47,9 +46,9 @@ const CustomInput = withStyles((theme) => ({
             boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)",
         },
     },
-}))(InputBase);
+}));
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
     active: {
         backgroundColor: theme.palette.primary.dark,
     },
@@ -82,20 +81,25 @@ const CategoryFilter: React.FC<FilterProps> = ({
     selectAll,
     setSelectAll,
 }: FilterProps) => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const handleChange = (event: any) => {
-        if (setSelectedCategories !== undefined) {
-            setSelectedCategories(event.target.value);
+        if (setSelectedCategories === undefined) {
+            return;
         }
-    };
-
-    const handleSelectAllChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const checked = event.target.checked;
-        setSelectAll(checked);
-        setSelectedCategories(checked ? options : []);
+        const value: string[] = event.target.value;
+        // The "Select All" row carries a sentinel value rather than a real
+        // category. Clicking anywhere on that row (text or checkbox) routes
+        // through the Select's onChange and adds the sentinel to `value`, so
+        // treat it as a master toggle instead of leaking "Select All" into the
+        // selected categories.
+        if (value.includes("Select All")) {
+            const nextSelectAll = !selectAll;
+            setSelectAll(nextSelectAll);
+            setSelectedCategories(nextSelectAll ? options : []);
+            return;
+        }
+        setSelectedCategories(value);
     };
     return (
         <FormControl
@@ -123,10 +127,7 @@ const CategoryFilter: React.FC<FilterProps> = ({
                     <em>Categories</em>
                 </MenuItem>
                 <MenuItem key={"Select All"} value="Select All">
-                    <Checkbox
-                        onChange={handleSelectAllChange}
-                        checked={selectAll}
-                    />
+                    <Checkbox checked={selectAll} />
                     <ListItemText primary={"Select All"} />
                 </MenuItem>
                 {options.map((option) => (

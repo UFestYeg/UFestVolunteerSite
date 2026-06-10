@@ -1,9 +1,9 @@
-import { Grid, Typography, useMediaQuery } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Grid, Typography, useMediaQuery } from "@mui/material";
+import { makeStyles } from "tss-react/mui";
 import React from "react";
 import logo from "./Loading.gif";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
     loading: {
         height: "100%",
         width: "100%",
@@ -11,7 +11,7 @@ const useStyles = makeStyles({
 });
 
 const Loading = () => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const small = useMediaQuery("(min-width: 400px) and (max-width: 700px)");
     const medium = useMediaQuery("(min-width: 700px) and (max-width: 900px)");
@@ -33,7 +33,7 @@ const Loading = () => {
             container
             direction="column"
             alignItems="center"
-            justify="center"
+            justifyContent="center"
             className={classes.loading}
         >
             <Grid item>

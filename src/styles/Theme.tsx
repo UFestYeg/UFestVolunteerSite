@@ -1,6 +1,6 @@
-import { createMuiTheme, responsiveFontSizes } from "@material-ui/core/styles";
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
-let theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         primary: {
             light: "#b2e4f1",
@@ -16,7 +16,7 @@ let theme = createMuiTheme({
         },
         text: {
             primary: "#000",
-            secondary: "#fff",
+            secondary: "rgba(0, 0, 0, 0.6)",
         },
         background: {
             paper: "#fff",
@@ -76,7 +76,7 @@ let theme = createMuiTheme({
         },
         h4: {
             fontFamily: [
-                "Works Sans",
+                "Work Sans",
                 '"Helvetica Neue"',
                 "Arial",
                 "sans-serif",

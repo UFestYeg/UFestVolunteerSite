@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { user as userActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { user as userActions } from "../../store/actions";
 import { MySchedule } from "../Calendar";
 import { Loading } from "../Loading";
 
 const ProfileCalendar: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = StateHooks.useAppDispatch();
     const [cookies, _setCookie] = useCookies(["csrftoken"]);
 
     useEffect(() => {

@@ -1,60 +1,95 @@
-import React from "react";
-import { Switch, useRouteMatch } from "react-router-dom";
-import { EventsCalendar } from "../components/Calendar";
+import React, { Suspense } from "react";
+import { Route, Routes } from "react-router-dom";
 import { CategorySelectPage } from "../components/CategorySelectPage";
 import { HomePage } from "../components/HomePage";
+import { Loading } from "../components/Loading";
 import { NotFoundPage } from "../components/NotFoundPage";
-import { PositionRequestPage } from "../components/PositionRequestPage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { RoleSelectPage } from "../components/RoleSelectPage";
-import { VolunteerCategoryDetails } from "../components/VolunteerCategoryDetails";
 import ProfileRoutes from "./ProfileRoutes";
 import UserRoutes from "./UserRoutes";
 
-const PrivateRoutes: React.FC = () => {
-    const { path } = useRouteMatch();
+// Code-split the calendar-heavy routes. EventsCalendar, PositionRequestPage and
+// VolunteerCategoryDetails pull in react-big-calendar + moment (~130KB gzip), so
+// loading them lazily keeps that weight out of the initial bundle for users who
+// only ever hit the landing/home/category pages.
+const EventsCalendar = React.lazy(() =>
+    import("../components/Calendar").then((m) => ({
+        default: m.EventsCalendar,
+    }))
+);
+const PositionRequestPage = React.lazy(() =>
+    import("../components/PositionRequestPage").then((m) => ({
+        default: m.PositionRequestPage,
+    }))
+);
+const VolunteerCategoryDetails = React.lazy(() =>
+    import("../components/VolunteerCategoryDetails").then((m) => ({
+        default: m.VolunteerCategoryDetails,
+    }))
+);
 
+// ProtectedRoute only forwards `canEdit`, so wrap PositionRequestPage to set
+// the full-calendar mode for the "browse everything" route.
+const FullCalendarPage: React.FC = () => <PositionRequestPage allCategories />;
+
+const PrivateRoutes: React.FC = () => {
     return (
-        <React.Fragment>
-            <Switch>
-                <ProtectedRoute exact path={`${path}`} component={HomePage} />
-                <ProtectedRoute
-                    exact
-                    staffOnly
-                    path={`${path}/calendar`}
-                    component={EventsCalendar}
+        <Suspense fallback={<Loading />}>
+            <Routes>
+                <Route
+                    index
+                    element={<ProtectedRoute component={HomePage} />}
                 />
-                <ProtectedRoute
-                    staffOnly
-                    path={`${path}/positions/:positionID(\\d+)`}
-                    component={VolunteerCategoryDetails}
+                <Route
+                    path="calendar"
+                    element={
+                        <ProtectedRoute staffOnly component={EventsCalendar} />
+                    }
                 />
-                <ProtectedRoute
-                    exact
-                    path={`${path}/categories`}
-                    component={CategorySelectPage}
+                <Route
+                    path="positions/:positionID"
+                    element={
+                        <ProtectedRoute
+                            staffOnly
+                            component={VolunteerCategoryDetails}
+                        />
+                    }
                 />
-                <ProtectedRoute
-                    exact
-                    path={`${path}/categories/:categoryTypeID(\\d+)`}
-                    component={RoleSelectPage}
+                <Route
+                    path="categories"
+                    element={<ProtectedRoute component={CategorySelectPage} />}
                 />
-                <ProtectedRoute
-                    path={`${path}/categories/:categoryTypeID(\\d+)/roles/:roleID(\\d+)`}
-                    component={PositionRequestPage}
+                <Route
+                    path="categories/all"
+                    element={<ProtectedRoute component={FullCalendarPage} />}
                 />
-                <ProtectedRoute
-                    path={`${path}/profile`}
-                    component={ProfileRoutes}
+                <Route
+                    path="categories/:categoryTypeID"
+                    element={<ProtectedRoute component={RoleSelectPage} />}
                 />
-                <ProtectedRoute
-                    staffOnly
-                    path={`${path}/users`}
-                    component={UserRoutes}
+                <Route
+                    path="categories/:categoryTypeID/roles/:roleID"
+                    element={
+                        <ProtectedRoute component={PositionRequestPage} />
+                    }
                 />
-                <ProtectedRoute path="*" component={NotFoundPage} />
-            </Switch>
-        </React.Fragment>
+                <Route
+                    path="profile/*"
+                    element={<ProtectedRoute component={ProfileRoutes} />}
+                />
+                <Route
+                    path="users/*"
+                    element={
+                        <ProtectedRoute staffOnly component={UserRoutes} />
+                    }
+                />
+                <Route
+                    path="*"
+                    element={<ProtectedRoute component={NotFoundPage} />}
+                />
+            </Routes>
+        </Suspense>
     );
 };
 

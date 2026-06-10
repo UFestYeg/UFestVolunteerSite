@@ -1,84 +1,108 @@
 // tslint:disable: use-simple-attributes
 import {
-    Divider,
-    FormControl,
+    Box,
+    Card,
+    CardActionArea,
+    Chip,
     Grid,
-    InputLabel,
-    List,
-    ListItem,
-    ListItemText,
-    MenuItem,
-    Select,
+    LinearProgress,
+    ToggleButton,
+    ToggleButtonGroup,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import ViewListIcon from "@mui/icons-material/ViewList";
 // tslint:disable-next-line: no-submodule-imports
-import { createStyles, makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
-import { Link, useParams, useRouteMatch } from "react-router-dom";
-import { volunteer as volunteerActions } from "../../store/actions";
 import { StateHooks } from "../../store/hooks";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { volunteer as volunteerActions } from "../../store/actions";
 import { PositionRequestPage } from "../PositionRequestPage";
 
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        button: {
-            background: theme.palette.secondary.main,
-            border: 0,
-            borderRadius: 8,
-            color: "white",
-            paddingTop: 0,
-            paddingBottom: 0,
-            paddingLeft: theme.spacing(2),
-            paddingRight: theme.spacing(2),
-            "&:hover": {
-                background: theme.palette.secondary.dark,
-            },
-        },
-        list: {
-            transition: "0.3s",
-            boxShadow: "0px 14px 80px rgba(34, 35, 58, 0.2)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            margin: 8,
-            color: theme.palette.primary.dark,
-            justifyContent: "center",
-            width: "80vw",
-        },
-        listContent: {
-            padding: theme.spacing(2),
-            display: "flex",
-            alignItems: "baseline",
-            textAlign: "start",
-            justifyContent: "space-between",
-            width: "80vw",
-            [theme.breakpoints.down("md")]: {
-                flexDirection: "column",
-            },
-            [theme.breakpoints.up("md")]: {
-                flexDirection: "row",
-            },
-        },
+const useStyles = makeStyles()((theme) =>
+    ({
         grid: {
             overflow: "hidden",
             marginTop: theme.spacing(3),
+            marginBottom: theme.spacing(5),
+            paddingLeft: theme.spacing(3),
+            paddingRight: theme.spacing(3),
         },
-        gridList: {
-            width: "100%",
+        heading: {
+            textAlign: "center",
+        },
+        viewControl: {
+            display: "flex",
+            justifyContent: "center",
+            marginTop: theme.spacing(2),
+        },
+        cardsContainer: {
+            width: "min(100%, 1100px)",
+            margin: "0 auto",
+        },
+        card: {
             height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: theme.spacing(2),
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow:
+                "0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10)",
+            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow:
+                    "0 12px 28px rgba(16, 24, 40, 0.12), 0 4px 8px rgba(16, 24, 40, 0.08)",
+            },
         },
-        link: { textDecoration: "none" },
-        media: {
-            flexShrink: 0,
-            width: "20%",
-            height: "20%",
-            marginLeft: "auto",
-            marginRight: 8,
-            padding: "2%",
+        cardActionArea: {
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            justifyContent: "flex-start",
+            padding: theme.spacing(2.5),
         },
+        cardTitle: {
+            fontWeight: 700,
+            color: theme.palette.primary.dark,
+            marginBottom: theme.spacing(1),
+        },
+        cardDescription: {
+            color: theme.palette.text.secondary,
+            flexGrow: 1,
+            marginBottom: theme.spacing(2),
+            display: "-webkit-box",
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+        },
+        cardFooter: {
+            marginTop: "auto",
+        },
+        progress: {
+            height: 6,
+            borderRadius: 999,
+            marginTop: theme.spacing(1),
+            backgroundColor: theme.palette.action.hover,
+        },
+        availChip: {
+            fontWeight: 600,
+            fontSize: "0.72rem",
+            letterSpacing: "0.02em",
+            borderRadius: 999,
+        },
+        availOpen: {
+            backgroundColor: "#e6f4ea",
+            color: "#1e7e34",
+        },
+        availFull: {
+            backgroundColor: theme.palette.action.hover,
+            color: theme.palette.text.secondary,
+        },
+        link: { textDecoration: "none", display: "block", height: "100%" },
         calendarContainer: {
             width: "-webkit-fill-available",
         },
@@ -86,10 +110,9 @@ const useStyles = makeStyles((theme) =>
 );
 
 const RoleSelectPage: React.FC = () => {
-    const theme = useTheme();
-    const classes = useStyles(theme);
-    const dispatch = useDispatch();
-    const { url } = useRouteMatch();
+    const { classes } = useStyles();
+    const dispatch = StateHooks.useAppDispatch();
+    const { pathname: url } = useLocation();
     const { categoryTypeID: categoryTypeIDStr } = useParams<{
         categoryTypeID?: string;
     }>();
@@ -130,83 +153,89 @@ const RoleSelectPage: React.FC = () => {
         }
     }, [cookies.csrftoken, dispatch, categoryTypeID]);
 
-    const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        setView(event.target.value as string);
+    const handleChange = (
+        _event: React.MouseEvent<HTMLElement>,
+        newView: string | null
+    ) => {
+        // Ignore deselecting the active button so a view is always selected.
+        if (newView !== null) {
+            setView(newView);
+        }
     };
 
-    const ListItems = () => {
+    const RoleCards = () => {
         const flatRoles = Object.values(combinedRoles);
         return flatRoles !== undefined && flatRoles.length > 0
             ? flatRoles.map((role: any, idx: number, _arr: any[]) => {
-                  if (role) {
-                      return (
+                  if (!role) {
+                      return null;
+                  }
+                  const open = role.number_of_open_positions;
+                  const total = role.number_of_positions;
+                  const filled = Math.max(total - open, 0);
+                  const fillPercent =
+                      total > 0 ? (filled / total) * 100 : 100;
+                  return (
+                      <Grid item xs={12} sm={6} md={4} key={idx}>
                           <Link
                               to={`${url}/roles/${role.id}`}
-                              key={idx}
                               className={classes.link}
                           >
-                              <ListItem button className={classes.listContent}>
-                                  <Grid
-                                      container
-                                      spacing={2}
-                                      justify="space-between"
-                                      alignItems="baseline"
+                              <Card className={classes.card} elevation={0}>
+                                  <CardActionArea
+                                      className={classes.cardActionArea}
+                                      component="div"
                                   >
-                                      <Grid item xs={12} md={3}>
-                                          <ListItemText
-                                              primary={"Title"}
-                                              primaryTypographyProps={{
-                                                  color: "textPrimary",
-                                                  variant: "overline",
-                                              }}
-                                              secondary={role.title}
-                                              secondaryTypographyProps={{
-                                                  color: "textPrimary",
-                                                  variant: "subtitle2",
-                                              }}
-                                          >
-                                              <Typography color="textPrimary">
-                                                  {role.title}
-                                              </Typography>
-                                          </ListItemText>
-                                      </Grid>
-                                      <Grid item xs={12} md={7}>
-                                          <ListItemText
-                                              primary={"Description"}
-                                              primaryTypographyProps={{
-                                                  color: "textPrimary",
-                                                  variant: "overline",
-                                              }}
-                                              secondary={role.description}
-                                              secondaryTypographyProps={{
-                                                  color: "textPrimary",
-                                                  variant: "subtitle2",
-                                              }}
-                                          />
-                                      </Grid>
-                                      <Grid
-                                          item
-                                          container
-                                          xs={12}
-                                          md={2}
-                                          alignContent="center"
+                                      <Typography
+                                          variant="h6"
+                                          className={classes.cardTitle}
                                       >
-                                          <ListItemText>
-                                              <Typography
-                                                  color="textPrimary"
-                                                  variant="caption"
-                                                  align="center"
-                                              >
-                                                  {`positions available: ${role.number_of_open_positions}/${role.number_of_positions}`}
-                                              </Typography>
-                                          </ListItemText>
-                                      </Grid>
-                                  </Grid>
-                              </ListItem>
-                              <Divider />
+                                          {role.title}
+                                      </Typography>
+                                      <Typography
+                                          variant="body2"
+                                          className={classes.cardDescription}
+                                      >
+                                          {role.description}
+                                      </Typography>
+                                      <Box className={classes.cardFooter}>
+                                          <Box
+                                              display="flex"
+                                              justifyContent="space-between"
+                                              alignItems="center"
+                                          >
+                                              <Chip
+                                                  size="small"
+                                                  label={
+                                                      open > 0
+                                                          ? `${open} of ${total} open`
+                                                          : "Full"
+                                                  }
+                                                  className={`${
+                                                      classes.availChip
+                                                  } ${
+                                                      open > 0
+                                                          ? classes.availOpen
+                                                          : classes.availFull
+                                                  }`}
+                                              />
+                                          </Box>
+                                          <LinearProgress
+                                              variant="determinate"
+                                              value={fillPercent}
+                                              className={classes.progress}
+                                              color={
+                                                  open > 0
+                                                      ? "primary"
+                                                      : "inherit"
+                                              }
+                                          />
+                                      </Box>
+                                  </CardActionArea>
+                              </Card>
                           </Link>
-                      );
-                  }
+                      </Grid>
+                  );
               })
             : null;
     };
@@ -216,35 +245,51 @@ const RoleSelectPage: React.FC = () => {
             container
             spacing={3}
             direction="column"
-            justify="center"
+            justifyContent="center"
             alignItems="center"
             className={classes.grid}
         >
             <Grid item>
-                <Typography variant="h2">Request to Volunteer</Typography>
-                <FormControl fullWidth>
-                    <InputLabel id="volunter-view-select-label">
-                        View
-                    </InputLabel>
-                    <Select
-                        labelId="volunter-view-select-label"
-                        id="volunter-view-select"
+                <Typography variant="h2" className={classes.heading}>
+                    Request to Volunteer
+                </Typography>
+                <Box className={classes.viewControl}>
+                    <ToggleButtonGroup
                         value={view}
-                        label="View"
+                        exclusive
                         onChange={handleChange}
+                        aria-label="view"
+                        color="primary"
+                        size="small"
                     >
-                        <MenuItem value={"list"}>List View</MenuItem>
-                        <MenuItem value={"calendar"}>Calendar View</MenuItem>
-                    </Select>
-                </FormControl>
+                        <ToggleButton value="list" aria-label="list view">
+                            <ViewListIcon sx={{ mr: 1 }} />
+                            List
+                        </ToggleButton>
+                        <ToggleButton
+                            value="calendar"
+                            aria-label="calendar view"
+                        >
+                            <CalendarMonthIcon sx={{ mr: 1 }} />
+                            Calendar
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
             </Grid>
             {view === "calendar" ? (
                 <Grid item className={classes.calendarContainer}>
                     <PositionRequestPage />
                 </Grid>
             ) : (
-                <Grid item>
-                    <List className={classes.list}>{ListItems()}</List>
+                <Grid item className={classes.cardsContainer}>
+                    <Grid
+                        container
+                        spacing={3}
+                        justifyContent="flex-start"
+                        alignItems="stretch"
+                    >
+                        {RoleCards()}
+                    </Grid>
                 </Grid>
             )}
         </Grid>

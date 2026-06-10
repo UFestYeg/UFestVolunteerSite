@@ -1,5 +1,11 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { AnyAction } from "redux";
+import { ThunkDispatch } from "redux-thunk";
 import { State } from "../types";
+
+export type AppDispatch = ThunkDispatch<State, unknown, AnyAction>;
+
+export const useAppDispatch = () => useDispatch<AppDispatch>();
 
 export const useIsAuthenticated = () => {
     return useSelector((state: State) => {
@@ -11,7 +17,7 @@ export const useAuthInfo = () => {
     const isAuthenticated = useIsAuthenticated();
     const loading = useSelector((state: State) => state.auth.loading);
     const error = useSelector((state: State) => state.auth.error);
-    return [loading, isAuthenticated, error];
+    return [loading, isAuthenticated, error] as const;
 };
 
 export const useToken = () => {
@@ -37,7 +43,7 @@ export const useViewedUserProfile = () => {
 export const useUserInfo = () => {
     const loading = useSelector((state: State) => state.user.loading);
     const error = useSelector((state: State) => state.user.error);
-    return [useUserProfile(), loading, error];
+    return [useUserProfile(), loading, error] as const;
 };
 
 export const useVolunteerCategoryTypes = () => {
@@ -54,11 +60,7 @@ export const useMappedRoles = () => {
 export const useVolunteerInfo = () => {
     const loading = useSelector((state: State) => state.volunteer.loading);
     const error = useSelector((state: State) => state.volunteer.error);
-    return [useVolunteerCategories(), loading, error];
-};
-
-export const useNotifications = () => {
-    return useSelector((state: State) => state.notifications);
+    return [useVolunteerCategories(), loading, error] as const;
 };
 
 export const useEventDates = () => {
