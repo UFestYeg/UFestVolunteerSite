@@ -16,6 +16,13 @@ export default defineConfig({
     },
     build: {
         outDir: "build",
+        // Emit JS/CSS/asset chunks into build/static (not the Vite default
+        // build/assets). Django serves static only under STATIC_URL=/static/
+        // (STATICFILES_DIRS includes build/static), so with base "/" the bundle
+        // is referenced as /static/<hash>.js and collectstatic/WhiteNoise can
+        // actually serve it. Without this the app loads from /assets/... which
+        // 404s into the SPA catch-all and the page renders blank.
+        assetsDir: "static",
     },
     test: {
         globals: true,
