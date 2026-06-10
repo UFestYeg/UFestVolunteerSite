@@ -71,7 +71,6 @@
         ]
     },
     "devDependencies": {
-        "@mui/codemod": "5.15.14",
         "@vitejs/plugin-react": "6.0.2",
         "@vitest/coverage-v8": "4.1.7",
         "eslint": "9.39.4",
